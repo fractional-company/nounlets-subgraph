@@ -1,16 +1,28 @@
 {
   "name": "nounlets",
+  "author": "Vid Mahovic <vid@fractional.art>",
   "license": "UNLICENSED",
   "scripts": {
+    "clean": "rimraf subgraph.yaml",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ vidmahovic/nounlets",
+    "deploy": "graph deploy --debug --node https://api.thegraph.com/deploy/",
+    "prepare:rinkeby": "mustache config/rinkeby.json subgraph.yaml.mustache > subgraph.yaml",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.yaml.mustache > subgraph.yaml",
+    "deploy:rinkeby": "yarn clean && yarn prepare:rinkeby && yarn codegen && yarn deploy vidmahovic/nounlets",
+    "deploy:mainnet": "yarn clean && yarn prepare:mainnet && yarn codegen && yarn deploy fractional/nounlets",
     "create-local": "graph create --node http://localhost:8020/ vidmahovic/nounlets",
     "remove-local": "graph remove --node http://localhost:8020/ vidmahovic/nounlets",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 vidmahovic/nounlets"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 vidmahovic/nounlets",
+    "mustache": "mustache"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.32.0",
     "@graphprotocol/graph-ts": "0.27.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "^0.5.0",
+    "mustache": "^4.2.0",
+    "prettier": "^2.7.1"
   }
 }
