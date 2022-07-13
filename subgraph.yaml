@@ -1,0 +1,65 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NounsToken
+    network: rinkeby
+    source:
+      address: "0xc52bb4Fc4ed72f2a910BF0481D620B927Ded76f7"
+      abi: NounsToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - DelegateChanged
+        - DelegateVotesChanged
+        - DescriptorLocked
+        - DescriptorUpdated
+        - MinterLocked
+        - MinterUpdated
+        - NounBurned
+        - NounCreated
+        - NoundersDAOUpdated
+        - OwnershipTransferred
+        - SeederLocked
+        - SeederUpdated
+        - Transfer
+      abis:
+        - name: NounsToken
+          file: ./abis/NounsToken.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256)
+          handler: handleDelegateVotesChanged
+        - event: DescriptorLocked()
+          handler: handleDescriptorLocked
+        - event: DescriptorUpdated(address)
+          handler: handleDescriptorUpdated
+        - event: MinterLocked()
+          handler: handleMinterLocked
+        - event: MinterUpdated(address)
+          handler: handleMinterUpdated
+        - event: NounBurned(indexed uint256)
+          handler: handleNounBurned
+        - event: NounCreated(indexed uint256,(uint48,uint48,uint48,uint48,uint48))
+          handler: handleNounCreated
+        - event: NoundersDAOUpdated(address)
+          handler: handleNoundersDAOUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SeederLocked()
+          handler: handleSeederLocked
+        - event: SeederUpdated(address)
+          handler: handleSeederUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/nouns-token.ts
