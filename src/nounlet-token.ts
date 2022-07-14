@@ -1,7 +1,7 @@
 import {
-    ContractApprovalForAll as ContractApprovalForAllEvent,
-    ContractDelegateChanged as ContractDelegateChangedEvent,
-    ContractDelegateVotesChanged as ContractDelegateVotesChangedEvent,
+    ApprovalForAll as ContractApprovalForAllEvent,
+    DelegateChanged as ContractDelegateChangedEvent,
+    DelegateVotesChanged as ContractDelegateVotesChangedEvent,
     SetRoyalty as SetRoyaltyEvent,
     SingleApproval as SingleApprovalEvent,
     TransferBatch as TransferBatchEvent,
@@ -10,7 +10,7 @@ import {
 } from "../generated/NounletToken/NounletToken";
 import { transferBatchOfNounlets } from "./utils/helpers";
 
-export function handleContractApprovalForAll(event: ContractApprovalForAllEvent): void {
+export function handleApprovalForAll(event: ContractApprovalForAllEvent): void {
     // let entity = new ContractApprovalForAll(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
     // entity.owner = event.params.owner;
     // entity.operator = event.params.operator;
@@ -18,7 +18,7 @@ export function handleContractApprovalForAll(event: ContractApprovalForAllEvent)
     // entity.save();
 }
 
-export function handleContractDelegateChanged(event: ContractDelegateChangedEvent): void {
+export function handleDelegateChanged(event: ContractDelegateChangedEvent): void {
     // let entity = new ContractDelegateChanged(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
     // entity._delegator = event.params._delegator;
     // entity._id = event.params._id;
@@ -27,7 +27,7 @@ export function handleContractDelegateChanged(event: ContractDelegateChangedEven
     // entity.save();
 }
 
-export function handleContractDelegateVotesChanged(event: ContractDelegateVotesChangedEvent): void {
+export function handleDelegateVotesChanged(event: ContractDelegateVotesChangedEvent): void {
     // let entity = new ContractDelegateVotesChanged(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
     // entity._delegate = event.params._delegate;
     // entity._id = event.params._id;

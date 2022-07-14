@@ -10,16 +10,16 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class ContractApprovalForAll extends ethereum.Event {
-  get params(): ContractApprovalForAll__Params {
-    return new ContractApprovalForAll__Params(this);
+export class ApprovalForAll extends ethereum.Event {
+  get params(): ApprovalForAll__Params {
+    return new ApprovalForAll__Params(this);
   }
 }
 
-export class ContractApprovalForAll__Params {
-  _event: ContractApprovalForAll;
+export class ApprovalForAll__Params {
+  _event: ApprovalForAll;
 
-  constructor(event: ContractApprovalForAll) {
+  constructor(event: ApprovalForAll) {
     this._event = event;
   }
 
@@ -36,16 +36,16 @@ export class ContractApprovalForAll__Params {
   }
 }
 
-export class ContractDelegateChanged extends ethereum.Event {
-  get params(): ContractDelegateChanged__Params {
-    return new ContractDelegateChanged__Params(this);
+export class DelegateChanged extends ethereum.Event {
+  get params(): DelegateChanged__Params {
+    return new DelegateChanged__Params(this);
   }
 }
 
-export class ContractDelegateChanged__Params {
-  _event: ContractDelegateChanged;
+export class DelegateChanged__Params {
+  _event: DelegateChanged;
 
-  constructor(event: ContractDelegateChanged) {
+  constructor(event: DelegateChanged) {
     this._event = event;
   }
 
@@ -66,16 +66,16 @@ export class ContractDelegateChanged__Params {
   }
 }
 
-export class ContractDelegateVotesChanged extends ethereum.Event {
-  get params(): ContractDelegateVotesChanged__Params {
-    return new ContractDelegateVotesChanged__Params(this);
+export class DelegateVotesChanged extends ethereum.Event {
+  get params(): DelegateVotesChanged__Params {
+    return new DelegateVotesChanged__Params(this);
   }
 }
 
-export class ContractDelegateVotesChanged__Params {
-  _event: ContractDelegateVotesChanged;
+export class DelegateVotesChanged__Params {
+  _event: DelegateVotesChanged;
 
-  constructor(event: ContractDelegateVotesChanged) {
+  constructor(event: DelegateVotesChanged) {
     this._event = event;
   }
 
