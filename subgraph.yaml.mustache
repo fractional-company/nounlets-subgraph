@@ -85,8 +85,6 @@ dataSources:
         - name: NounletAuction
           file: ./abis/NounletAuction.json
       eventHandlers:
-        - event: ActiveModules(indexed address,address[])
-          handler: handleActiveModules
         - event: AuctionBid(indexed address,indexed address,uint256,indexed address,uint256,bool)
           handler: handleAuctionBid
         - event: AuctionCreated(indexed address,indexed address,uint256,uint256,uint256)
@@ -120,12 +118,12 @@ dataSources:
         - name: NounletToken
           file: ./abis/NounletToken.json
       eventHandlers:
-        - event: ContractApprovalForAll(indexed address,indexed address,bool)
-          handler: handleContractApprovalForAll
-        - event: ContractDelegateChanged(indexed address,uint256,indexed address,indexed address)
-          handler: handleContractDelegateChanged
-        - event: ContractDelegateVotesChanged(indexed address,uint256,uint256,uint256)
-          handler: handleContractDelegateVotesChanged
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256,uint256)
+          handler: handleDelegateVotesChanged
         - event: SetRoyalty(indexed address,uint256,uint256)
           handler: handleSetRoyalty
         - event: SingleApproval(indexed address,indexed address,uint256,bool)
