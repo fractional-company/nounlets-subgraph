@@ -1,6 +1,6 @@
 import { Transfer } from "../generated/NounsToken/NounsToken";
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { TransferSingle } from "../generated/NounletToken/NounletToken";
+import { TransferBatch, TransferSingle } from "../generated/NounletToken/NounletToken";
 
 const generateMockEvent = (parameters: ethereum.EventParam[] = []): ethereum.Event => {
     return new ethereum.Event(
@@ -146,8 +146,49 @@ export function generateTransferBatchEvent(
     operator: string,
     fromAddress: string,
     toAddress: string,
-    tokenIds: string[],
+    tokenIds: BigInt[],
     amounts: BigInt[]
-): ethereum.Event {
-    return generateMockEvent([]);
+): TransferBatch {
+    return new TransferBatch(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("operator", ethereum.Value.fromAddress(Address.fromString(operator))),
+            new ethereum.EventParam("fromAddress", ethereum.Value.fromAddress(Address.fromString(fromAddress))),
+            new ethereum.EventParam("toAddress", ethereum.Value.fromAddress(Address.fromString(toAddress))),
+            new ethereum.EventParam("tokenIds", ethereum.Value.fromUnsignedBigIntArray(tokenIds)),
+            new ethereum.EventParam("amounts", ethereum.Value.fromUnsignedBigIntArray(amounts)),
+        ],
+        null
+    );
 }
