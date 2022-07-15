@@ -8,7 +8,7 @@ type ExampleEntity @entity {
 type Vault @entity {
   "The Vault's address"
   id: ID!
-  noun: Noun!
+  noun: Noun
 }
 
 type Noun @entity {

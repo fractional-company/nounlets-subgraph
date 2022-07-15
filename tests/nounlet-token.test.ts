@@ -5,12 +5,12 @@ import { handleTransferBatch, handleTransferSingle } from "../src/nounlet-token"
 import { generateTransferBatchEvent, generateTransferSingleEvent } from "./mock-event-generator";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
-describe("DFERC1155 Contract", () => {
-    describe("Single Transfer Handler", () => {
-        beforeEach(() => {
-            clearStore();
-        });
+describe("Nounlet Token", () => {
+    beforeEach(() => {
+        clearStore();
+    });
 
+    describe("Single Transfer Handler", () => {
         test("Should ignore the transfer if a Nounlet is not in the store", () => {
             // Given
             const operator = "0xa5B7c887A47653E7076e73A7bd3F19e9cF1EEfbA".toLowerCase();
@@ -118,10 +118,6 @@ describe("DFERC1155 Contract", () => {
     });
 
     describe("Batch Transfer Handler", () => {
-        beforeEach(() => {
-            clearStore();
-        });
-
         test("Should transfer Nounlets from sender to receiver but ignore the ones that are not in the store", () => {
             // Given
             const operator = "0xa5B7c887A47653E7076e73A7bd3F19e9cF1EEfbA".toLowerCase();

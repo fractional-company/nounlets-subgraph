@@ -22,12 +22,22 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
         return;
     }
 
+    const noun = vault.noun;
+    if (noun === null) {
+        log.error("[handleAuctionCreated] Vault {} does not contain a Noun. Hash: {}", [
+            vaultId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
+
     // Store the seed of the nounlet
     const seed = new Seed(nounletId);
+    // TODO: Call NounletToken contract (generateSeed(tokenId) getter) to fetch the nounlet seed.
     seed.save();
     // Store the nounlet
     const nounlet = new Nounlet(nounletId);
-    nounlet.noun = vault.noun;
+    nounlet.noun = noun;
     nounlet.seed = seed.id;
     nounlet.save();
     // Store the auction
@@ -53,6 +63,14 @@ export function handleAuctionExtended(event: AuctionExtendedEvent): void {
         return;
     }
 
+    if (auction.settled) {
+        log.error("[handleAuctionExtended] Auction {} is settled and cannot be extended. Hash: {}", [
+            auctionId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
+
     auction.endTime = endTime;
     auction.save();
 }
@@ -65,6 +83,14 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
     const auction = Auction.load(auctionId);
     if (auction === null) {
         log.error("[handleAuctionBid] Auction not found for Nounlet #{}. Hash: {}", [
+            auctionId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
+
+    if (auction.settled) {
+        log.error("[handleAuctionExtended] Cannot bid on an Auction {} as it is already settled. Hash: {}", [
             auctionId,
             event.transaction.hash.toHexString(),
         ]);

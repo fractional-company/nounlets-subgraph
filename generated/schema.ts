@@ -101,13 +101,21 @@ export class Vault extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get noun(): string {
+  get noun(): string | null {
     let value = this.get("noun");
-    return value!.toString();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set noun(value: string) {
-    this.set("noun", Value.fromString(value));
+  set noun(value: string | null) {
+    if (!value) {
+      this.unset("noun");
+    } else {
+      this.set("noun", Value.fromString(<string>value));
+    }
   }
 }
 

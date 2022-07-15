@@ -3,7 +3,7 @@ import { handleTransfer } from "../src/nouns-token";
 import { Noun, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
 
-describe("Nouns Token", () => {
+describe("Noun Token", () => {
     describe("Transfer Handler", () => {
         afterEach(() => {
             clearStore();
