@@ -14,55 +14,15 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - ApprovalForAll
-        - DelegateChanged
-        - DelegateVotesChanged
-        - DescriptorLocked
-        - DescriptorUpdated
-        - MinterLocked
-        - MinterUpdated
-        - NounBurned
-        - NounCreated
-        - NoundersDAOUpdated
-        - OwnershipTransferred
-        - SeederLocked
-        - SeederUpdated
         - Transfer
       abis:
         - name: NounsToken
-          file: ./abis/NounsToken.json
+          file: ./abis/{{nounsToken.abiFile}}
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
-        - event: DelegateChanged(indexed address,indexed address,indexed address)
-          handler: handleDelegateChanged
-        - event: DelegateVotesChanged(indexed address,uint256,uint256)
-          handler: handleDelegateVotesChanged
-        - event: DescriptorLocked()
-          handler: handleDescriptorLocked
-        - event: DescriptorUpdated(address)
-          handler: handleDescriptorUpdated
-        - event: MinterLocked()
-          handler: handleMinterLocked
-        - event: MinterUpdated(address)
-          handler: handleMinterUpdated
-        - event: NounBurned(indexed uint256)
-          handler: handleNounBurned
-        - event: NounCreated(indexed uint256,(uint48,uint48,uint48,uint48,uint48))
-          handler: handleNounCreated
-        - event: NoundersDAOUpdated(address)
-          handler: handleNoundersDAOUpdated
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: SeederLocked()
-          handler: handleSeederLocked
-        - event: SeederUpdated(address)
-          handler: handleSeederUpdated
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
+        {{#nounsToken.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounsToken.events}}
       file: ./src/nouns-token.ts
   - kind: ethereum
     name: NounletAuction
@@ -83,16 +43,12 @@ dataSources:
         - AuctionSettled
       abis:
         - name: NounletAuction
-          file: ./abis/NounletAuction.json
+          file: ./abis/{{nounletAuction.abiFile}}
       eventHandlers:
-        - event: AuctionBid(indexed address,indexed address,uint256,indexed address,uint256,bool)
-          handler: handleAuctionBid
-        - event: AuctionCreated(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleAuctionCreated
-        - event: AuctionExtended(uint256,indexed address,indexed address,uint256)
-          handler: handleAuctionExtended
-        - event: AuctionSettled(indexed address,indexed address,uint256,indexed address,uint256)
-          handler: handleAuctionSettled
+        {{#nounletAuction.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletAuction.events}}
       file: ./src/nounlet-auction.ts
   - kind: ethereum
     name: NounletToken
@@ -106,34 +62,16 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ContractApprovalForAll
-        - ContractDelegateChanged
-        - ContractDelegateVotesChanged
-        - SetRoyalty
-        - SingleApproval
-        - TransferBatch
-        - TransferSingle
-        - URI
+        - DelegateChanged
+        - DelegateVotesChanged
       abis:
         - name: NounletToken
-          file: ./abis/NounletToken.json
+          file: ./abis/{{nounletToken.abiFile}}
       eventHandlers:
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
-        - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
-          handler: handleDelegateChanged
-        - event: DelegateVotesChanged(indexed address,uint256,uint256,uint256)
-          handler: handleDelegateVotesChanged
-        - event: SetRoyalty(indexed address,uint256,uint256)
-          handler: handleSetRoyalty
-        - event: SingleApproval(indexed address,indexed address,uint256,bool)
-          handler: handleSingleApproval
-        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-          handler: handleTransferBatch
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
-        - event: URI(string,indexed uint256)
-          handler: handleURI
+        {{#nounletToken.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletToken.events}}
       file: ./src/nounlet-token.ts
   - kind: ethereum
     name: NounletRegistry
@@ -150,8 +88,10 @@ dataSources:
         - VaultDeployed
       abis:
         - name: NounletRegistry
-          file: ./abis/NounletRegistry.json
+          file: ./abis/{{nounletRegistry.abiFile}}
       eventHandlers:
-        - event: VaultDeployed(indexed address,indexed address)
-          handler: handleVaultDeployed
+        {{#nounletRegistry.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletRegistry.events}}
       file: ./src/nounlet-registry.ts

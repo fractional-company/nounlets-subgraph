@@ -1,10 +1,10 @@
 {
-  "network": "mainnet",
+  "network": "rinkeby",
 
   "nounsToken": {
-    "address": "0xc52bb4Fc4ed72f2a910BF0481D620B927Ded76f7",
+    "address": "0x8bd7Ac926C5a50372b69D5437df0395BcF0773Bc",
     "startBlock": 8947618,
-    "abiFile": "NounsToken.json",
+    "abiFile": "ERC721PresetMinterPauserAutoId.json",
     "events": [
       {
         "signature": "Transfer(indexed address,indexed address,indexed uint256)",
@@ -12,6 +12,7 @@
       }
     ]
   },
+
   "nounletToken": {
     "address": "0x13161ad5683D2deDCdeADF1754BE07A0AD7d22A3",
     "startBlock": 8947618,
@@ -27,6 +28,7 @@
       }
     ]
   },
+
   "nounletAuction": {
     "address": "0x1bFa0347683E7e8774D2208Ccd884609478f7De1",
     "startBlock": 8947618,
@@ -50,13 +52,14 @@
       }
     ]
   },
+
   "nounletRegistry": {
-    "address": "0xc96bEE7E1E4A20C9b7BC5c8d9eC1ec58A0676144",
+    "address": "0x2580E23D6Bc9E23F5EF55563b1e3E5AFe2711689",
     "startBlock": 8947618,
-    "abiFile": "NounletRegistry.json",
+    "abiFile": "VaultRegistry.json",
     "events": [
       {
-        "signature": "VaultDeployed(indexed address,indexed address)",
+        "signature": "VaultDeployed(indexed address,indexed address,uint256)",
         "handler": "handleVaultDeployed"
       }
     ]

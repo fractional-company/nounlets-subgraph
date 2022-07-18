@@ -1,19 +1,67 @@
 {
   "network": "rinkeby",
+
   "nounsToken": {
     "address": "0xc52bb4Fc4ed72f2a910BF0481D620B927Ded76f7",
-    "startBlock": 8947618
+    "startBlock": 8947618,
+    "abiFile": "NounsToken.json",
+    "events": [
+      {
+        "signature": "Transfer(indexed address,indexed address,indexed uint256)",
+        "handler": "handleTransfer"
+      }
+    ]
   },
+
   "nounletToken": {
     "address": "0x13161ad5683D2deDCdeADF1754BE07A0AD7d22A3",
-    "startBlock": 8947618
+    "startBlock": 8947618,
+    "abiFile": "NounletToken.json",
+    "events": [
+      {
+        "signature": "DelegateChanged(indexed address,uint256,indexed address,indexed address)",
+        "handler": "handleDelegateChanged"
+      },
+      {
+        "signature": "DelegateVotesChanged(indexed address,uint256,uint256,uint256)",
+        "handler": "handleDelegateVotesChanged"
+      }
+    ]
   },
+
   "nounletAuction": {
     "address": "0x1bFa0347683E7e8774D2208Ccd884609478f7De1",
-    "startBlock": 8947618
+    "startBlock": 8947618,
+    "abiFile": "NounletAuction.json",
+    "events": [
+      {
+        "signature": "AuctionCreated(indexed address,indexed address,uint256,uint256,uint256)",
+        "handler": "handleAuctionCreated"
+      },
+      {
+        "signature": "AuctionBid(indexed address,indexed address,uint256,indexed address,uint256,bool)",
+        "handler": "handleAuctionBid"
+      },
+      {
+        "signature": "AuctionExtended(uint256,indexed address,indexed address,uint256)",
+        "handler": "handleAuctionExtended"
+      },
+      {
+        "signature": "AuctionSettled(indexed address,indexed address,uint256,indexed address,uint256)",
+        "handler": "handleAuctionSettled"
+      }
+    ]
   },
+
   "nounletRegistry": {
     "address": "0xc96bEE7E1E4A20C9b7BC5c8d9eC1ec58A0676144",
-    "startBlock": 8947618
+    "startBlock": 8947618,
+    "abiFile": "NounletRegistry.json",
+    "events": [
+      {
+        "signature": "VaultDeployed(indexed address,indexed address)",
+        "handler": "handleVaultDeployed"
+      }
+    ]
   }
 }
