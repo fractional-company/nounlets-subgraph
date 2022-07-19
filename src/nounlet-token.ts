@@ -1,56 +1,54 @@
 import {
-    ApprovalForAll as ContractApprovalForAllEvent,
-    DelegateChanged as ContractDelegateChangedEvent,
-    DelegateVotesChanged as ContractDelegateVotesChangedEvent,
-    SetRoyalty as SetRoyaltyEvent,
-    SingleApproval as SingleApprovalEvent,
+    DelegateChanged as DelegateChangedEvent,
+    DelegateVotesChanged as DelegateVotesChangedEvent,
     TransferBatch as TransferBatchEvent,
     TransferSingle as TransferSingleEvent,
     URI as URIEvent,
 } from "../generated/NounletToken/NounletToken";
-import { transferBatchOfNounlets } from "./utils/helpers";
+import { findOrNewAccount, findOrNewDelegate, transferBatchOfNounlets } from "./utils/helpers";
 
-export function handleApprovalForAll(event: ContractApprovalForAllEvent): void {
-    // let entity = new ContractApprovalForAll(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-    // entity.owner = event.params.owner;
-    // entity.operator = event.params.operator;
-    // entity.approved = event.params.approved;
-    // entity.save();
+let accountNounlets: string[];
+export function handleDelegateChanged(event: DelegateChangedEvent): void {
+    const tokenHolderId = event.params._delegator.toHexString();
+    const oldDelegateAddress = event.params._fromDelegate.toHexString();
+    const newDelegateAddress = event.params._toDelegate.toHexString();
+    // const nounId = event.params._id;
+
+    const tokenHolder = findOrNewAccount(tokenHolderId);
+    accountNounlets = tokenHolder.nounlets;
+
+    const oldDelegate = findOrNewDelegate(oldDelegateAddress);
+    oldDelegate.tokenHoldersRepresentedAmount =
+        oldDelegate.tokenHoldersRepresentedAmount > 0 ? oldDelegate.tokenHoldersRepresentedAmount - 1 : 0;
+    const oldNounletsRepresented = oldDelegate.nounletsRepresented;
+    oldDelegate.nounletsRepresented = oldNounletsRepresented.filter((nounletId) => !accountNounlets.includes(nounletId));
+
+    const newDelegate = findOrNewDelegate(newDelegateAddress);
+    newDelegate.tokenHoldersRepresentedAmount = newDelegate.tokenHoldersRepresentedAmount + 1;
+    newDelegate.nounletsRepresented = newDelegate.nounletsRepresented
+        .concat(accountNounlets)
+        .reduce((carry, nounlet) => {
+            if (!carry.includes(nounlet)) {
+                carry.push(nounlet);
+            }
+            return carry;
+        }, [] as string[]);
+
+    tokenHolder.delegate = newDelegate.id;
+
+    oldDelegate.save();
+    newDelegate.save();
+    tokenHolder.save();
 }
 
-export function handleDelegateChanged(event: ContractDelegateChangedEvent): void {
-    // let entity = new ContractDelegateChanged(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-    // entity._delegator = event.params._delegator;
-    // entity._id = event.params._id;
-    // entity._fromDelegate = event.params._fromDelegate;
-    // entity._toDelegate = event.params._toDelegate;
-    // entity.save();
-}
+export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): void {
+    const delegateAddress = event.params._delegate.toHexString();
+    const newBalance = event.params._newBalance;
 
-export function handleDelegateVotesChanged(event: ContractDelegateVotesChangedEvent): void {
-    // let entity = new ContractDelegateVotesChanged(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-    // entity._delegate = event.params._delegate;
-    // entity._id = event.params._id;
-    // entity._previousBalance = event.params._previousBalance;
-    // entity._newBalance = event.params._newBalance;
-    // entity.save();
-}
-
-export function handleSetRoyalty(event: SetRoyaltyEvent): void {
-    // let entity = new SetRoyalty(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-    // entity._receiver = event.params._receiver;
-    // entity._id = event.params._id;
-    // entity._percentage = event.params._percentage;
-    // entity.save();
-}
-
-export function handleSingleApproval(event: SingleApprovalEvent): void {
-    // let entity = new SingleApproval(event.transaction.hash.toHex() + "-" + event.logIndex.toString());
-    // entity._owner = event.params._owner;
-    // entity._operator = event.params._operator;
-    // entity._id = event.params._id;
-    // entity._approved = event.params._approved;
-    // entity.save();
+    const delegate = findOrNewDelegate(delegateAddress);
+    delegate.delegatedVotes = newBalance;
+    delegate.delegatedVotesRaw = newBalance;
+    delegate.save();
 }
 
 export function handleTransferBatch(event: TransferBatchEvent): void {

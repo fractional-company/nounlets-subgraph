@@ -1,6 +1,11 @@
 import { Transfer } from "../generated/NounsToken/NounsToken";
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { TransferBatch, TransferSingle } from "../generated/NounletToken/NounletToken";
+import {
+    DelegateChanged,
+    DelegateVotesChanged,
+    TransferBatch,
+    TransferSingle,
+} from "../generated/NounletToken/NounletToken";
 import { AuctionBid, AuctionCreated, AuctionExtended, AuctionSettled } from "../generated/NounletAuction/NounletAuction";
 
 const generateMockEvent = (parameters: ethereum.EventParam[] = []): ethereum.Event => {
@@ -394,6 +399,107 @@ export function generateAuctionSettledEvent(
             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(tokenId as i32))),
             new ethereum.EventParam("_sender", ethereum.Value.fromAddress(Address.fromString(winnerAddress))),
             new ethereum.EventParam("_amount", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(winningAmount as i32))),
+        ],
+        null
+    );
+}
+
+export function generateDelegateVotesChangedEvent(
+    delegateId: string,
+    nounId: number,
+    previousBalance: number,
+    newBalance: number
+): DelegateVotesChanged {
+    return new DelegateVotesChanged(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("_delegate", ethereum.Value.fromAddress(Address.fromString(delegateId))),
+            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
+            new ethereum.EventParam(
+                "_previousBalance",
+                ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(previousBalance as i32))
+            ),
+            new ethereum.EventParam("_newBalance", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(newBalance as i32))),
+        ],
+        null
+    );
+}
+
+export function generateDelegateChangedEvent(
+    delegatorId: string,
+    nounId: number,
+    fromDelegateId: string,
+    toDelegateId: string
+): DelegateChanged {
+    return new DelegateChanged(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("_delegator", ethereum.Value.fromAddress(Address.fromString(delegatorId))),
+            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
+            new ethereum.EventParam("_fromDelegate", ethereum.Value.fromAddress(Address.fromString(fromDelegateId))),
+            new ethereum.EventParam("_toDelegate", ethereum.Value.fromAddress(Address.fromString(toDelegateId))),
         ],
         null
     );

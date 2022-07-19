@@ -1,10 +1,3 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  approved: Bytes! # address
-}
-
 type Vault @entity {
   "The Vault's address"
   id: ID!
@@ -86,7 +79,7 @@ type Account @entity {
   id: ID!
 
   "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
-  delegate: NounletDelegate
+  delegate: Delegate
 
   "Noun balance of this address expressed in the smallest unit of the Nounlet's ERC1155 Token"
   tokenBalanceRaw: BigInt!
@@ -104,7 +97,7 @@ type Account @entity {
   nounlets: [Nounlet!]!
 }
 
-type NounletDelegate @entity {
+type Delegate @entity {
   "A Delegate is any address that has been delegated with voting tokens by a token holder, id is the blockchain address of said delegate"
   id: ID!
 
@@ -119,8 +112,8 @@ type NounletDelegate @entity {
   "Token holders that this delegate represents"
   tokenHoldersRepresented: [Account!]! @derivedFrom(field: "delegate")
 
-  "Nouns that this delegate represents"
-  nounsRepresented: [Noun!]!
+  "Nounlets that this delegate represents"
+  nounletsRepresented: [Nounlet!]!
 }
 
 type DelegateVote @entity {
@@ -131,7 +124,7 @@ type DelegateVote @entity {
   voter: Account!
 
   "Delegate receiving a vote"
-  delegate: NounletDelegate!
+  delegate: Delegate!
 
   "The optional vote reason"
   reason: String
