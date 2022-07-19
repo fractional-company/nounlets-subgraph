@@ -6,6 +6,7 @@ import {
 } from "../generated/NounletAuction/NounletAuction";
 import { Auction, Bid, Nounlet, Seed, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
+import { findOrCreateAccount, findOrNewAccount } from "./utils/helpers";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
@@ -77,8 +78,9 @@ export function handleAuctionExtended(event: AuctionExtendedEvent): void {
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
     const auctionId = event.params._id.toString();
-    const bidder = event.params._sender.toHexString();
+    const bidderAddress = event.params._sender.toHexString();
     const bidAmount = event.params._value;
+    const bidId = event.transaction.hash.toHexString();
 
     const auction = Auction.load(auctionId);
     if (auction === null) {
@@ -88,7 +90,6 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
         ]);
         return;
     }
-
     if (auction.settled) {
         log.error("[handleAuctionExtended] Cannot bid on an Auction {} as it is already settled. Hash: {}", [
             auctionId,
@@ -96,15 +97,15 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
         ]);
         return;
     }
-
-    auction.bidder = bidder;
+    auction.bidder = bidderAddress;
     auction.amount = bidAmount;
     auction.save();
 
-    const bidId = event.transaction.hash.toHexString();
+    const bidder = findOrCreateAccount(bidderAddress);
+
     const bid = new Bid(bidId);
     bid.auction = auction.id;
-    bid.bidder = bidder;
+    bid.bidder = bidder.id;
     bid.amount = bidAmount;
     bid.blockNumber = event.block.number;
     bid.blockTimestamp = event.block.timestamp;
@@ -116,6 +117,16 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     const amount = event.params._amount;
     const winnerAddress = event.params._winner.toHexString();
 
+    const account = findOrNewAccount(winnerAddress);
+    const accountNounlets = account.nounlets;
+    accountNounlets.push(auctionId);
+    account.nounlets = accountNounlets;
+    account.totalTokensHeld = account.totalTokensHeld.plus(BigInt.fromI32(1));
+    account.totalTokensHeldRaw = account.totalTokensHeldRaw.plus(BigInt.fromI32(1));
+    account.tokenBalance = BigInt.fromI32(accountNounlets.length);
+    account.tokenBalanceRaw = BigInt.fromI32(accountNounlets.length);
+    account.save();
+
     const auction = Auction.load(auctionId);
     if (auction === null) {
         log.error("[handleAuctionSettled] Auction not found for Nounlet #{}. Hash: {}", [
@@ -124,9 +135,8 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
         ]);
         return;
     }
-
     auction.settled = true;
     auction.amount = amount;
-    auction.bidder = winnerAddress;
+    auction.bidder = account.id;
     auction.save();
 }
