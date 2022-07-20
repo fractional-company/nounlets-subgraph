@@ -1,11 +1,11 @@
-import { describe, test, assert, afterEach, clearStore } from "matchstick-as/assembly";
+import { describe, test, assert, afterEach, clearStore, beforeEach } from "matchstick-as/assembly";
 import { handleTransfer } from "../src/nouns-token";
 import { Noun, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
 
 describe("Noun Token", () => {
     describe("Transfer Handler", () => {
-        afterEach(() => {
+        beforeEach(() => {
             clearStore();
         });
 
