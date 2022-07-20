@@ -1,4 +1,4 @@
-import { Account, Delegate, Noun, Nounlet } from "../../generated/schema";
+import { Account, Delegate, Noun, Nounlet, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function findOrCreateNoun(nounId: string): Noun {
@@ -54,6 +54,21 @@ export function findOrNewDelegate(delegateId: string, persistNew: boolean = fals
         }
     }
     return delegate;
+}
+
+export function findOrCreateVault(vaultId: string): Vault {
+    return findOrNewVault(vaultId, true);
+}
+
+export function findOrNewVault(vaultId: string, persistNew: boolean = false): Vault {
+    let vault = Vault.load(vaultId);
+    if (vault === null) {
+        vault = new Vault(vaultId);
+        if (persistNew) {
+            vault.save();
+        }
+    }
+    return vault;
 }
 
 let existingNounletsIds: BigInt[]; // Use WebAssembly global due to lack of closure support

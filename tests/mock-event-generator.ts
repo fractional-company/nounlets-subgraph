@@ -7,6 +7,7 @@ import {
     TransferSingle,
 } from "../generated/NounletToken/NounletToken";
 import { AuctionBid, AuctionCreated, AuctionExtended, AuctionSettled } from "../generated/NounletAuction/NounletAuction";
+import { VaultDeployed } from "../generated/NounletRegistry/NounletRegistry";
 
 const generateMockEvent = (parameters: ethereum.EventParam[] = []): ethereum.Event => {
     return new ethereum.Event(
@@ -88,13 +89,6 @@ export function generateTransferEvent(fromAddress: string, toAddress: string, to
         ],
         null
     );
-}
-
-export function generateVaultDeployedEvent(vaultId: string, tokenId: string): ethereum.Event {
-    return generateMockEvent([
-        new ethereum.EventParam("vaultId", ethereum.Value.fromAddress(Address.fromString(vaultId))),
-        new ethereum.EventParam("tokenId", ethereum.Value.fromAddress(Address.fromString(tokenId))),
-    ]);
 }
 
 export function generateTransferSingleEvent(
@@ -500,6 +494,49 @@ export function generateDelegateChangedEvent(
             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
             new ethereum.EventParam("_fromDelegate", ethereum.Value.fromAddress(Address.fromString(fromDelegateId))),
             new ethereum.EventParam("_toDelegate", ethereum.Value.fromAddress(Address.fromString(toDelegateId))),
+        ],
+        null
+    );
+}
+
+export function generateVaultDeployedEvent(vaultId: string, nounAddress: string, nounId: number): VaultDeployed {
+    return new VaultDeployed(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
+            new ethereum.EventParam("_token", ethereum.Value.fromAddress(Address.fromString(nounAddress))),
+            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
         ],
         null
     );
