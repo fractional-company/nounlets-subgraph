@@ -22,6 +22,32 @@ describe("Nounlet Token", () => {
     });
 
     describe("Delegate Vote Changed Handler", () => {
+        test("Should not store a vote if the noun was moved from fractional vault", () => {
+            // Given
+            const nounletId = 1;
+            const nounlet = findOrNewNounlet(nounletId.toString());
+            nounlet.save();
+            const delegateId = "0xf68B2A070675641156ce6729d2f1854ec7539859".toLowerCase();
+            const delegate = findOrNewDelegate(delegateId, "10");
+            delegate.delegatedVotes = BigInt.fromI32(100);
+            delegate.save();
+            const newDelegatedVotes = 130;
+
+            // When
+            handleDelegateVotesChanged(
+                generateDelegateVotesChangedEvent(
+                    delegateId,
+                    nounletId,
+                    delegate.delegatedVotes.toI32(),
+                    newDelegatedVotes
+                )
+            );
+
+            // Then
+            assert.notInStore("DelegateVote", delegate.id.concat("-").concat(nounlet.id));
+            assert.fieldEquals("Delegate", delegate.id, "delegatedVotes", delegate.delegatedVotes.toString());
+        });
+
         test("Should persist a new vote balance if a voter votes for a delegate", () => {
             // Given
             const nounId = 1;
@@ -38,7 +64,6 @@ describe("Nounlet Token", () => {
 
             // Then
             assert.fieldEquals("Delegate", delegate.id, "delegatedVotes", newDelegatedVotes.toString());
-            assert.fieldEquals("Delegate", delegate.id, "delegatedVotesRaw", newDelegatedVotes.toString());
         });
 
         test("Should persist a new vote balance if a voter votes for a delegate even if the delegate does not exist in the store", () => {
@@ -52,7 +77,6 @@ describe("Nounlet Token", () => {
 
             // Then
             assert.fieldEquals("Delegate", delegateId, "delegatedVotes", newDelegatedVotes.toString());
-            assert.fieldEquals("Delegate", delegateId, "delegatedVotesRaw", newDelegatedVotes.toString());
         });
     });
 

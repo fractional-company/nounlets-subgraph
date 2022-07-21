@@ -557,13 +557,13 @@ export class DelegateVote extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get voter(): string {
-    let value = this.get("voter");
+  get nounlet(): string {
+    let value = this.get("nounlet");
     return value!.toString();
   }
 
-  set voter(value: string) {
-    this.set("voter", Value.fromString(value));
+  set nounlet(value: string) {
+    this.set("nounlet", Value.fromString(value));
   }
 
   get delegate(): string {
@@ -573,32 +573,6 @@ export class DelegateVote extends Entity {
 
   set delegate(value: string) {
     this.set("delegate", Value.fromString(value));
-  }
-
-  get nounlets(): Array<string> | null {
-    let value = this.get("nounlets");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set nounlets(value: Array<string> | null) {
-    if (!value) {
-      this.unset("nounlets");
-    } else {
-      this.set("nounlets", Value.fromStringArray(<Array<string>>value));
-    }
-  }
-
-  get noun(): string {
-    let value = this.get("noun");
-    return value!.toString();
-  }
-
-  set noun(value: string) {
-    this.set("noun", Value.fromString(value));
   }
 
   get reason(): string | null {

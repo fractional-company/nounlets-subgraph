@@ -11,6 +11,7 @@ import {
     findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
+    findOrNewDelegateVote,
     findOrNewNounlet,
     findOrNewSeed,
     findOrNewVault,
@@ -169,7 +170,10 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     }
 
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
-    const delegate = findOrCreateDelegate(winnerAddress, nounlet.noun);
+    const delegate = findOrNewDelegate(winnerAddress, nounlet.noun);
+    delegate.delegatedVotes = delegate.delegatedVotes.plus(BigInt.fromI32(1));
+    delegate.nounletsRepresentedAmount = delegate.nounletsRepresentedAmount.plus(BigInt.fromI32(1));
+    delegate.save();
 
     // Settle auction
     auction.settled = true;

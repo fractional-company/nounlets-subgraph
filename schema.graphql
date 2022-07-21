@@ -58,7 +58,7 @@ type Nounlet @entity {
   auction: Auction @derivedFrom(field: "nounlet")
 
   "Delegate votes that the Nounlet casted"
-  delegateVotes: [DelegateVote!]! @derivedFrom(field: "nounlets")
+  delegateVotes: [DelegateVote!]! @derivedFrom(field: "nounlet")
 }
 
 type Seed @entity {
@@ -129,27 +129,20 @@ type Delegate @entity {
 }
 
 type DelegateVote @entity {
-  "Delegate ID + Noun ID"
+  "Delegate ID + Nounlet ID"
   id: ID!
 
   "Nounlet that casts a vote"
-  voter: Account!
+  nounlet: Nounlet!
 
   "Delegate receiving a vote"
   delegate: Delegate!
-
-  "The Nounlets used to vote"
-  nounlets: [Nounlet!]
-
-  "Noun the votes belong to"
-  noun: Noun!
 
   "The optional vote reason"
   reason: String
 
   "Timestamp of the vote"
   timestamp: BigInt!
-
 }
 
 type Bid @entity {

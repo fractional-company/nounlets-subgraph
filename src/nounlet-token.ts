@@ -8,6 +8,7 @@ import {
 import {
     findOrNewAccount,
     findOrNewDelegate,
+    findOrNewDelegateVote,
     findOrNewNounlet,
     transferBatchOfNounlets,
     UNDEFINED_ID,
@@ -15,6 +16,7 @@ import {
 import { Nounlet } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
+let nounId: string;
 let accountNounlets: string[];
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const tokenHolderId = event.params._delegator.toHexString();
@@ -23,7 +25,8 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const nounletId = event.params._id.toString();
 
     const nounlet = findOrNewNounlet(nounletId);
-    if (nounlet.noun === UNDEFINED_ID) {
+    nounId = nounlet.noun;
+    if (nounId === UNDEFINED_ID) {
         log.error("[handleDelegateChanged] Noun for nounlet {} not found. Hash: ", [
             nounletId,
             event.transaction.hash.toHexString(),
@@ -32,7 +35,10 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     }
 
     const tokenHolder = findOrNewAccount(tokenHolderId);
-    accountNounlets = tokenHolder.nounlets;
+    accountNounlets = tokenHolder.nounlets.filter((nounletId) => {
+        const nounlet = findOrNewNounlet(nounletId);
+        return nounlet.noun === nounId;
+    });
 
     const oldDelegate = findOrNewDelegate(oldDelegateAddress, nounlet.noun);
     oldDelegate.nounletsRepresented = oldDelegate.nounletsRepresented.filter(
@@ -72,6 +78,9 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
     const delegate = findOrNewDelegate(delegateAddress, nounlet.noun);
     delegate.delegatedVotes = newBalance;
     delegate.save();
+
+    const delegateVote = findOrNewDelegateVote(delegate.id, nounletId);
+    delegateVote.timestamp = event.block.timestamp;
 }
 
 export function handleTransferBatch(event: TransferBatchEvent): void {

@@ -1,4 +1,4 @@
-import { Account, Delegate, Noun, Nounlet, Seed, Vault } from "../../generated/schema";
+import { Account, Delegate, DelegateVote, Noun, Nounlet, Seed, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export const UNDEFINED_ID = "undefined";
@@ -98,6 +98,21 @@ export function findOrNewSeed(seedId: string, persistNew: boolean = false): Seed
         }
     }
     return seed;
+}
+
+export function findOrNewDelegateVote(delegateId: string, nounletId: string, persistNew: boolean = false): DelegateVote {
+    const delegateVoteId = delegateId.concat("-").concat(nounletId);
+    let delegateVote = DelegateVote.load(delegateVoteId);
+    if (delegateVote === null) {
+        delegateVote = new DelegateVote(delegateVoteId);
+        delegateVote.nounlet = nounletId;
+        delegateVote.delegate = delegateId;
+        delegateVote.timestamp = BigInt.fromI32(0);
+        if (persistNew) {
+            delegateVote.save();
+        }
+    }
+    return delegateVote;
 }
 
 let existingNounletsIds: BigInt[]; // Use WebAssembly global due to lack of closure support
