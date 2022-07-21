@@ -1,6 +1,6 @@
 import { describe, test, assert, afterEach, clearStore, beforeEach } from "matchstick-as/assembly";
 import { handleTransfer } from "../src/nouns-token";
-import { Noun, Vault } from "../generated/schema";
+import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
 
 describe("Noun Token", () => {
@@ -63,6 +63,22 @@ describe("Noun Token", () => {
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
             assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+        });
+
+        test("Should remove a noun and all its related entities if 'from' address is a fractional vault address", () => {
+            // Given
+            const auction1Bid1 = new Bid("");
+            const auction1 = new Auction("1");
+            const auction2 = new Auction("2");
+            const nounlet1 = new Nounlet("1");
+            nounlet1.auction = auction1.id;
+            nounlet1.save();
+            const nounlet2 = new Nounlet("2");
+            nounlet2.auction = auction2.id;
+            nounlet2.save();
+            const noun = new Noun("400");
+            noun.nounlets = [nounlet1.id, nounlet2.id];
+            noun.save();
         });
     });
 });

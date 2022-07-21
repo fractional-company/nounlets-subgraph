@@ -1,13 +1,40 @@
+scalar BigInt
+directive @entity repeatable on OBJECT
+directive @derivedFrom(
+  field: String!
+) on FIELD_DEFINITION
+
+
 type Vault @entity {
   "The Vault's address"
   id: ID!
+
+  "A Noun that the Vault holds"
   noun: Noun
+}
+
+type Account @entity {
+  "An Account is any address that holds any amount of Nounlets, the id used is the blockchain address."
+  id: ID!
+
+  "Nounlet balance of this address expressed in the smallest unit of the Nounlet's ERC1155 Token"
+  nounletBalanceRaw: BigInt!
+
+  "Nounlet balance of this address expressed as a BigInt normalized value for the Nounlet's ERC1155 Token"
+  nounletBalance: BigInt!
+
+  "Total amount of Nounlets ever held by this address expressed as a BigInt normalized value for the Nounlets ERC1155 Token"
+  totalNounletsHeld: BigInt!
+
+  "The Nounlets held by this account"
+  nounlets: [Nounlet!]!
 }
 
 type Noun @entity {
   "The Noun's ERC721 token id"
   id: ID!
-  "Nounlets that belong to the Noun"
+
+  "Fractions of a Noun"
   nounlets: [Nounlet!]! @derivedFrom(field: "noun")
 }
 
@@ -21,8 +48,14 @@ type Nounlet @entity {
   "The Noun ID that the Nounlet is derived from"
   noun: Noun!
 
-  "Owner of the Nounlet"
-  owner: Account
+  "A Nounlet holder"
+  holder: Account
+
+  "Nounlet delegate"
+  delegate: Delegate
+
+  "Auction belonging to a Nounlet"
+  auction: Auction @derivedFrom(field: "nounlet")
 
   "Delegate votes that the Nounlet casted"
   delegateVotes: [DelegateVote!]! @derivedFrom(field: "nounlets")
@@ -74,50 +107,29 @@ type Auction @entity {
   bids: [Bid!]! @derivedFrom(field: "auction")
 }
 
-type Account @entity {
-  "An Account is any address that holds any amount of Nounlets, the id used is the blockchain address."
-  id: ID!
-
-  "Delegate address of the token holder which will participate in votings. Delegates don't need to hold any tokens and can even be the token holder itself."
-  delegate: Delegate
-
-  "Noun balance of this address expressed in the smallest unit of the Nounlet's ERC1155 Token"
-  tokenBalanceRaw: BigInt!
-
-  "Noun balance of this address expressed as a BigInt normalized value for the Nouns ERC721 Token"
-  tokenBalance: BigInt!
-
-  "Total amount of Nouns ever held by this address expressed in the smallest unit of the Nouns ERC721 Token"
-  totalTokensHeldRaw: BigInt!
-
-  "Total amount of Nounlets ever held by this address expressed as a BigInt normalized value for the Nounlets ERC1155 Token"
-  totalTokensHeld: BigInt!
-
-  "The Nounlets owned by this account"
-  nounlets: [Nounlet!]!
-}
-
 type Delegate @entity {
-  "A Delegate is any address that has been delegated with voting tokens by a token holder, id is the blockchain address of said delegate"
+  "Wallet address of the delegate + Noun ID"
   id: ID!
 
-  "Amount of votes delegated to this delegate to be used on proposal votings expressed in the smallest unit of the Nouns ERC721 Token"
-  delegatedVotesRaw: BigInt!
+  # "Noun ID that the delegate belongs to"
+  # noun: Noun!
 
   "Amount of votes delegated to this delegate to be used on proposal votings expressed as a BigInt normalized value for the Nouns ERC721 Token"
   delegatedVotes: BigInt!
 
-  tokenHoldersRepresentedAmount: Int!
+  "The amount of token holders the Delegate represents"
+  nounletsRepresentedAmount: BigInt!
 
-  "Token holders that this delegate represents"
-  tokenHoldersRepresented: [Account!]! @derivedFrom(field: "delegate")
 
   "Nounlets that this delegate represents"
-  nounletsRepresented: [Nounlet!]!
+  nounletsRepresented: [Nounlet!]! @derivedFrom(field: "delegate")
+
+#  "Whether a Delegate represents a Noun he belongs to"
+#  representsNoun: Boolean!
 }
 
 type DelegateVote @entity {
-  "Delegate ID + Nounlet ID"
+  "Delegate ID + Noun ID"
   id: ID!
 
   "Nounlet that casts a vote"
@@ -126,38 +138,39 @@ type DelegateVote @entity {
   "Delegate receiving a vote"
   delegate: Delegate!
 
+  "The Nounlets used to vote"
+  nounlets: [Nounlet!]
+
+  "Noun the votes belong to"
+  noun: Noun!
+
   "The optional vote reason"
   reason: String
 
   "Timestamp of the vote"
   timestamp: BigInt!
 
-  "The Nounlets used to vote"
-  nounlets: [Nounlet!]
 }
 
 type Bid @entity {
   "Bid transaction hash"
   id: ID!
 
-  "The Nounlet being bid on"
-  nounlet: Nounlet!
-
-  "Bid amount"
-  amount: BigInt!
+  "The auction being bid in"
+  auction: Auction!
 
   "Bidder account"
   bidder: Account
 
+  "Bid amount"
+  amount: BigInt!
+
   "Block number of the bid"
   blockNumber: BigInt!
 
-  "Index of transaction within block"
-  txIndex: BigInt!
-
-  "The auction being bid in"
-  auction: Auction!
-
   "The timestamp of the block the bid is in"
   blockTimestamp: BigInt!
+
+  "Index of transaction within block"
+  txIndex: BigInt!
 }

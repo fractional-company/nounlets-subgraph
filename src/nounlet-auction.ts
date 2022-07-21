@@ -4,9 +4,22 @@ import {
     AuctionExtended as AuctionExtendedEvent,
     AuctionSettled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Auction, Bid, Nounlet, Seed, Vault } from "../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
-import { findOrCreateAccount, findOrNewAccount } from "./utils/helpers";
+import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
+import { BigInt, log, dataSource } from "@graphprotocol/graph-ts";
+import {
+    findOrCreateAccount,
+    findOrCreateDelegate,
+    findOrNewAccount,
+    findOrNewDelegate,
+    findOrNewNounlet,
+    findOrNewSeed,
+    findOrNewVault,
+    UNDEFINED_ID,
+} from "./utils/helpers";
+
+// TODO: Contract addresses for fetching Seed go here
+const NOUNLET_METADATA_CONTRACT_RINKEBY = "";
+const NOUNLET_METADATA_CONTRACT_MAINNET = "";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
@@ -32,8 +45,10 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
         return;
     }
 
+    log.info("Current chain: {}", [dataSource.network()]);
+
     // Store the seed of the nounlet
-    const seed = new Seed(nounletId);
+    const seed = findOrNewSeed(nounletId);
     // TODO: Call NounletToken contract (generateSeed(tokenId) getter) to fetch the nounlet seed.
     seed.save();
     // Store the nounlet
@@ -64,6 +79,10 @@ export function handleAuctionExtended(event: AuctionExtendedEvent): void {
         return;
     }
 
+    const nounlet = findOrNewNounlet(auctionId);
+    if (nounlet.noun === null) {
+    }
+
     if (auction.settled) {
         log.error("[handleAuctionExtended] Auction {} is settled and cannot be extended. Hash: {}", [
             auctionId,
@@ -77,10 +96,20 @@ export function handleAuctionExtended(event: AuctionExtendedEvent): void {
 }
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
+    const vaultId = event.params._vault.toHexString();
     const auctionId = event.params._id.toString();
     const bidderAddress = event.params._sender.toHexString();
     const bidAmount = event.params._value;
     const bidId = event.transaction.hash.toHexString();
+
+    const nounlet = attemptNounAssignment(findOrNewNounlet(auctionId), vaultId);
+    if (nounlet.noun === UNDEFINED_ID) {
+        log.error("[handleAuctionBid] Cannot find a Noun for Nounlet #{}. Hash: {}", [
+            auctionId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
 
     const auction = Auction.load(auctionId);
     if (auction === null) {
@@ -109,24 +138,17 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
     bid.amount = bidAmount;
     bid.blockNumber = event.block.number;
     bid.blockTimestamp = event.block.timestamp;
+    bid.txIndex = event.transaction.index;
     bid.save();
 }
 
 export function handleAuctionSettled(event: AuctionSettledEvent): void {
+    const vaultId = event.params._vault.toHexString();
     const auctionId = event.params._id.toString();
     const amount = event.params._amount;
     const winnerAddress = event.params._winner.toHexString();
 
-    const account = findOrNewAccount(winnerAddress);
-    const accountNounlets = account.nounlets;
-    accountNounlets.push(auctionId);
-    account.nounlets = accountNounlets;
-    account.totalTokensHeld = account.totalTokensHeld.plus(BigInt.fromI32(1));
-    account.totalTokensHeldRaw = account.totalTokensHeldRaw.plus(BigInt.fromI32(1));
-    account.tokenBalance = BigInt.fromI32(accountNounlets.length);
-    account.tokenBalanceRaw = BigInt.fromI32(accountNounlets.length);
-    account.save();
-
+    // Verify auction existence
     const auction = Auction.load(auctionId);
     if (auction === null) {
         log.error("[handleAuctionSettled] Auction not found for Nounlet #{}. Hash: {}", [
@@ -135,8 +157,51 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
         ]);
         return;
     }
+
+    // Verify noun existence
+    const nounlet = attemptNounAssignment(findOrNewNounlet(auctionId), vaultId);
+    if (nounlet.noun === UNDEFINED_ID) {
+        log.error("[handleAuctionSettled] Cannot find a Noun for Nounlet #{}. Hash: {}", [
+            auctionId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
+
+    // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
+    const delegate = findOrCreateDelegate(winnerAddress, nounlet.noun);
+
+    // Settle auction
     auction.settled = true;
     auction.amount = amount;
-    auction.bidder = account.id;
+    auction.bidder = winnerAddress;
     auction.save();
+
+    // Set nounlet holder and default delegate
+    nounlet.holder = winnerAddress;
+    nounlet.delegate = delegate.id;
+    nounlet.save();
+
+    // Update Account with token holdings info
+    const account = findOrNewAccount(winnerAddress);
+    const accountNounlets = account.nounlets;
+    accountNounlets.push(auctionId);
+    account.nounlets = accountNounlets;
+    account.totalNounletsHeld = account.totalNounletsHeld.plus(BigInt.fromI32(1));
+    account.nounletBalance = BigInt.fromI32(account.nounlets.length);
+    account.nounletBalanceRaw = BigInt.fromI32(account.nounlets.length);
+    account.save();
+}
+
+function attemptNounAssignment(nounlet: Nounlet, vaultId: string): Nounlet {
+    if (nounlet.noun !== UNDEFINED_ID) {
+        return nounlet;
+    }
+
+    const vault = findOrNewVault(vaultId);
+    if (vault.noun !== null) {
+        nounlet.noun = vault.noun as string;
+    }
+
+    return nounlet;
 }

@@ -1,7 +1,7 @@
 import { store } from "@graphprotocol/graph-ts";
 import { Transfer } from "../generated/NounsToken/NounsToken";
-import { Noun, Vault } from "../generated/schema";
-import { findOrCreateNoun } from "./utils/helpers";
+import { Auction, Delegate, Noun, Nounlet, Vault } from "../generated/schema";
+import { findOrCreateNoun, findOrNewNoun } from "./utils/helpers";
 
 // export function handleApproval(event: Approval): void {
 // // Entities can be loaded from the store using a string ID; this ID
@@ -87,6 +87,40 @@ export function handleTransfer(event: Transfer): void {
 
     if (nounVaultFrom !== null) {
         // Noun was moved from Vault, so remove the noun from the store
+        const noun = findOrNewNoun(nounId);
+        const nounlets = noun.nounlets;
+        for (let i = 0; i < nounlets.length; i++) {
+            const nounlet = Nounlet.load(nounlets[i]);
+            if (nounlet !== null) {
+                // Remove delegate votes
+                const votes = nounlet.delegateVotes;
+                for (let j = 0; j < votes.length; j++) {
+                    store.remove("DelegateVote", votes[j]);
+                }
+
+                // Remove delegate
+                const delegate = nounlet.delegate;
+                if (delegate !== null) {
+                    store.remove("Delegate", delegate);
+                }
+
+                // Remove Nounlet
+                store.remove("Nounlet", nounlet.id);
+            }
+
+            const auction = Auction.load(nounlets[i]);
+            if (auction !== null) {
+                // Remove auction bids
+                const bids = auction.bids;
+                for (let k = 0; k < bids.length; k++) {
+                    store.remove("Bid", bids[k]);
+                }
+
+                // Remove Auction
+                store.remove("Auction", auction.id);
+            }
+        }
+        // Remove Noun
         store.remove("Noun", nounId);
     }
 

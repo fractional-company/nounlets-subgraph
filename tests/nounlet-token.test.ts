@@ -14,6 +14,7 @@ import {
     generateTransferSingleEvent,
 } from "./mock-event-generator";
 import { BigInt, log } from "@graphprotocol/graph-ts";
+import { findOrCreateDelegate, findOrNewAccount, findOrNewDelegate, findOrNewNounlet } from "../src/utils/helpers";
 
 describe("Nounlet Token", () => {
     beforeEach(() => {
@@ -23,21 +24,16 @@ describe("Nounlet Token", () => {
     describe("Delegate Vote Changed Handler", () => {
         test("Should persist a new vote balance if a voter votes for a delegate", () => {
             // Given
-            const delegate = new Delegate("0xf68B2A070675641156ce6729d2f1854ec7539859".toLowerCase());
-            delegate.delegatedVotes = BigInt.fromI32(100);
-            delegate.delegatedVotesRaw = BigInt.fromI32(100);
-            delegate.save();
             const nounId = 1;
+            const delegateId = "0xf68B2A070675641156ce6729d2f1854ec7539859".toLowerCase();
+            const delegate = findOrNewDelegate(delegateId, nounId.toString());
+            delegate.delegatedVotes = BigInt.fromI32(100);
+            delegate.save();
             const newDelegatedVotes = 130;
 
             // When
             handleDelegateVotesChanged(
-                generateDelegateVotesChangedEvent(
-                    delegate.id,
-                    nounId,
-                    delegate.delegatedVotes.toI32(),
-                    newDelegatedVotes
-                )
+                generateDelegateVotesChangedEvent(delegateId, nounId, delegate.delegatedVotes.toI32(), newDelegatedVotes)
             );
 
             // Then
@@ -65,35 +61,27 @@ describe("Nounlet Token", () => {
             // Given
             const delegatorId = "0x5cf4D1Af505e764e71a22707Caede2729bab96cf".toLowerCase();
             const nounId = 2;
-            const fromDelegate = new Delegate("0xef9E15c8d6B0108CC2C48Bfa0a6E46CDAba879E9".toLowerCase());
-            fromDelegate.tokenHoldersRepresentedAmount = 25;
+            const fromDelegateId = "0xef9E15c8d6B0108CC2C48Bfa0a6E46CDAba879E9".toLowerCase();
+            const fromDelegate = findOrNewDelegate(fromDelegateId, nounId.toString());
             fromDelegate.nounletsRepresented = ["1", "2", "3", "4", "5"];
+            fromDelegate.nounletsRepresentedAmount = BigInt.fromI32(fromDelegate.nounletsRepresented.length);
             fromDelegate.save();
-            const toDelegate = new Delegate("0x60109694FEAA5233ECCe51f82F3f83Df0b1E2542".toLowerCase());
-            toDelegate.tokenHoldersRepresentedAmount = 15;
+            const toDelegateId = "0x60109694FEAA5233ECCe51f82F3f83Df0b1E2542".toLowerCase();
+            const toDelegate = findOrNewDelegate(toDelegateId, nounId.toString());
             toDelegate.nounletsRepresented = ["100", "200", "300"];
+            toDelegate.nounletsRepresentedAmount = BigInt.fromI32(toDelegate.nounletsRepresented.length);
             toDelegate.save();
 
             // When
-            handleDelegateChanged(generateDelegateChangedEvent(delegatorId, nounId, fromDelegate.id, toDelegate.id));
+            handleDelegateChanged(generateDelegateChangedEvent(delegatorId, nounId, fromDelegateId, toDelegateId));
 
             // Then
-            assert.fieldEquals(
-                "Delegate",
-                fromDelegate.id,
-                "tokenHoldersRepresentedAmount",
-                (fromDelegate.tokenHoldersRepresentedAmount - 1).toString()
-            );
             // Nounlets represented are still the same as there was no delegator in the store
             assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresented", "[1, 2, 3, 4, 5]");
-            assert.fieldEquals(
-                "Delegate",
-                toDelegate.id,
-                "tokenHoldersRepresentedAmount",
-                (toDelegate.tokenHoldersRepresentedAmount + 1).toString()
-            );
+            assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresentedAmount", "5");
             // Nounlets represented are still the same as there was no delegator in the store
             assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresented", "[100, 200, 300]");
+            assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresentedAmount", "3");
             assert.fieldEquals("Account", delegatorId, "nounlets", "[]");
             assert.fieldEquals("Account", delegatorId, "delegate", toDelegate.id);
         });
@@ -102,93 +90,76 @@ describe("Nounlet Token", () => {
             // Given
             const fromDelegateId = "0xef9E15c8d6B0108CC2C48Bfa0a6E46CDAba879E9".toLowerCase();
             const nounId = 2;
-            const delegator = new Account("0x85825e345aA4E61e87F7b5C47C80Dd4dBFA9B0F3".toLowerCase());
-            delegator.delegate = null;
+            const delegator = findOrNewAccount("0x85825e345aA4E61e87F7b5C47C80Dd4dBFA9B0F3".toLowerCase());
             delegator.nounlets = ["1", "2", "3"];
             delegator.save();
-            const toDelegate = new Delegate("0x60109694FEAA5233ECCe51f82F3f83Df0b1E2542".toLowerCase());
-            toDelegate.tokenHoldersRepresentedAmount = 40;
+            const toDelegateId = "0x60109694FEAA5233ECCe51f82F3f83Df0b1E2542".toLowerCase();
+            const toDelegate = findOrNewDelegate(toDelegateId, nounId.toString());
             toDelegate.nounletsRepresented = ["7", "8", "9"];
+            toDelegate.nounletsRepresentedAmount = BigInt.fromI32(toDelegate.nounletsRepresented.length);
             toDelegate.save();
 
             // When
-            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegateId, toDelegate.id));
+            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegateId, toDelegateId));
 
             // Then
-            assert.fieldEquals("Delegate", fromDelegateId, "tokenHoldersRepresentedAmount", "0");
             assert.fieldEquals("Delegate", fromDelegateId, "nounletsRepresented", "[]");
-            assert.fieldEquals("Delegate", toDelegate.id, "tokenHoldersRepresentedAmount", "41");
+            assert.fieldEquals("Delegate", fromDelegateId, "nounletsRepresentedAmount", "0");
             assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresented", "[7, 8, 9, 1, 2, 3]");
+            assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresentedAmount", "6");
             assert.fieldEquals("Account", delegator.id, "nounlets", "[1, 2, 3]");
-            assert.fieldEquals("Account", delegator.id, "delegate", toDelegate.id);
         });
 
         test("Should change a delegate even if a new delegate is not recorded in the store", () => {
             // Given
             const toDelegateId = "0xfAf5cA17d4e5842DF3258FCe89Feb51c2eb1c511".toLowerCase();
             const nounId = 2;
-            const delegator = new Account("0x85825e345aA4E61e87F7b5C47C80Dd4dBFA9B0F3".toLowerCase());
-            delegator.delegate = null;
+            const delegator = findOrNewAccount("0x85825e345aA4E61e87F7b5C47C80Dd4dBFA9B0F3".toLowerCase());
             delegator.nounlets = ["11", "22", "5"];
             delegator.save();
-            const fromDelegate = new Delegate("0xD448046c06bcbf0D4729B0c29757c08386354785".toLowerCase());
-            fromDelegate.tokenHoldersRepresentedAmount = 23;
+            const fromDelegateId = "0xD448046c06bcbf0D4729B0c29757c08386354785".toLowerCase();
+            const fromDelegate = findOrNewDelegate(fromDelegateId, nounId.toString());
             fromDelegate.nounletsRepresented = ["11", "22", "33"];
+            fromDelegate.nounletsRepresentedAmount = BigInt.fromI32(fromDelegate.nounletsRepresented.length);
             fromDelegate.save();
 
             // When
-            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegate.id, toDelegateId));
+            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegateId, toDelegateId));
 
             // Then
-            assert.fieldEquals(
-                "Delegate",
-                fromDelegate.id,
-                "tokenHoldersRepresentedAmount",
-                (fromDelegate.tokenHoldersRepresentedAmount - 1).toString()
-            );
             assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresented", "[33]");
-            assert.fieldEquals("Delegate", toDelegateId, "tokenHoldersRepresentedAmount", "1");
+            assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresentedAmount", "1");
             assert.fieldEquals("Delegate", toDelegateId, "nounletsRepresented", "[11, 22, 5]");
+            assert.fieldEquals("Delegate", toDelegateId, "nounletsRepresentedAmount", "3");
             assert.fieldEquals("Account", delegator.id, "nounlets", "[11, 22, 5]");
-            assert.fieldEquals("Account", delegator.id, "delegate", toDelegateId);
         });
 
         test("Should change a delegate if all entities exist in the store", () => {
             // Given
             const nounId = 3;
-            const delegator = new Account("0xC18A9A482B61F89e4B0aa1D2Ce40E3eD85CF9D29".toLowerCase());
-            const fromDelegate = new Delegate("0x6b36434336cC77E50F52F3446A50B0D82D70216D".toLowerCase());
-            const toDelegate = new Delegate("0x272cc7BEeb64D8F4ef4EA29Fba491Ae4af466d83".toLowerCase());
-            delegator.delegate = fromDelegate.id;
+            const delegator = findOrNewAccount("0xC18A9A482B61F89e4B0aa1D2Ce40E3eD85CF9D29".toLowerCase());
+            const fromDelegateId = "0x6b36434336cC77E50F52F3446A50B0D82D70216D".toLowerCase();
+            const fromDelegate = findOrNewDelegate(fromDelegateId, nounId.toString());
+            const toDelegateId = "0x272cc7BEeb64D8F4ef4EA29Fba491Ae4af466d83".toLowerCase();
+            const toDelegate = findOrNewDelegate(toDelegateId, nounId.toString());
             delegator.nounlets = ["123", "456"];
-            fromDelegate.tokenHoldersRepresentedAmount = 77;
             fromDelegate.nounletsRepresented = ["456", "22"];
-            toDelegate.tokenHoldersRepresentedAmount = 99;
+            fromDelegate.nounletsRepresentedAmount = BigInt.fromI32(fromDelegate.nounletsRepresented.length);
             toDelegate.nounletsRepresented = ["1", "2", "3"];
+            toDelegate.nounletsRepresentedAmount = BigInt.fromI32(toDelegate.nounletsRepresented.length);
             fromDelegate.save();
             toDelegate.save();
             delegator.save();
 
             // When
-            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegate.id, toDelegate.id));
+            handleDelegateChanged(generateDelegateChangedEvent(delegator.id, nounId, fromDelegateId, toDelegateId));
 
             // Then
-            assert.fieldEquals(
-                "Delegate",
-                fromDelegate.id,
-                "tokenHoldersRepresentedAmount",
-                (fromDelegate.tokenHoldersRepresentedAmount - 1).toString()
-            );
             assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresented", "[22]");
-            assert.fieldEquals(
-                "Delegate",
-                toDelegate.id,
-                "tokenHoldersRepresentedAmount",
-                (toDelegate.tokenHoldersRepresentedAmount + 1).toString()
-            );
+            assert.fieldEquals("Delegate", fromDelegate.id, "nounletsRepresentedAmount", "1");
             assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresented", "[1, 2, 3, 123, 456]");
+            assert.fieldEquals("Delegate", toDelegate.id, "nounletsRepresentedAmount", "5");
             assert.fieldEquals("Account", delegator.id, "nounlets", "[123, 456]");
-            assert.fieldEquals("Account", delegator.id, "delegate", toDelegate.id);
         });
     });
 
@@ -201,10 +172,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amount = BigInt.fromU32(1 as u32);
 
-            const sender = new Account(senderAddress);
+            const sender = findOrNewAccount(senderAddress);
             sender.nounlets = [nounletId.toString(), "2", "3"];
             sender.save();
-            const receiver = new Account(receiverAddress);
+            const receiver = findOrNewAccount(receiverAddress);
             receiver.nounlets = [];
             receiver.save();
 
@@ -227,9 +198,9 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amount = BigInt.fromU32(1 as u32);
 
-            const sender = new Account(senderAddress);
-            const receiver = new Account(receiverAddress);
-            const nounlet = new Nounlet(nounletId.toString());
+            const sender = findOrNewAccount(senderAddress);
+            const receiver = findOrNewAccount(receiverAddress);
+            const nounlet = findOrNewNounlet(nounletId.toString());
 
             sender.nounlets = [nounletId.toString(), "3", "6"];
             receiver.nounlets = [];
@@ -256,10 +227,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amount = BigInt.fromU32(1 as u32);
 
-            const receiver = new Account(receiverAddress);
+            const receiver = findOrNewAccount(receiverAddress);
             receiver.nounlets = ["10", "20"];
             receiver.save();
-            const nounlet = new Nounlet(nounletId.toString());
+            const nounlet = findOrNewNounlet(nounletId.toString());
             nounlet.save();
 
             // When
@@ -281,10 +252,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amount = BigInt.fromU32(1 as u32);
 
-            const sender = new Account(senderAddress);
+            const sender = findOrNewAccount(senderAddress);
             sender.nounlets = ["10", "20", nounletId.toString()];
             sender.save();
-            const nounlet = new Nounlet(nounletId.toString());
+            const nounlet = findOrNewNounlet(nounletId.toString());
             nounlet.save();
 
             // When
@@ -308,10 +279,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amounts = [BigInt.fromU32(1 as u32), BigInt.fromU32(1 as u32)];
 
-            const sender = new Account(senderAddress);
-            const receiver = new Account(receiverAddress);
-            const nounlet1 = new Nounlet(nounletIds[0].toString());
-            const nounlet3 = new Nounlet(nounletIds[2].toString());
+            const sender = findOrNewAccount(senderAddress);
+            const receiver = findOrNewAccount(receiverAddress);
+            const nounlet1 = findOrNewNounlet(nounletIds[0].toString());
+            const nounlet3 = findOrNewNounlet(nounletIds[2].toString());
 
             // Nounlet with index 1 is in possession by a sender but it's not in the store
             sender.nounlets = [nounlet1.id.toString(), nounletIds[1].toString(), nounlet3.id.toString(), "50"];
@@ -347,10 +318,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amounts = [BigInt.fromU32(1 as u32), BigInt.fromU32(1 as u32)];
 
-            const receiver = new Account(receiverAddress);
-            const nounlet1 = new Nounlet(nounletIds[0].toString());
-            const nounlet2 = new Nounlet(nounletIds[1].toString());
-            const nounlet3 = new Nounlet(nounletIds[2].toString());
+            const receiver = findOrNewAccount(receiverAddress);
+            const nounlet1 = findOrNewNounlet(nounletIds[0].toString());
+            const nounlet2 = findOrNewNounlet(nounletIds[1].toString());
+            const nounlet3 = findOrNewNounlet(nounletIds[2].toString());
 
             receiver.nounlets = ["77"];
             receiver.save();
@@ -384,10 +355,10 @@ describe("Nounlet Token", () => {
             const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
             const amounts = [BigInt.fromU32(1 as u32), BigInt.fromU32(1 as u32)];
 
-            const sender = new Account(senderAddress);
-            const nounlet1 = new Nounlet(nounletIds[0].toString());
-            const nounlet2 = new Nounlet(nounletIds[1].toString());
-            const nounlet3 = new Nounlet(nounletIds[2].toString());
+            const sender = findOrNewAccount(senderAddress);
+            const nounlet1 = findOrNewNounlet(nounletIds[0].toString());
+            const nounlet2 = findOrNewNounlet(nounletIds[1].toString());
+            const nounlet3 = findOrNewNounlet(nounletIds[2].toString());
 
             sender.nounlets = [nounlet1.id.toString(), nounlet2.id.toString(), nounlet3.id.toString(), "50"];
             sender.save();

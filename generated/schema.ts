@@ -60,6 +60,74 @@ export class Vault extends Entity {
   }
 }
 
+export class Account extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Account entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Account must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Account", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Account | null {
+    return changetype<Account | null>(store.get("Account", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nounletBalanceRaw(): BigInt {
+    let value = this.get("nounletBalanceRaw");
+    return value!.toBigInt();
+  }
+
+  set nounletBalanceRaw(value: BigInt) {
+    this.set("nounletBalanceRaw", Value.fromBigInt(value));
+  }
+
+  get nounletBalance(): BigInt {
+    let value = this.get("nounletBalance");
+    return value!.toBigInt();
+  }
+
+  set nounletBalance(value: BigInt) {
+    this.set("nounletBalance", Value.fromBigInt(value));
+  }
+
+  get totalNounletsHeld(): BigInt {
+    let value = this.get("totalNounletsHeld");
+    return value!.toBigInt();
+  }
+
+  set totalNounletsHeld(value: BigInt) {
+    this.set("totalNounletsHeld", Value.fromBigInt(value));
+  }
+
+  get nounlets(): Array<string> {
+    let value = this.get("nounlets");
+    return value!.toStringArray();
+  }
+
+  set nounlets(value: Array<string>) {
+    this.set("nounlets", Value.fromStringArray(value));
+  }
+}
+
 export class Noun extends Entity {
   constructor(id: string) {
     super();
@@ -158,8 +226,8 @@ export class Nounlet extends Entity {
     this.set("noun", Value.fromString(value));
   }
 
-  get owner(): string | null {
-    let value = this.get("owner");
+  get holder(): string | null {
+    let value = this.get("holder");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -167,11 +235,45 @@ export class Nounlet extends Entity {
     }
   }
 
-  set owner(value: string | null) {
+  set holder(value: string | null) {
     if (!value) {
-      this.unset("owner");
+      this.unset("holder");
     } else {
-      this.set("owner", Value.fromString(<string>value));
+      this.set("holder", Value.fromString(<string>value));
+    }
+  }
+
+  get delegate(): string | null {
+    let value = this.get("delegate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set delegate(value: string | null) {
+    if (!value) {
+      this.unset("delegate");
+    } else {
+      this.set("delegate", Value.fromString(<string>value));
+    }
+  }
+
+  get auction(): string | null {
+    let value = this.get("auction");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set auction(value: string | null) {
+    if (!value) {
+      this.unset("auction");
+    } else {
+      this.set("auction", Value.fromString(<string>value));
     }
   }
 
@@ -365,100 +467,6 @@ export class Auction extends Entity {
   }
 }
 
-export class Account extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Account entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type Account must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Account", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Account | null {
-    return changetype<Account | null>(store.get("Account", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get delegate(): string | null {
-    let value = this.get("delegate");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set delegate(value: string | null) {
-    if (!value) {
-      this.unset("delegate");
-    } else {
-      this.set("delegate", Value.fromString(<string>value));
-    }
-  }
-
-  get tokenBalanceRaw(): BigInt {
-    let value = this.get("tokenBalanceRaw");
-    return value!.toBigInt();
-  }
-
-  set tokenBalanceRaw(value: BigInt) {
-    this.set("tokenBalanceRaw", Value.fromBigInt(value));
-  }
-
-  get tokenBalance(): BigInt {
-    let value = this.get("tokenBalance");
-    return value!.toBigInt();
-  }
-
-  set tokenBalance(value: BigInt) {
-    this.set("tokenBalance", Value.fromBigInt(value));
-  }
-
-  get totalTokensHeldRaw(): BigInt {
-    let value = this.get("totalTokensHeldRaw");
-    return value!.toBigInt();
-  }
-
-  set totalTokensHeldRaw(value: BigInt) {
-    this.set("totalTokensHeldRaw", Value.fromBigInt(value));
-  }
-
-  get totalTokensHeld(): BigInt {
-    let value = this.get("totalTokensHeld");
-    return value!.toBigInt();
-  }
-
-  set totalTokensHeld(value: BigInt) {
-    this.set("totalTokensHeld", Value.fromBigInt(value));
-  }
-
-  get nounlets(): Array<string> {
-    let value = this.get("nounlets");
-    return value!.toStringArray();
-  }
-
-  set nounlets(value: Array<string>) {
-    this.set("nounlets", Value.fromStringArray(value));
-  }
-}
-
 export class Delegate extends Entity {
   constructor(id: string) {
     super();
@@ -490,15 +498,6 @@ export class Delegate extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get delegatedVotesRaw(): BigInt {
-    let value = this.get("delegatedVotesRaw");
-    return value!.toBigInt();
-  }
-
-  set delegatedVotesRaw(value: BigInt) {
-    this.set("delegatedVotesRaw", Value.fromBigInt(value));
-  }
-
   get delegatedVotes(): BigInt {
     let value = this.get("delegatedVotes");
     return value!.toBigInt();
@@ -508,22 +507,13 @@ export class Delegate extends Entity {
     this.set("delegatedVotes", Value.fromBigInt(value));
   }
 
-  get tokenHoldersRepresentedAmount(): i32 {
-    let value = this.get("tokenHoldersRepresentedAmount");
-    return value!.toI32();
+  get nounletsRepresentedAmount(): BigInt {
+    let value = this.get("nounletsRepresentedAmount");
+    return value!.toBigInt();
   }
 
-  set tokenHoldersRepresentedAmount(value: i32) {
-    this.set("tokenHoldersRepresentedAmount", Value.fromI32(value));
-  }
-
-  get tokenHoldersRepresented(): Array<string> {
-    let value = this.get("tokenHoldersRepresented");
-    return value!.toStringArray();
-  }
-
-  set tokenHoldersRepresented(value: Array<string>) {
-    this.set("tokenHoldersRepresented", Value.fromStringArray(value));
+  set nounletsRepresentedAmount(value: BigInt) {
+    this.set("nounletsRepresentedAmount", Value.fromBigInt(value));
   }
 
   get nounletsRepresented(): Array<string> {
@@ -585,6 +575,32 @@ export class DelegateVote extends Entity {
     this.set("delegate", Value.fromString(value));
   }
 
+  get nounlets(): Array<string> | null {
+    let value = this.get("nounlets");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set nounlets(value: Array<string> | null) {
+    if (!value) {
+      this.unset("nounlets");
+    } else {
+      this.set("nounlets", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
+  get noun(): string {
+    let value = this.get("noun");
+    return value!.toString();
+  }
+
+  set noun(value: string) {
+    this.set("noun", Value.fromString(value));
+  }
+
   get reason(): string | null {
     let value = this.get("reason");
     if (!value || value.kind == ValueKind.NULL) {
@@ -609,23 +625,6 @@ export class DelegateVote extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
-  }
-
-  get nounlets(): Array<string> | null {
-    let value = this.get("nounlets");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set nounlets(value: Array<string> | null) {
-    if (!value) {
-      this.unset("nounlets");
-    } else {
-      this.set("nounlets", Value.fromStringArray(<Array<string>>value));
-    }
   }
 }
 
@@ -660,22 +659,13 @@ export class Bid extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get nounlet(): string {
-    let value = this.get("nounlet");
+  get auction(): string {
+    let value = this.get("auction");
     return value!.toString();
   }
 
-  set nounlet(value: string) {
-    this.set("nounlet", Value.fromString(value));
-  }
-
-  get amount(): BigInt {
-    let value = this.get("amount");
-    return value!.toBigInt();
-  }
-
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set auction(value: string) {
+    this.set("auction", Value.fromString(value));
   }
 
   get bidder(): string | null {
@@ -695,6 +685,15 @@ export class Bid extends Entity {
     }
   }
 
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value!.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
   get blockNumber(): BigInt {
     let value = this.get("blockNumber");
     return value!.toBigInt();
@@ -704,24 +703,6 @@ export class Bid extends Entity {
     this.set("blockNumber", Value.fromBigInt(value));
   }
 
-  get txIndex(): BigInt {
-    let value = this.get("txIndex");
-    return value!.toBigInt();
-  }
-
-  set txIndex(value: BigInt) {
-    this.set("txIndex", Value.fromBigInt(value));
-  }
-
-  get auction(): string {
-    let value = this.get("auction");
-    return value!.toString();
-  }
-
-  set auction(value: string) {
-    this.set("auction", Value.fromString(value));
-  }
-
   get blockTimestamp(): BigInt {
     let value = this.get("blockTimestamp");
     return value!.toBigInt();
@@ -729,5 +710,14 @@ export class Bid extends Entity {
 
   set blockTimestamp(value: BigInt) {
     this.set("blockTimestamp", Value.fromBigInt(value));
+  }
+
+  get txIndex(): BigInt {
+    let value = this.get("txIndex");
+    return value!.toBigInt();
+  }
+
+  set txIndex(value: BigInt) {
+    this.set("txIndex", Value.fromBigInt(value));
   }
 }
