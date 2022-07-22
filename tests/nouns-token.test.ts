@@ -2,6 +2,7 @@ import { describe, test, assert, afterEach, clearStore, beforeEach } from "match
 import { handleTransfer } from "../src/nouns-token";
 import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
+import { findOrCreateNoun, findOrNewNoun } from "../src/utils/helpers";
 
 describe("Noun Token", () => {
     describe("Transfer Handler", () => {
@@ -65,20 +66,21 @@ describe("Noun Token", () => {
             assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
         });
 
-        test("Should remove a noun and all its related entities if 'from' address is a fractional vault address", () => {
+        test("Should remove a noun if 'from' address is a fractional vault", () => {
             // Given
-            const auction1Bid1 = new Bid("");
-            const auction1 = new Auction("1");
-            const auction2 = new Auction("2");
-            const nounlet1 = new Nounlet("1");
-            nounlet1.auction = auction1.id;
-            nounlet1.save();
-            const nounlet2 = new Nounlet("2");
-            nounlet2.auction = auction2.id;
-            nounlet2.save();
-            const noun = new Noun("400");
-            noun.nounlets = [nounlet1.id, nounlet2.id];
-            noun.save();
+            const noun = findOrCreateNoun("51");
+            const fromAddress = "0xE377541c0B5D53708d90C879f44a124a57c2943A".toLowerCase();
+            const fractionalVault = new Vault(fromAddress);
+            fractionalVault.noun = noun.id;
+            fractionalVault.save();
+            const toAddress = "0x6d2F62f32b79AD7A548dF1b396040F180c678858".toLowerCase();
+
+            // When
+            handleTransfer(generateTransferEvent(fractionalVault.id, toAddress, noun.id));
+
+            // Then
+            assert.fieldEquals("Vault", fractionalVault.id, "noun", "null");
+            assert.notInStore("Noun", noun.id);
         });
     });
 });
