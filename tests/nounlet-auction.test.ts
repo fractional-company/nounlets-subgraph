@@ -78,9 +78,9 @@ describe("Nounlet Auction", () => {
             const nounletId = tokenId.toString();
 
             // Then
-            assert.fieldEquals("Seed", nounletId, "id", nounletId);
+            // assert.fieldEquals("Seed", nounletId, "id", nounletId);
+            // assert.fieldEquals("Nounlet", nounletId, "seed", nounletId);
             assert.fieldEquals("Nounlet", nounletId, "id", nounletId);
-            assert.fieldEquals("Nounlet", nounletId, "seed", nounletId);
             assert.fieldEquals("Auction", nounletId, "id", nounletId);
             assert.fieldEquals("Auction", nounletId, "startTime", startTime.toString());
             assert.fieldEquals("Auction", nounletId, "endTime", endTime.toString());
@@ -106,32 +106,6 @@ describe("Nounlet Auction", () => {
             // Then
             assert.notInStore("Nounlet", tokenId.toString());
             assert.notInStore("Auction", tokenId.toString());
-        });
-
-        test("Should not extend an auction if it is already settled", () => {
-            // Given
-            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.noun = "1";
-            vault.save();
-            const tokenId = BigInt.fromI32(1);
-            const auction = new Auction(tokenId.toString());
-            auction.nounlet = tokenId.toString();
-            auction.settled = true;
-            auction.amount = BigInt.fromI32(0);
-            auction.bidder = null;
-            auction.startTime = BigInt.fromI64(1657873934 as i64);
-            auction.endTime = BigInt.fromI64(1672273934 as i64);
-            auction.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
-            // Extend auction for 10 min
-            const endTime = BigInt.fromI64(1672873934 as i64);
-
-            // When
-            handleAuctionExtended(generateAuctionExtendedEvent(vault.id, tokenAddress, tokenId, endTime));
-            const nounletId = tokenId.toString();
-
-            // Then
-            assert.fieldEquals("Auction", auction.id, "endTime", auction.endTime.toString());
         });
 
         test("Should extend an auction by updating an endTime", () => {
@@ -162,33 +136,6 @@ describe("Nounlet Auction", () => {
     });
 
     describe("Auction Bid Handler", () => {
-        test("Should prevent a bid if a noun was moved from the vault", () => {
-            // Given
-            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.save();
-            const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
-            auction.nounlet = tokenId.toString();
-            auction.settled = false;
-            auction.amount = BigInt.fromI32(0);
-            auction.bidder = null;
-            auction.startTime = BigInt.fromI64(1657873934 as i64);
-            auction.endTime = BigInt.fromI64(1672273934 as i64);
-            auction.save();
-            const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
-            const bidderAddress = "0x5Bf1d2a415561A2F225F4523f3cbf552a6c692B7".toLowerCase();
-            const bidAmount = 1234;
-
-            // When
-            handleAuctionBid(
-                generateAuctionBidEvent(transactionId, vault.id, tokenAddress, tokenId, bidderAddress, bidAmount, false)
-            );
-
-            // Then
-            assert.notInStore("Bid", transactionId);
-        });
-
         test("Should prevent a bid if there is no auction", () => {
             // Given
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
@@ -206,36 +153,6 @@ describe("Nounlet Auction", () => {
             );
 
             // Then
-            assert.notInStore("Bid", transactionId);
-        });
-
-        test("Should prevent a bid if an auction is already settled", () => {
-            // Given
-            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.noun = "1";
-            vault.save();
-            const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
-            auction.nounlet = tokenId.toString();
-            auction.settled = true;
-            auction.amount = BigInt.fromI32(0);
-            auction.bidder = null;
-            auction.startTime = BigInt.fromI64(1657873934 as i64);
-            auction.endTime = BigInt.fromI64(1672273934 as i64);
-            auction.save();
-            const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
-            const bidderAddress = "0x5Bf1d2a415561A2F225F4523f3cbf552a6c692B7".toLowerCase();
-            const bidAmount = 1234;
-
-            // When
-            handleAuctionBid(
-                generateAuctionBidEvent(transactionId, vault.id, tokenAddress, tokenId, bidderAddress, bidAmount, false)
-            );
-
-            // Then
-            assert.fieldEquals("Auction", auction.id, "bidder", "null");
-            assert.fieldEquals("Auction", auction.id, "amount", "0");
             assert.notInStore("Bid", transactionId);
         });
 
@@ -410,9 +327,7 @@ describe("Nounlet Auction", () => {
 
             // Then
             const delegateId = winnerAddress.concat("-").concat(nounlet.noun);
-            assert.fieldEquals("Delegate", delegateId, "delegatedVotes", "1");
             assert.fieldEquals("Delegate", delegateId, "nounletsRepresented", `[${nounlet.id}]`);
-            assert.fieldEquals("Delegate", delegateId, "nounletsRepresentedAmount", "1");
         });
 
         test("Should settle an auction even if a nounlet is not present in the store but the vault contains a noun", () => {

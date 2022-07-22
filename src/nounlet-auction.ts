@@ -8,19 +8,12 @@ import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log, dataSource } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
-    findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
-    findOrNewDelegateVote,
     findOrNewNounlet,
-    findOrNewSeed,
     findOrNewVault,
     UNDEFINED_ID,
 } from "./utils/helpers";
-
-// TODO: Contract addresses for fetching Seed go here
-const NOUNLET_METADATA_CONTRACT_RINKEBY = "";
-const NOUNLET_METADATA_CONTRACT_MAINNET = "";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
@@ -48,14 +41,11 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
 
     log.info("Current chain: {}", [dataSource.network()]);
 
-    // Store the seed of the nounlet
-    const seed = findOrNewSeed(nounletId);
-    // TODO: Call NounletToken contract (generateSeed(tokenId) getter) to fetch the nounlet seed.
-    seed.save();
+    // Store the seed here if needed.
+
     // Store the nounlet
     const nounlet = new Nounlet(nounletId);
     nounlet.noun = noun;
-    nounlet.seed = seed.id;
     nounlet.save();
     // Store the auction
     const auction = new Auction(nounletId);
@@ -80,48 +70,19 @@ export function handleAuctionExtended(event: AuctionExtendedEvent): void {
         return;
     }
 
-    const nounlet = findOrNewNounlet(auctionId);
-    if (nounlet.noun === null) {
-    }
-
-    if (auction.settled) {
-        log.error("[handleAuctionExtended] Auction {} is settled and cannot be extended. Hash: {}", [
-            auctionId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-
     auction.endTime = endTime;
     auction.save();
 }
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
-    const vaultId = event.params._vault.toHexString();
     const auctionId = event.params._id.toString();
     const bidderAddress = event.params._sender.toHexString();
     const bidAmount = event.params._value;
     const bidId = event.transaction.hash.toHexString();
 
-    const nounlet = attemptNounAssignment(findOrNewNounlet(auctionId), vaultId);
-    if (nounlet.noun === UNDEFINED_ID) {
-        log.error("[handleAuctionBid] Cannot find a Noun for Nounlet #{}. Hash: {}", [
-            auctionId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-
     const auction = Auction.load(auctionId);
     if (auction === null) {
         log.error("[handleAuctionBid] Auction not found for Nounlet #{}. Hash: {}", [
-            auctionId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-    if (auction.settled) {
-        log.error("[handleAuctionExtended] Cannot bid on an Auction {} as it is already settled. Hash: {}", [
             auctionId,
             event.transaction.hash.toHexString(),
         ]);
@@ -171,8 +132,6 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
     const delegate = findOrNewDelegate(winnerAddress, nounlet.noun);
-    delegate.delegatedVotes = delegate.delegatedVotes.plus(BigInt.fromI32(1));
-    delegate.nounletsRepresentedAmount = delegate.nounletsRepresentedAmount.plus(BigInt.fromI32(1));
     delegate.save();
 
     // Settle auction
