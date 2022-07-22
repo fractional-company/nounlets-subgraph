@@ -4,8 +4,8 @@ import {
     AuctionExtended as AuctionExtendedEvent,
     AuctionSettled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
-import { BigInt, log, dataSource } from "@graphprotocol/graph-ts";
+import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrNewAccount,
@@ -37,10 +37,6 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
         ]);
         return;
     }
-
-    log.info("Current chain: {}", [dataSource.network()]);
-
-    // Store the seed here if needed.
 
     // Store the nounlet
     const nounlet = new Nounlet(nounletId);

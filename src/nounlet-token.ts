@@ -41,9 +41,7 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const fromDelegate = findOrNewDelegate(fromDelegateAddress, nounlet.noun as string);
     let fromDelegateNounlets = fromDelegate.nounletsRepresented;
     fromDelegateNounlets = fromDelegateNounlets.filter((nId) => nId != nounletId);
-    log.info("From delegate nounlets aaa: {}", [fromDelegateNounlets.toString()]);
     fromDelegate.nounletsRepresented = fromDelegateNounlets.filter((nId) => nId != nounletId);
-    log.info("From delegate nounlets: {}", [fromDelegate.nounletsRepresented.toString()]);
     fromDelegate.save();
 
     const toDelegate = findOrNewDelegate(toDelegateAddress, nounlet.noun as string);

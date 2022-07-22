@@ -182,23 +182,6 @@ export class Nounlet extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get seed(): string | null {
-    let value = this.get("seed");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set seed(value: string | null) {
-    if (!value) {
-      this.unset("seed");
-    } else {
-      this.set("seed", Value.fromString(<string>value));
-    }
-  }
-
   get noun(): string | null {
     let value = this.get("noun");
     if (!value || value.kind == ValueKind.NULL) {
@@ -274,83 +257,6 @@ export class Nounlet extends Entity {
 
   set delegateVotes(value: Array<string>) {
     this.set("delegateVotes", Value.fromStringArray(value));
-  }
-}
-
-export class Seed extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Seed entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type Seed must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Seed", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Seed | null {
-    return changetype<Seed | null>(store.get("Seed", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get background(): BigInt {
-    let value = this.get("background");
-    return value!.toBigInt();
-  }
-
-  set background(value: BigInt) {
-    this.set("background", Value.fromBigInt(value));
-  }
-
-  get body(): BigInt {
-    let value = this.get("body");
-    return value!.toBigInt();
-  }
-
-  set body(value: BigInt) {
-    this.set("body", Value.fromBigInt(value));
-  }
-
-  get accessory(): BigInt {
-    let value = this.get("accessory");
-    return value!.toBigInt();
-  }
-
-  set accessory(value: BigInt) {
-    this.set("accessory", Value.fromBigInt(value));
-  }
-
-  get head(): BigInt {
-    let value = this.get("head");
-    return value!.toBigInt();
-  }
-
-  set head(value: BigInt) {
-    this.set("head", Value.fromBigInt(value));
-  }
-
-  get glasses(): BigInt {
-    let value = this.get("glasses");
-    return value!.toBigInt();
-  }
-
-  set glasses(value: BigInt) {
-    this.set("glasses", Value.fromBigInt(value));
   }
 }
 

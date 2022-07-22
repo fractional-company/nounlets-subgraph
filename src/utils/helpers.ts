@@ -1,4 +1,4 @@
-import { Account, Delegate, DelegateVote, Noun, Nounlet, Seed, Vault } from "../../generated/schema";
+import { Account, Delegate, DelegateVote, Noun, Nounlet, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function findOrCreateNoun(nounId: string): Noun {
@@ -76,22 +76,6 @@ export function findOrNewNounlet(nounletId: string, persistNew: boolean = false)
     return nounlet;
 }
 
-export function findOrNewSeed(seedId: string, persistNew: boolean = false): Seed {
-    let seed = Seed.load(seedId);
-    if (seed === null) {
-        seed = new Seed(seedId);
-        seed.head = BigInt.fromI32(0);
-        seed.body = BigInt.fromI32(0);
-        seed.accessory = BigInt.fromI32(0);
-        seed.background = BigInt.fromI32(0);
-        seed.glasses = BigInt.fromI32(0);
-        if (persistNew) {
-            seed.save();
-        }
-    }
-    return seed;
-}
-
 export function findOrNewDelegateVote(delegateId: string, nounletId: string, persistNew: boolean = false): DelegateVote {
     const delegateVoteId = delegateId.concat("-").concat(nounletId);
     let delegateVote = DelegateVote.load(delegateVoteId);
@@ -116,6 +100,7 @@ export function transferBatchOfNounlets(fromAddress: string, toAddress: string, 
     for (let i = 0; i < nounletIds.length; i++) {
         const nounletId = nounletIds[i].toString();
         const nounlet = Nounlet.load(nounletId);
+
         if (nounlet !== null) {
             // Remove the delegate for each nounlet that's being transferred.
             nounlet.delegate = null;

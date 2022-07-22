@@ -42,9 +42,6 @@ type Nounlet @entity {
   "The Nounlet's FERC1155 token id"
   id: ID!
 
-  "The seed used to determine the Nounlet's traits"
-  seed: Seed
-
   "The Noun ID that the Nounlet is derived from"
   noun: Noun
 
@@ -59,26 +56,6 @@ type Nounlet @entity {
 
   "Delegate votes that the Nounlet casted"
   delegateVotes: [DelegateVote!]! @derivedFrom(field: "nounlet")
-}
-
-type Seed @entity {
-  "The Noun's ERC721 token id"
-  id: ID!
-
-  "The background index"
-  background: BigInt!
-
-  "The body index"
-  body: BigInt!
-
-  "The accessory index"
-  accessory: BigInt!
-
-  "The head index"
-  head: BigInt!
-
-  "The glasses index"
-  glasses: BigInt!
 }
 
 type Auction @entity {
