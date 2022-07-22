@@ -1,8 +1,6 @@
 import { Account, Delegate, DelegateVote, Noun, Nounlet, Seed, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
-export const UNDEFINED_ID = "undefined";
-
 export function findOrCreateNoun(nounId: string): Noun {
     return findOrNewNoun(nounId, true);
 }
@@ -26,10 +24,7 @@ export function findOrNewAccount(accountId: string, persistNew: boolean = false)
     let account = Account.load(accountId);
     if (account === null) {
         account = new Account(accountId);
-        account.nounletBalance = BigInt.fromI32(0);
-        account.nounletBalanceRaw = BigInt.fromI32(0);
         account.totalNounletsHeld = BigInt.fromI32(0);
-        account.nounlets = [];
         if (persistNew) {
             account.save();
         }
@@ -46,8 +41,6 @@ export function findOrNewDelegate(walletId: string, nounId: string, persistNew: 
     let delegate = Delegate.load(delegateId);
     if (delegate === null) {
         delegate = new Delegate(delegateId);
-        delegate.delegatedVotes = BigInt.fromI32(0);
-        delegate.nounletsRepresentedAmount = BigInt.fromI32(0);
         delegate.nounletsRepresented = [];
         if (persistNew) {
             delegate.save();
@@ -75,7 +68,6 @@ export function findOrNewNounlet(nounletId: string, persistNew: boolean = false)
     let nounlet = Nounlet.load(nounletId);
     if (nounlet === null) {
         nounlet = new Nounlet(nounletId);
-        nounlet.noun = UNDEFINED_ID;
         nounlet.delegateVotes = [];
         if (persistNew) {
             nounlet.save();
@@ -107,6 +99,7 @@ export function findOrNewDelegateVote(delegateId: string, nounletId: string, per
         delegateVote = new DelegateVote(delegateVoteId);
         delegateVote.nounlet = nounletId;
         delegateVote.delegate = delegateId;
+        delegateVote.voteAmount = BigInt.fromI32(0);
         delegateVote.timestamp = BigInt.fromI32(0);
         if (persistNew) {
             delegateVote.save();
@@ -115,33 +108,27 @@ export function findOrNewDelegateVote(delegateId: string, nounletId: string, per
     return delegateVote;
 }
 
-let existingNounletsIds: BigInt[]; // Use WebAssembly global due to lack of closure support
 export function transferBatchOfNounlets(fromAddress: string, toAddress: string, nounletIds: BigInt[]): void {
-    existingNounletsIds = nounletIds.filter((nounletId) => Nounlet.load(nounletId.toString()) !== null);
+    const fromAccount = findOrCreateAccount(fromAddress);
+    let toAccount = findOrCreateAccount(toAddress);
+    let nounletsTransferedCount = 0;
 
-    if (existingNounletsIds.length < nounletIds.length) {
-        const nonExistingNounletIds = nounletIds.filter((nounletId) => !existingNounletsIds.includes(nounletId));
-        log.error("Cannot transfer Nounlets {} as they are not in the store", [nonExistingNounletIds.toString()]);
-        if (existingNounletsIds.length === 0) {
-            return;
+    for (let i = 0; i < nounletIds.length; i++) {
+        const nounletId = nounletIds[i].toString();
+        const nounlet = Nounlet.load(nounletId);
+        if (nounlet !== null) {
+            // Remove the delegate for each nounlet that's being transferred.
+            nounlet.delegate = null;
+            nounlet.holder = toAccount.id;
+            nounlet.save();
+            nounletsTransferedCount++;
+        } else {
+            log.error("[transferBatchOfNounlets] Cannot transfer Nounlet #{} as it does not exist in the store", [
+                nounletId,
+            ]);
         }
     }
 
-    const fromAccount = findOrNewAccount(fromAddress);
-    const toAccount = findOrNewAccount(toAddress);
-
-    const fromNounlets = fromAccount.nounlets;
-    fromAccount.nounlets = fromNounlets.filter(
-        (nounletId: string) => !existingNounletsIds.includes(BigInt.fromString(nounletId))
-    );
-    fromAccount.nounletBalance = BigInt.fromI32(fromAccount.nounlets.length);
-    fromAccount.nounletBalanceRaw = BigInt.fromI32(fromAccount.nounlets.length);
-    fromAccount.save();
-
-    const toNounlets = toAccount.nounlets;
-    toAccount.nounlets = toNounlets.concat(existingNounletsIds.map<string>((id: BigInt) => id.toString()));
-    toAccount.totalNounletsHeld = fromAccount.totalNounletsHeld.plus(BigInt.fromI32(toAccount.nounlets.length));
-    toAccount.nounletBalance = BigInt.fromI32(toAccount.nounlets.length);
-    toAccount.nounletBalanceRaw = BigInt.fromI32(toAccount.nounlets.length);
+    toAccount.totalNounletsHeld = toAccount.totalNounletsHeld.plus(BigInt.fromI32(nounletsTransferedCount));
     toAccount.save();
 }

@@ -6,68 +6,64 @@ import {
     URI as URIEvent,
 } from "../generated/NounletToken/NounletToken";
 import {
-    findOrNewAccount,
+    findOrCreateDelegate,
     findOrNewDelegate,
     findOrNewDelegateVote,
     findOrNewNounlet,
     transferBatchOfNounlets,
-    UNDEFINED_ID,
 } from "./utils/helpers";
 import { Nounlet } from "../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 
-let nounId: string;
-let accountNounlets: string[];
+let nounletId: string;
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
-    const tokenHolderId = event.params._delegator.toHexString();
-    const oldDelegateAddress = event.params._fromDelegate.toHexString();
-    const newDelegateAddress = event.params._toDelegate.toHexString();
-    const nounletId = event.params._id.toString();
+    const fromDelegateAddress = event.params._fromDelegate.toHexString();
+    const toDelegateAddress = event.params._toDelegate.toHexString();
+    nounletId = event.params._id.toString();
 
-    const nounlet = findOrNewNounlet(nounletId);
-    nounId = nounlet.noun;
-    if (nounId === UNDEFINED_ID) {
-        log.error("[handleDelegateChanged] Noun for nounlet {} not found. Hash: ", [
+    const nounlet = Nounlet.load(nounletId);
+    if (nounlet === null) {
+        log.error("[handleDelegateChanged] Nounlet #{} not found. Hash: ", [
             nounletId,
             event.transaction.hash.toHexString(),
         ]);
         return;
     }
 
-    const tokenHolder = findOrNewAccount(tokenHolderId);
-    accountNounlets = tokenHolder.nounlets.filter((nounletId) => {
-        const nounlet = findOrNewNounlet(nounletId);
-        return nounlet.noun === nounId;
-    });
+    if (nounlet.noun === null) {
+        log.error("[handleDelegateChanged] Noun not found for Nounlet #{}. Hash: ", [
+            nounletId,
+            event.transaction.hash.toHexString(),
+        ]);
+        return;
+    }
 
-    const oldDelegate = findOrNewDelegate(oldDelegateAddress, nounlet.noun);
-    oldDelegate.nounletsRepresented = oldDelegate.nounletsRepresented.filter(
-        (nounletId) => !accountNounlets.includes(nounletId)
-    );
-    oldDelegate.nounletsRepresentedAmount = BigInt.fromI32(oldDelegate.nounletsRepresented.length);
+    const fromDelegate = findOrNewDelegate(fromDelegateAddress, nounlet.noun as string);
+    let fromDelegateNounlets = fromDelegate.nounletsRepresented;
+    fromDelegateNounlets = fromDelegateNounlets.filter((nId) => nId != nounletId);
+    log.info("From delegate nounlets aaa: {}", [fromDelegateNounlets.toString()]);
+    fromDelegate.nounletsRepresented = fromDelegateNounlets.filter((nId) => nId != nounletId);
+    log.info("From delegate nounlets: {}", [fromDelegate.nounletsRepresented.toString()]);
+    fromDelegate.save();
 
-    const newDelegate = findOrNewDelegate(newDelegateAddress, nounlet.noun);
-    newDelegate.nounletsRepresented = newDelegate.nounletsRepresented
-        .concat(accountNounlets)
-        .reduce((carry, nounlet) => {
-            if (!carry.includes(nounlet)) {
-                carry.push(nounlet);
-            }
-            return carry;
-        }, [] as string[]);
-    newDelegate.nounletsRepresentedAmount = BigInt.fromI32(newDelegate.nounletsRepresented.length);
+    const toDelegate = findOrNewDelegate(toDelegateAddress, nounlet.noun as string);
+    const toDelegateNounlets = toDelegate.nounletsRepresented;
+    toDelegateNounlets.push(nounletId);
+    toDelegate.nounletsRepresented = toDelegateNounlets;
+    toDelegate.save();
 
-    oldDelegate.save();
-    newDelegate.save();
+    nounlet.delegate = toDelegate.id;
+    nounlet.save();
 }
 
 export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): void {
     const delegateAddress = event.params._delegate.toHexString();
+    const previousBalance = event.params._previousBalance;
     const newBalance = event.params._newBalance;
     const nounletId = event.params._id.toString();
 
     const nounlet = findOrNewNounlet(nounletId);
-    if (nounlet.noun === UNDEFINED_ID) {
+    if (nounlet.noun === null) {
         log.error("[handleDelegateVotesChanged] Noun for nounlet {} not found. Hash: ", [
             nounletId,
             event.transaction.hash.toHexString(),
@@ -75,12 +71,14 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
         return;
     }
 
-    const delegate = findOrNewDelegate(delegateAddress, nounlet.noun);
-    delegate.delegatedVotes = newBalance;
-    delegate.save();
+    const delegate = findOrCreateDelegate(delegateAddress, nounlet.noun as string);
+    // delegate.delegatedVotes = newBalance;
+    // delegate.save();
 
     const delegateVote = findOrNewDelegateVote(delegate.id, nounletId);
     delegateVote.timestamp = event.block.timestamp;
+    delegateVote.voteAmount = newBalance.minus(previousBalance).abs();
+    delegateVote.save();
 }
 
 export function handleTransferBatch(event: TransferBatchEvent): void {

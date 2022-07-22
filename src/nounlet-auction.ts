@@ -12,7 +12,6 @@ import {
     findOrNewDelegate,
     findOrNewNounlet,
     findOrNewVault,
-    UNDEFINED_ID,
 } from "./utils/helpers";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
@@ -122,7 +121,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     // Verify noun existence
     const nounlet = attemptNounAssignment(findOrNewNounlet(auctionId), vaultId);
-    if (nounlet.noun === UNDEFINED_ID) {
+    if (nounlet.noun === null) {
         log.error("[handleAuctionSettled] Cannot find a Noun for Nounlet #{}. Hash: {}", [
             auctionId,
             event.transaction.hash.toHexString(),
@@ -130,8 +129,13 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
         return;
     }
 
+    // Update Account with token holdings info
+    const account = findOrNewAccount(winnerAddress);
+    account.totalNounletsHeld = account.totalNounletsHeld.plus(BigInt.fromI32(1));
+    account.save();
+
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
-    const delegate = findOrNewDelegate(winnerAddress, nounlet.noun);
+    const delegate = findOrNewDelegate(winnerAddress, nounlet.noun as string);
     delegate.save();
 
     // Settle auction
@@ -144,20 +148,10 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     nounlet.holder = winnerAddress;
     nounlet.delegate = delegate.id;
     nounlet.save();
-
-    // Update Account with token holdings info
-    const account = findOrNewAccount(winnerAddress);
-    const accountNounlets = account.nounlets;
-    accountNounlets.push(auctionId);
-    account.nounlets = accountNounlets;
-    account.totalNounletsHeld = account.totalNounletsHeld.plus(BigInt.fromI32(1));
-    account.nounletBalance = BigInt.fromI32(account.nounlets.length);
-    account.nounletBalanceRaw = BigInt.fromI32(account.nounlets.length);
-    account.save();
 }
 
 function attemptNounAssignment(nounlet: Nounlet, vaultId: string): Nounlet {
-    if (nounlet.noun !== UNDEFINED_ID) {
+    if (nounlet.noun !== null) {
         return nounlet;
     }
 

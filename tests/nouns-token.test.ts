@@ -2,7 +2,7 @@ import { describe, test, assert, afterEach, clearStore, beforeEach } from "match
 import { handleTransfer } from "../src/nouns-token";
 import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
-import { findOrCreateNoun, findOrNewNoun } from "../src/utils/helpers";
+import { findOrCreateNoun } from "../src/utils/helpers";
 
 describe("Noun Token", () => {
     describe("Transfer Handler", () => {

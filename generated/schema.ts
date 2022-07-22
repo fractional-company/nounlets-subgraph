@@ -91,24 +91,6 @@ export class Account extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get nounletBalanceRaw(): BigInt {
-    let value = this.get("nounletBalanceRaw");
-    return value!.toBigInt();
-  }
-
-  set nounletBalanceRaw(value: BigInt) {
-    this.set("nounletBalanceRaw", Value.fromBigInt(value));
-  }
-
-  get nounletBalance(): BigInt {
-    let value = this.get("nounletBalance");
-    return value!.toBigInt();
-  }
-
-  set nounletBalance(value: BigInt) {
-    this.set("nounletBalance", Value.fromBigInt(value));
-  }
-
   get totalNounletsHeld(): BigInt {
     let value = this.get("totalNounletsHeld");
     return value!.toBigInt();
@@ -217,13 +199,21 @@ export class Nounlet extends Entity {
     }
   }
 
-  get noun(): string {
+  get noun(): string | null {
     let value = this.get("noun");
-    return value!.toString();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set noun(value: string) {
-    this.set("noun", Value.fromString(value));
+  set noun(value: string | null) {
+    if (!value) {
+      this.unset("noun");
+    } else {
+      this.set("noun", Value.fromString(<string>value));
+    }
   }
 
   get holder(): string | null {
@@ -498,24 +488,6 @@ export class Delegate extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get delegatedVotes(): BigInt {
-    let value = this.get("delegatedVotes");
-    return value!.toBigInt();
-  }
-
-  set delegatedVotes(value: BigInt) {
-    this.set("delegatedVotes", Value.fromBigInt(value));
-  }
-
-  get nounletsRepresentedAmount(): BigInt {
-    let value = this.get("nounletsRepresentedAmount");
-    return value!.toBigInt();
-  }
-
-  set nounletsRepresentedAmount(value: BigInt) {
-    this.set("nounletsRepresentedAmount", Value.fromBigInt(value));
-  }
-
   get nounletsRepresented(): Array<string> {
     let value = this.get("nounletsRepresented");
     return value!.toStringArray();
@@ -523,6 +495,15 @@ export class Delegate extends Entity {
 
   set nounletsRepresented(value: Array<string>) {
     this.set("nounletsRepresented", Value.fromStringArray(value));
+  }
+
+  get votes(): Array<string> {
+    let value = this.get("votes");
+    return value!.toStringArray();
+  }
+
+  set votes(value: Array<string>) {
+    this.set("votes", Value.fromStringArray(value));
   }
 }
 
@@ -573,6 +554,15 @@ export class DelegateVote extends Entity {
 
   set delegate(value: string) {
     this.set("delegate", Value.fromString(value));
+  }
+
+  get voteAmount(): BigInt {
+    let value = this.get("voteAmount");
+    return value!.toBigInt();
+  }
+
+  set voteAmount(value: BigInt) {
+    this.set("voteAmount", Value.fromBigInt(value));
   }
 
   get reason(): string | null {

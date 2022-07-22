@@ -420,7 +420,7 @@ export function generateDelegateVotesChangedEvent(
             new BigInt(1),
             new BigInt(1),
             new BigInt(1),
-            new BigInt(1),
+            new BigInt(100000),
             new BigInt(1),
             new BigInt(1),
             new BigInt(1),
@@ -452,7 +452,7 @@ export function generateDelegateVotesChangedEvent(
 
 export function generateDelegateChangedEvent(
     delegatorId: string,
-    nounId: number,
+    nounletId: number,
     fromDelegateId: string,
     toDelegateId: string
 ): DelegateChanged {
@@ -491,7 +491,7 @@ export function generateDelegateChangedEvent(
         ),
         [
             new ethereum.EventParam("_delegator", ethereum.Value.fromAddress(Address.fromString(delegatorId))),
-            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
+            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounletId as i32))),
             new ethereum.EventParam("_fromDelegate", ethereum.Value.fromAddress(Address.fromString(fromDelegateId))),
             new ethereum.EventParam("_toDelegate", ethereum.Value.fromAddress(Address.fromString(toDelegateId))),
         ],

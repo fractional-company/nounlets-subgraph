@@ -1,7 +1,7 @@
 import { log, store } from "@graphprotocol/graph-ts";
 import { Transfer } from "../generated/NounsToken/NounsToken";
 import { Auction, Delegate, Noun, Nounlet, Vault } from "../generated/schema";
-import { findOrCreateNoun, findOrNewNoun } from "./utils/helpers";
+import { findOrCreateNoun } from "./utils/helpers";
 
 // export function handleApproval(event: Approval): void {
 // // Entities can be loaded from the store using a string ID; this ID

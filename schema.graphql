@@ -1,8 +1,8 @@
-scalar BigInt
-directive @entity repeatable on OBJECT
-directive @derivedFrom(
-  field: String!
-) on FIELD_DEFINITION
+#scalar BigInt
+#directive @entity repeatable on OBJECT
+#directive @derivedFrom(
+#  field: String!
+#) on FIELD_DEFINITION
 
 
 type Vault @entity {
@@ -17,17 +17,17 @@ type Account @entity {
   "An Account is any address that holds any amount of Nounlets, the id used is the blockchain address."
   id: ID!
 
-  "Nounlet balance of this address expressed in the smallest unit of the Nounlet's ERC1155 Token"
-  nounletBalanceRaw: BigInt!
-
-  "Nounlet balance of this address expressed as a BigInt normalized value for the Nounlet's ERC1155 Token"
-  nounletBalance: BigInt!
+#  "Nounlet balance of this address expressed in the smallest unit of the Nounlet's ERC1155 Token"
+#  nounletBalanceRaw: BigInt!
+#
+#  "Nounlet balance of this address expressed as a BigInt normalized value for the Nounlet's ERC1155 Token"
+#  nounletBalance: BigInt!
 
   "Total amount of Nounlets ever held by this address expressed as a BigInt normalized value for the Nounlets ERC1155 Token"
   totalNounletsHeld: BigInt!
 
   "The Nounlets held by this account"
-  nounlets: [Nounlet!]!
+  nounlets: [Nounlet!]! @derivedFrom(field: "holder")
 }
 
 type Noun @entity {
@@ -46,7 +46,7 @@ type Nounlet @entity {
   seed: Seed
 
   "The Noun ID that the Nounlet is derived from"
-  noun: Noun!
+  noun: Noun
 
   "A Nounlet holder"
   holder: Account
@@ -111,21 +111,11 @@ type Delegate @entity {
   "Wallet address of the delegate + Noun ID"
   id: ID!
 
-  # "Noun ID that the delegate belongs to"
-  # noun: Noun!
-
-  "Amount of votes delegated to this delegate to be used on proposal votings expressed as a BigInt normalized value for the Nouns ERC721 Token"
-  delegatedVotes: BigInt!
-
-  "The amount of token holders the Delegate represents"
-  nounletsRepresentedAmount: BigInt!
-
-
   "Nounlets that this delegate represents"
   nounletsRepresented: [Nounlet!]! @derivedFrom(field: "delegate")
 
-#  "Whether a Delegate represents a Noun he belongs to"
-#  representsNoun: Boolean!
+  "Historic data about the votes for this delegate"
+  votes: [DelegateVote!]! @derivedFrom(field: "delegate")
 }
 
 type DelegateVote @entity {
@@ -137,6 +127,9 @@ type DelegateVote @entity {
 
   "Delegate receiving a vote"
   delegate: Delegate!
+
+  "The amount of votes"
+  voteAmount: BigInt!
 
   "The optional vote reason"
   reason: String

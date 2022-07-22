@@ -30,85 +30,6 @@ export class VaultDeployed__Params {
   get _token(): Address {
     return this._event.parameters[1].value.toAddress();
   }
-
-  get _id(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
-export class NounletRegistry__createCollectionResult {
-  value0: Address;
-  value1: Address;
-
-  constructor(value0: Address, value1: Address) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    return map;
-  }
-
-  getVault(): Address {
-    return this.value0;
-  }
-
-  getToken(): Address {
-    return this.value1;
-  }
-}
-
-export class NounletRegistry__createCollectionForResult {
-  value0: Address;
-  value1: Address;
-
-  constructor(value0: Address, value1: Address) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromAddress(this.value1));
-    return map;
-  }
-
-  getVault(): Address {
-    return this.value0;
-  }
-
-  getToken(): Address {
-    return this.value1;
-  }
-}
-
-export class NounletRegistry__vaultToTokenResult {
-  value0: Address;
-  value1: BigInt;
-
-  constructor(value0: Address, value1: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromAddress(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
-  }
-
-  getToken(): Address {
-    return this.value0;
-  }
-
-  getId(): BigInt {
-    return this.value1;
-  }
 }
 
 export class NounletRegistry extends ethereum.SmartContract {
@@ -119,15 +40,19 @@ export class NounletRegistry extends ethereum.SmartContract {
   create(
     _merkleRoot: Bytes,
     _plugins: Array<Address>,
-    _selectors: Array<Bytes>
+    _selectors: Array<Bytes>,
+    _descriptor: Address,
+    _nounId: BigInt
   ): Address {
     let result = super.call(
       "create",
-      "create(bytes32,address[],bytes4[]):(address)",
+      "create(bytes32,address[],bytes4[],address,uint256):(address)",
       [
         ethereum.Value.fromFixedBytes(_merkleRoot),
         ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
+        ethereum.Value.fromFixedBytesArray(_selectors),
+        ethereum.Value.fromAddress(_descriptor),
+        ethereum.Value.fromUnsignedBigInt(_nounId)
       ]
     );
 
@@ -137,216 +62,21 @@ export class NounletRegistry extends ethereum.SmartContract {
   try_create(
     _merkleRoot: Bytes,
     _plugins: Array<Address>,
-    _selectors: Array<Bytes>
+    _selectors: Array<Bytes>,
+    _descriptor: Address,
+    _nounId: BigInt
   ): ethereum.CallResult<Address> {
     let result = super.tryCall(
       "create",
-      "create(bytes32,address[],bytes4[]):(address)",
+      "create(bytes32,address[],bytes4[],address,uint256):(address)",
       [
         ethereum.Value.fromFixedBytes(_merkleRoot),
         ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
+        ethereum.Value.fromFixedBytesArray(_selectors),
+        ethereum.Value.fromAddress(_descriptor),
+        ethereum.Value.fromUnsignedBigInt(_nounId)
       ]
     );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  createCollection(
-    _merkleRoot: Bytes,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): NounletRegistry__createCollectionResult {
-    let result = super.call(
-      "createCollection",
-      "createCollection(bytes32,address[],bytes4[]):(address,address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-
-    return new NounletRegistry__createCollectionResult(
-      result[0].toAddress(),
-      result[1].toAddress()
-    );
-  }
-
-  try_createCollection(
-    _merkleRoot: Bytes,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): ethereum.CallResult<NounletRegistry__createCollectionResult> {
-    let result = super.tryCall(
-      "createCollection",
-      "createCollection(bytes32,address[],bytes4[]):(address,address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new NounletRegistry__createCollectionResult(
-        value[0].toAddress(),
-        value[1].toAddress()
-      )
-    );
-  }
-
-  createCollectionFor(
-    _merkleRoot: Bytes,
-    _controller: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): NounletRegistry__createCollectionForResult {
-    let result = super.call(
-      "createCollectionFor",
-      "createCollectionFor(bytes32,address,address[],bytes4[]):(address,address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_controller),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-
-    return new NounletRegistry__createCollectionForResult(
-      result[0].toAddress(),
-      result[1].toAddress()
-    );
-  }
-
-  try_createCollectionFor(
-    _merkleRoot: Bytes,
-    _controller: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): ethereum.CallResult<NounletRegistry__createCollectionForResult> {
-    let result = super.tryCall(
-      "createCollectionFor",
-      "createCollectionFor(bytes32,address,address[],bytes4[]):(address,address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_controller),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new NounletRegistry__createCollectionForResult(
-        value[0].toAddress(),
-        value[1].toAddress()
-      )
-    );
-  }
-
-  createFor(
-    _merkleRoot: Bytes,
-    _owner: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): Address {
-    let result = super.call(
-      "createFor",
-      "createFor(bytes32,address,address[],bytes4[]):(address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_owner),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_createFor(
-    _merkleRoot: Bytes,
-    _owner: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "createFor",
-      "createFor(bytes32,address,address[],bytes4[]):(address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_owner),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  createInCollection(
-    _merkleRoot: Bytes,
-    _token: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): Address {
-    let result = super.call(
-      "createInCollection",
-      "createInCollection(bytes32,address,address[],bytes4[]):(address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_token),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_createInCollection(
-    _merkleRoot: Bytes,
-    _token: Address,
-    _plugins: Array<Address>,
-    _selectors: Array<Bytes>
-  ): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "createInCollection",
-      "createInCollection(bytes32,address,address[],bytes4[]):(address)",
-      [
-        ethereum.Value.fromFixedBytes(_merkleRoot),
-        ethereum.Value.fromAddress(_token),
-        ethereum.Value.fromAddressArray(_plugins),
-        ethereum.Value.fromFixedBytesArray(_selectors)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  fNFT(): Address {
-    let result = super.call("fNFT", "fNFT():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_fNFT(): ethereum.CallResult<Address> {
-    let result = super.tryCall("fNFT", "fNFT():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -392,57 +122,19 @@ export class NounletRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  nextId(param0: Address): BigInt {
-    let result = super.call("nextId", "nextId(address):(uint256)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_nextId(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("nextId", "nextId(address):(uint256)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  totalSupply(_vault: Address): BigInt {
-    let result = super.call("totalSupply", "totalSupply(address):(uint256)", [
-      ethereum.Value.fromAddress(_vault)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_totalSupply(_vault: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "totalSupply",
-      "totalSupply(address):(uint256)",
-      [ethereum.Value.fromAddress(_vault)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  uri(_vault: Address): string {
-    let result = super.call("uri", "uri(address):(string)", [
-      ethereum.Value.fromAddress(_vault)
+  uri(_vault: Address, _id: BigInt): string {
+    let result = super.call("uri", "uri(address,uint256):(string)", [
+      ethereum.Value.fromAddress(_vault),
+      ethereum.Value.fromUnsignedBigInt(_id)
     ]);
 
     return result[0].toString();
   }
 
-  try_uri(_vault: Address): ethereum.CallResult<string> {
-    let result = super.tryCall("uri", "uri(address):(string)", [
-      ethereum.Value.fromAddress(_vault)
+  try_uri(_vault: Address, _id: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall("uri", "uri(address,uint256):(string)", [
+      ethereum.Value.fromAddress(_vault),
+      ethereum.Value.fromUnsignedBigInt(_id)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -451,37 +143,25 @@ export class NounletRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  vaultToToken(param0: Address): NounletRegistry__vaultToTokenResult {
-    let result = super.call(
-      "vaultToToken",
-      "vaultToToken(address):(address,uint256)",
-      [ethereum.Value.fromAddress(param0)]
-    );
+  vaultToToken(param0: Address): Address {
+    let result = super.call("vaultToToken", "vaultToToken(address):(address)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
 
-    return new NounletRegistry__vaultToTokenResult(
-      result[0].toAddress(),
-      result[1].toBigInt()
-    );
+    return result[0].toAddress();
   }
 
-  try_vaultToToken(
-    param0: Address
-  ): ethereum.CallResult<NounletRegistry__vaultToTokenResult> {
+  try_vaultToToken(param0: Address): ethereum.CallResult<Address> {
     let result = super.tryCall(
       "vaultToToken",
-      "vaultToToken(address):(address,uint256)",
+      "vaultToToken(address):(address)",
       [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new NounletRegistry__vaultToTokenResult(
-        value[0].toAddress(),
-        value[1].toBigInt()
-      )
-    );
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 }
 
@@ -511,20 +191,20 @@ export class ConstructorCall__Outputs {
   }
 }
 
-export class BurnCall extends ethereum.Call {
-  get inputs(): BurnCall__Inputs {
-    return new BurnCall__Inputs(this);
+export class BatchBurnCall extends ethereum.Call {
+  get inputs(): BatchBurnCall__Inputs {
+    return new BatchBurnCall__Inputs(this);
   }
 
-  get outputs(): BurnCall__Outputs {
-    return new BurnCall__Outputs(this);
+  get outputs(): BatchBurnCall__Outputs {
+    return new BatchBurnCall__Outputs(this);
   }
 }
 
-export class BurnCall__Inputs {
-  _call: BurnCall;
+export class BatchBurnCall__Inputs {
+  _call: BatchBurnCall;
 
-  constructor(call: BurnCall) {
+  constructor(call: BatchBurnCall) {
     this._call = call;
   }
 
@@ -532,15 +212,15 @@ export class BurnCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get _value(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+  get _ids(): Array<BigInt> {
+    return this._call.inputValues[1].value.toBigIntArray();
   }
 }
 
-export class BurnCall__Outputs {
-  _call: BurnCall;
+export class BatchBurnCall__Outputs {
+  _call: BatchBurnCall;
 
-  constructor(call: BurnCall) {
+  constructor(call: BatchBurnCall) {
     this._call = call;
   }
 }
@@ -573,200 +253,20 @@ export class CreateCall__Inputs {
   get _selectors(): Array<Bytes> {
     return this._call.inputValues[2].value.toBytesArray();
   }
+
+  get _descriptor(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+
+  get _nounId(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
+  }
 }
 
 export class CreateCall__Outputs {
   _call: CreateCall;
 
   constructor(call: CreateCall) {
-    this._call = call;
-  }
-
-  get vault(): Address {
-    return this._call.outputValues[0].value.toAddress();
-  }
-}
-
-export class CreateCollectionCall extends ethereum.Call {
-  get inputs(): CreateCollectionCall__Inputs {
-    return new CreateCollectionCall__Inputs(this);
-  }
-
-  get outputs(): CreateCollectionCall__Outputs {
-    return new CreateCollectionCall__Outputs(this);
-  }
-}
-
-export class CreateCollectionCall__Inputs {
-  _call: CreateCollectionCall;
-
-  constructor(call: CreateCollectionCall) {
-    this._call = call;
-  }
-
-  get _merkleRoot(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _plugins(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
-  }
-
-  get _selectors(): Array<Bytes> {
-    return this._call.inputValues[2].value.toBytesArray();
-  }
-}
-
-export class CreateCollectionCall__Outputs {
-  _call: CreateCollectionCall;
-
-  constructor(call: CreateCollectionCall) {
-    this._call = call;
-  }
-
-  get vault(): Address {
-    return this._call.outputValues[0].value.toAddress();
-  }
-
-  get token(): Address {
-    return this._call.outputValues[1].value.toAddress();
-  }
-}
-
-export class CreateCollectionForCall extends ethereum.Call {
-  get inputs(): CreateCollectionForCall__Inputs {
-    return new CreateCollectionForCall__Inputs(this);
-  }
-
-  get outputs(): CreateCollectionForCall__Outputs {
-    return new CreateCollectionForCall__Outputs(this);
-  }
-}
-
-export class CreateCollectionForCall__Inputs {
-  _call: CreateCollectionForCall;
-
-  constructor(call: CreateCollectionForCall) {
-    this._call = call;
-  }
-
-  get _merkleRoot(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _controller(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _plugins(): Array<Address> {
-    return this._call.inputValues[2].value.toAddressArray();
-  }
-
-  get _selectors(): Array<Bytes> {
-    return this._call.inputValues[3].value.toBytesArray();
-  }
-}
-
-export class CreateCollectionForCall__Outputs {
-  _call: CreateCollectionForCall;
-
-  constructor(call: CreateCollectionForCall) {
-    this._call = call;
-  }
-
-  get vault(): Address {
-    return this._call.outputValues[0].value.toAddress();
-  }
-
-  get token(): Address {
-    return this._call.outputValues[1].value.toAddress();
-  }
-}
-
-export class CreateForCall extends ethereum.Call {
-  get inputs(): CreateForCall__Inputs {
-    return new CreateForCall__Inputs(this);
-  }
-
-  get outputs(): CreateForCall__Outputs {
-    return new CreateForCall__Outputs(this);
-  }
-}
-
-export class CreateForCall__Inputs {
-  _call: CreateForCall;
-
-  constructor(call: CreateForCall) {
-    this._call = call;
-  }
-
-  get _merkleRoot(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _owner(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _plugins(): Array<Address> {
-    return this._call.inputValues[2].value.toAddressArray();
-  }
-
-  get _selectors(): Array<Bytes> {
-    return this._call.inputValues[3].value.toBytesArray();
-  }
-}
-
-export class CreateForCall__Outputs {
-  _call: CreateForCall;
-
-  constructor(call: CreateForCall) {
-    this._call = call;
-  }
-
-  get vault(): Address {
-    return this._call.outputValues[0].value.toAddress();
-  }
-}
-
-export class CreateInCollectionCall extends ethereum.Call {
-  get inputs(): CreateInCollectionCall__Inputs {
-    return new CreateInCollectionCall__Inputs(this);
-  }
-
-  get outputs(): CreateInCollectionCall__Outputs {
-    return new CreateInCollectionCall__Outputs(this);
-  }
-}
-
-export class CreateInCollectionCall__Inputs {
-  _call: CreateInCollectionCall;
-
-  constructor(call: CreateInCollectionCall) {
-    this._call = call;
-  }
-
-  get _merkleRoot(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get _token(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _plugins(): Array<Address> {
-    return this._call.inputValues[2].value.toAddressArray();
-  }
-
-  get _selectors(): Array<Bytes> {
-    return this._call.inputValues[3].value.toBytesArray();
-  }
-}
-
-export class CreateInCollectionCall__Outputs {
-  _call: CreateInCollectionCall;
-
-  constructor(call: CreateInCollectionCall) {
     this._call = call;
   }
 
@@ -796,7 +296,7 @@ export class MintCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get _value(): BigInt {
+  get _id(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 }
