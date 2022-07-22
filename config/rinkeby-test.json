@@ -59,7 +59,7 @@
     "abiFile": "NounletRegistry.json",
     "events": [
       {
-        "signature": "VaultDeployed(indexed address,indexed address,uint256)",
+        "signature": "VaultDeployed(indexed address,indexed address)",
         "handler": "handleVaultDeployed"
       }
     ]
