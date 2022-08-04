@@ -14,7 +14,7 @@
   },
 
   "nounletToken": {
-    "address": "0x7E3e9E54724a78e99bFD5e6197EcCB978952397B",
+    "address": "0xa93404F1bA8469435c07d5AA0Af097F75b9C5158",
     "startBlock": 8947618,
     "abiFile": "NounletToken.json",
     "events": [
@@ -30,7 +30,7 @@
   },
 
   "nounletAuction": {
-    "address": "0x3BEFe736bC0E094ed75f342aB70232c0E7461b08",
+    "address": "0x77378fbAFe0a715773fCc91fd2C25F8A4a915370",
     "startBlock": 8947618,
     "abiFile": "NounletAuction.json",
     "events": [
@@ -54,7 +54,7 @@
   },
 
   "nounletRegistry": {
-    "address": "0x7C11142b9f6715FB4b8a9fA7169b26ddbD76885B",
+    "address": "0xAc49064450318616e6A137D975827C3301C3fddC",
     "startBlock": 8947618,
     "abiFile": "NounletRegistry.json",
     "events": [

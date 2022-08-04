@@ -258,7 +258,7 @@ export class NounletToken__checkpointsResult {
     return map;
   }
 
-  getFromTimestamp(): BigInt {
+  getFromBlock(): BigInt {
     return this.value0;
   }
 
@@ -459,6 +459,25 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
+  _ballots(param0: Address): BigInt {
+    let result = super.call("_ballots", "_ballots(address):(uint96)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try__ballots(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("_ballots", "_ballots(address):(uint96)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   balanceOf(owner: Address, id: BigInt): BigInt {
     let result = super.call(
       "balanceOf",
@@ -516,16 +535,14 @@ export class NounletToken extends ethereum.SmartContract {
 
   checkpoints(
     param0: Address,
-    param1: BigInt,
-    param2: BigInt
+    param1: BigInt
   ): NounletToken__checkpointsResult {
     let result = super.call(
       "checkpoints",
-      "checkpoints(address,uint256,uint256):(uint64,uint192)",
+      "checkpoints(address,uint32):(uint32,uint96)",
       [
         ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-        ethereum.Value.fromUnsignedBigInt(param2)
+        ethereum.Value.fromUnsignedBigInt(param1)
       ]
     );
 
@@ -537,16 +554,14 @@ export class NounletToken extends ethereum.SmartContract {
 
   try_checkpoints(
     param0: Address,
-    param1: BigInt,
-    param2: BigInt
+    param1: BigInt
   ): ethereum.CallResult<NounletToken__checkpointsResult> {
     let result = super.tryCall(
       "checkpoints",
-      "checkpoints(address,uint256,uint256):(uint64,uint192)",
+      "checkpoints(address,uint32):(uint32,uint96)",
       [
         ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-        ethereum.Value.fromUnsignedBigInt(param2)
+        ethereum.Value.fromUnsignedBigInt(param1)
       ]
     );
     if (result.reverted) {
@@ -561,28 +576,33 @@ export class NounletToken extends ethereum.SmartContract {
     );
   }
 
-  delegates(account: Address, id: BigInt): Address {
-    let result = super.call(
-      "delegates",
-      "delegates(address,uint256):(address)",
-      [
-        ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id)
-      ]
-    );
+  decimals(): i32 {
+    let result = super.call("decimals", "decimals():(uint8)", []);
+
+    return result[0].toI32();
+  }
+
+  try_decimals(): ethereum.CallResult<i32> {
+    let result = super.tryCall("decimals", "decimals():(uint8)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  delegates(delegator: Address): Address {
+    let result = super.call("delegates", "delegates(address):(address)", [
+      ethereum.Value.fromAddress(delegator)
+    ]);
 
     return result[0].toAddress();
   }
 
-  try_delegates(account: Address, id: BigInt): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "delegates",
-      "delegates(address,uint256):(address)",
-      [
-        ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id)
-      ]
-    );
+  try_delegates(delegator: Address): ethereum.CallResult<Address> {
+    let result = super.tryCall("delegates", "delegates(address):(address)", [
+      ethereum.Value.fromAddress(delegator)
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -621,30 +641,21 @@ export class NounletToken extends ethereum.SmartContract {
     );
   }
 
-  getCurrentVotes(account: Address, id: BigInt): BigInt {
+  getCurrentVotes(account: Address): BigInt {
     let result = super.call(
       "getCurrentVotes",
-      "getCurrentVotes(address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id)
-      ]
+      "getCurrentVotes(address):(uint96)",
+      [ethereum.Value.fromAddress(account)]
     );
 
     return result[0].toBigInt();
   }
 
-  try_getCurrentVotes(
-    account: Address,
-    id: BigInt
-  ): ethereum.CallResult<BigInt> {
+  try_getCurrentVotes(account: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "getCurrentVotes",
-      "getCurrentVotes(address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id)
-      ]
+      "getCurrentVotes(address):(uint96)",
+      [ethereum.Value.fromAddress(account)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -653,14 +664,13 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getPriorVotes(account: Address, id: BigInt, timestamp: BigInt): BigInt {
+  getPriorVotes(account: Address, blockNumber: BigInt): BigInt {
     let result = super.call(
       "getPriorVotes",
-      "getPriorVotes(address,uint256,uint256):(uint256)",
+      "getPriorVotes(address,uint256):(uint256)",
       [
         ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id),
-        ethereum.Value.fromUnsignedBigInt(timestamp)
+        ethereum.Value.fromUnsignedBigInt(blockNumber)
       ]
     );
 
@@ -669,16 +679,14 @@ export class NounletToken extends ethereum.SmartContract {
 
   try_getPriorVotes(
     account: Address,
-    id: BigInt,
-    timestamp: BigInt
+    blockNumber: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "getPriorVotes",
-      "getPriorVotes(address,uint256,uint256):(uint256)",
+      "getPriorVotes(address,uint256):(uint256)",
       [
         ethereum.Value.fromAddress(account),
-        ethereum.Value.fromUnsignedBigInt(id),
-        ethereum.Value.fromUnsignedBigInt(timestamp)
+        ethereum.Value.fromUnsignedBigInt(blockNumber)
       ]
     );
     if (result.reverted) {
@@ -749,6 +757,21 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  maxSupply(): BigInt {
+    let result = super.call("maxSupply", "maxSupply():(uint96)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_maxSupply(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("maxSupply", "maxSupply():(uint96)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   metadata(): Address {
     let result = super.call("metadata", "metadata():(address)", []);
 
@@ -783,30 +806,21 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  numCheckpoints(param0: Address, param1: BigInt): BigInt {
+  numCheckpoints(param0: Address): BigInt {
     let result = super.call(
       "numCheckpoints",
-      "numCheckpoints(address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1)
-      ]
+      "numCheckpoints(address):(uint32)",
+      [ethereum.Value.fromAddress(param0)]
     );
 
     return result[0].toBigInt();
   }
 
-  try_numCheckpoints(
-    param0: Address,
-    param1: BigInt
-  ): ethereum.CallResult<BigInt> {
+  try_numCheckpoints(param0: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "numCheckpoints",
-      "numCheckpoints(address,uint256):(uint256)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1)
-      ]
+      "numCheckpoints(address):(uint32)",
+      [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -877,6 +891,21 @@ export class NounletToken extends ethereum.SmartContract {
     );
   }
 
+  totalSupply(): BigInt {
+    let result = super.call("totalSupply", "totalSupply():(uint96)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_totalSupply(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("totalSupply", "totalSupply():(uint96)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   uri(_id: BigInt): string {
     let result = super.call("uri", "uri(uint256):(string)", [
       ethereum.Value.fromUnsignedBigInt(_id)
@@ -894,6 +923,29 @@ export class NounletToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  votesToDelegate(delegator: Address): BigInt {
+    let result = super.call(
+      "votesToDelegate",
+      "votesToDelegate(address):(uint96)",
+      [ethereum.Value.fromAddress(delegator)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_votesToDelegate(delegator: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "votesToDelegate",
+      "votesToDelegate(address):(uint96)",
+      [ethereum.Value.fromAddress(delegator)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 }
 
@@ -931,40 +983,6 @@ export class BatchBurnCall__Outputs {
   }
 }
 
-export class BatchDelegateCall extends ethereum.Call {
-  get inputs(): BatchDelegateCall__Inputs {
-    return new BatchDelegateCall__Inputs(this);
-  }
-
-  get outputs(): BatchDelegateCall__Outputs {
-    return new BatchDelegateCall__Outputs(this);
-  }
-}
-
-export class BatchDelegateCall__Inputs {
-  _call: BatchDelegateCall;
-
-  constructor(call: BatchDelegateCall) {
-    this._call = call;
-  }
-
-  get account(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get ids(): Array<BigInt> {
-    return this._call.inputValues[1].value.toBigIntArray();
-  }
-}
-
-export class BatchDelegateCall__Outputs {
-  _call: BatchDelegateCall;
-
-  constructor(call: BatchDelegateCall) {
-    this._call = call;
-  }
-}
-
 export class DelegateCall extends ethereum.Call {
   get inputs(): DelegateCall__Inputs {
     return new DelegateCall__Inputs(this);
@@ -982,12 +1000,8 @@ export class DelegateCall__Inputs {
     this._call = call;
   }
 
-  get account(): Address {
+  get delegatee(): Address {
     return this._call.inputValues[0].value.toAddress();
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -1166,11 +1180,11 @@ export class SafeBatchTransferFromCall__Inputs {
     this._call = call;
   }
 
-  get from(): Address {
+  get src(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get to(): Address {
+  get dst(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
 
