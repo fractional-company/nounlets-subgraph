@@ -891,6 +891,29 @@ export class NounletToken extends ethereum.SmartContract {
     );
   }
 
+  supportsInterface(interfaceId: Bytes): boolean {
+    let result = super.call(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "supportsInterface",
+      "supportsInterface(bytes4):(bool)",
+      [ethereum.Value.fromFixedBytes(interfaceId)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   totalSupply(): BigInt {
     let result = super.call("totalSupply", "totalSupply():(uint96)", []);
 
@@ -1180,23 +1203,23 @@ export class SafeBatchTransferFromCall__Inputs {
     this._call = call;
   }
 
-  get src(): Address {
+  get _from(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get dst(): Address {
+  get _to(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get ids(): Array<BigInt> {
+  get _ids(): Array<BigInt> {
     return this._call.inputValues[2].value.toBigIntArray();
   }
 
-  get amounts(): Array<BigInt> {
+  get _amounts(): Array<BigInt> {
     return this._call.inputValues[3].value.toBigIntArray();
   }
 
-  get data(): Bytes {
+  get _data(): Bytes {
     return this._call.inputValues[4].value.toBytes();
   }
 }

@@ -172,21 +172,24 @@ export class NounletAuction__auctionInfoResult {
   value0: BigInt;
   value1: BigInt;
   value2: BigInt;
-  value3: Address;
-  value4: boolean;
+  value3: BigInt;
+  value4: Address;
+  value5: boolean;
 
   constructor(
     value0: BigInt,
     value1: BigInt,
     value2: BigInt,
-    value3: Address,
-    value4: boolean
+    value3: BigInt,
+    value4: Address,
+    value5: boolean
   ) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
     this.value4 = value4;
+    this.value5 = value5;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -194,8 +197,9 @@ export class NounletAuction__auctionInfoResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set("value3", ethereum.Value.fromAddress(this.value3));
-    map.set("value4", ethereum.Value.fromBoolean(this.value4));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromAddress(this.value4));
+    map.set("value5", ethereum.Value.fromBoolean(this.value5));
     return map;
   }
 
@@ -211,12 +215,16 @@ export class NounletAuction__auctionInfoResult {
     return this.value2;
   }
 
-  getBidder(): Address {
+  getId(): BigInt {
     return this.value3;
   }
 
-  getSettled(): boolean {
+  getBidder(): Address {
     return this.value4;
+  }
+
+  getSettled(): boolean {
+    return this.value5;
   }
 }
 
@@ -332,7 +340,7 @@ export class NounletAuction extends ethereum.SmartContract {
   auctionInfo(param0: Address): NounletAuction__auctionInfoResult {
     let result = super.call(
       "auctionInfo",
-      "auctionInfo(address):(uint256,uint256,uint256,address,bool)",
+      "auctionInfo(address):(uint256,uint256,uint256,uint256,address,bool)",
       [ethereum.Value.fromAddress(param0)]
     );
 
@@ -340,8 +348,9 @@ export class NounletAuction extends ethereum.SmartContract {
       result[0].toBigInt(),
       result[1].toBigInt(),
       result[2].toBigInt(),
-      result[3].toAddress(),
-      result[4].toBoolean()
+      result[3].toBigInt(),
+      result[4].toAddress(),
+      result[5].toBoolean()
     );
   }
 
@@ -350,7 +359,7 @@ export class NounletAuction extends ethereum.SmartContract {
   ): ethereum.CallResult<NounletAuction__auctionInfoResult> {
     let result = super.tryCall(
       "auctionInfo",
-      "auctionInfo(address):(uint256,uint256,uint256,address,bool)",
+      "auctionInfo(address):(uint256,uint256,uint256,uint256,address,bool)",
       [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
@@ -362,8 +371,9 @@ export class NounletAuction extends ethereum.SmartContract {
         value[0].toBigInt(),
         value[1].toBigInt(),
         value[2].toBigInt(),
-        value[3].toAddress(),
-        value[4].toBoolean()
+        value[3].toBigInt(),
+        value[4].toAddress(),
+        value[5].toBoolean()
       )
     );
   }
@@ -650,14 +660,18 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytesArray());
   }
 
-  nouns(): Address {
-    let result = super.call("nouns", "nouns():(address)", []);
+  nounletTarget(): Address {
+    let result = super.call("nounletTarget", "nounletTarget():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_nouns(): ethereum.CallResult<Address> {
-    let result = super.tryCall("nouns", "nouns():(address)", []);
+  try_nounletTarget(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "nounletTarget",
+      "nounletTarget():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -817,21 +831,6 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  transfer(): Address {
-    let result = super.call("transfer", "transfer():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_transfer(): ethereum.CallResult<Address> {
-    let result = super.tryCall("transfer", "transfer():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
   vaultCurator(param0: Address): Address {
     let result = super.call("vaultCurator", "vaultCurator(address):(address)", [
       ethereum.Value.fromAddress(param0)
@@ -937,12 +936,8 @@ export class ConstructorCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get _nouns(): Address {
+  get _nounletTarget(): Address {
     return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _transfer(): Address {
-    return this._call.inputValues[2].value.toAddress();
   }
 }
 
