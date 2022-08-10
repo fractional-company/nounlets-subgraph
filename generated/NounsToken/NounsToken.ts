@@ -62,99 +62,255 @@ export class ApprovalForAll__Params {
   }
 }
 
-export class Paused extends ethereum.Event {
-  get params(): Paused__Params {
-    return new Paused__Params(this);
+export class DelegateChanged extends ethereum.Event {
+  get params(): DelegateChanged__Params {
+    return new DelegateChanged__Params(this);
   }
 }
 
-export class Paused__Params {
-  _event: Paused;
+export class DelegateChanged__Params {
+  _event: DelegateChanged;
 
-  constructor(event: Paused) {
+  constructor(event: DelegateChanged) {
     this._event = event;
   }
 
-  get account(): Address {
+  get delegator(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get fromDelegate(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get toDelegate(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+}
+
+export class DelegateVotesChanged extends ethereum.Event {
+  get params(): DelegateVotesChanged__Params {
+    return new DelegateVotesChanged__Params(this);
+  }
+}
+
+export class DelegateVotesChanged__Params {
+  _event: DelegateVotesChanged;
+
+  constructor(event: DelegateVotesChanged) {
+    this._event = event;
+  }
+
+  get delegate(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get previousBalance(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get newBalance(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class DescriptorLocked extends ethereum.Event {
+  get params(): DescriptorLocked__Params {
+    return new DescriptorLocked__Params(this);
+  }
+}
+
+export class DescriptorLocked__Params {
+  _event: DescriptorLocked;
+
+  constructor(event: DescriptorLocked) {
+    this._event = event;
+  }
+}
+
+export class DescriptorUpdated extends ethereum.Event {
+  get params(): DescriptorUpdated__Params {
+    return new DescriptorUpdated__Params(this);
+  }
+}
+
+export class DescriptorUpdated__Params {
+  _event: DescriptorUpdated;
+
+  constructor(event: DescriptorUpdated) {
+    this._event = event;
+  }
+
+  get descriptor(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 }
 
-export class RoleAdminChanged extends ethereum.Event {
-  get params(): RoleAdminChanged__Params {
-    return new RoleAdminChanged__Params(this);
+export class MinterLocked extends ethereum.Event {
+  get params(): MinterLocked__Params {
+    return new MinterLocked__Params(this);
   }
 }
 
-export class RoleAdminChanged__Params {
-  _event: RoleAdminChanged;
+export class MinterLocked__Params {
+  _event: MinterLocked;
 
-  constructor(event: RoleAdminChanged) {
+  constructor(event: MinterLocked) {
+    this._event = event;
+  }
+}
+
+export class MinterUpdated extends ethereum.Event {
+  get params(): MinterUpdated__Params {
+    return new MinterUpdated__Params(this);
+  }
+}
+
+export class MinterUpdated__Params {
+  _event: MinterUpdated;
+
+  constructor(event: MinterUpdated) {
     this._event = event;
   }
 
-  get role(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get previousAdminRole(): Bytes {
-    return this._event.parameters[1].value.toBytes();
-  }
-
-  get newAdminRole(): Bytes {
-    return this._event.parameters[2].value.toBytes();
+  get minter(): Address {
+    return this._event.parameters[0].value.toAddress();
   }
 }
 
-export class RoleGranted extends ethereum.Event {
-  get params(): RoleGranted__Params {
-    return new RoleGranted__Params(this);
+export class NounBurned extends ethereum.Event {
+  get params(): NounBurned__Params {
+    return new NounBurned__Params(this);
   }
 }
 
-export class RoleGranted__Params {
-  _event: RoleGranted;
+export class NounBurned__Params {
+  _event: NounBurned;
 
-  constructor(event: RoleGranted) {
+  constructor(event: NounBurned) {
     this._event = event;
   }
 
-  get role(): Bytes {
-    return this._event.parameters[0].value.toBytes();
+  get tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class NounCreated extends ethereum.Event {
+  get params(): NounCreated__Params {
+    return new NounCreated__Params(this);
+  }
+}
+
+export class NounCreated__Params {
+  _event: NounCreated;
+
+  constructor(event: NounCreated) {
+    this._event = event;
   }
 
-  get account(): Address {
+  get tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get seed(): NounCreatedSeedStruct {
+    return changetype<NounCreatedSeedStruct>(
+      this._event.parameters[1].value.toTuple()
+    );
+  }
+}
+
+export class NounCreatedSeedStruct extends ethereum.Tuple {
+  get background(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get body(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get accessory(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get head(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get glasses(): BigInt {
+    return this[4].toBigInt();
+  }
+}
+
+export class NoundersDAOUpdated extends ethereum.Event {
+  get params(): NoundersDAOUpdated__Params {
+    return new NoundersDAOUpdated__Params(this);
+  }
+}
+
+export class NoundersDAOUpdated__Params {
+  _event: NoundersDAOUpdated;
+
+  constructor(event: NoundersDAOUpdated) {
+    this._event = event;
+  }
+
+  get noundersDAO(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class OwnershipTransferred extends ethereum.Event {
+  get params(): OwnershipTransferred__Params {
+    return new OwnershipTransferred__Params(this);
+  }
+}
+
+export class OwnershipTransferred__Params {
+  _event: OwnershipTransferred;
+
+  constructor(event: OwnershipTransferred) {
+    this._event = event;
+  }
+
+  get previousOwner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
     return this._event.parameters[1].value.toAddress();
   }
+}
 
-  get sender(): Address {
-    return this._event.parameters[2].value.toAddress();
+export class SeederLocked extends ethereum.Event {
+  get params(): SeederLocked__Params {
+    return new SeederLocked__Params(this);
   }
 }
 
-export class RoleRevoked extends ethereum.Event {
-  get params(): RoleRevoked__Params {
-    return new RoleRevoked__Params(this);
+export class SeederLocked__Params {
+  _event: SeederLocked;
+
+  constructor(event: SeederLocked) {
+    this._event = event;
   }
 }
 
-export class RoleRevoked__Params {
-  _event: RoleRevoked;
+export class SeederUpdated extends ethereum.Event {
+  get params(): SeederUpdated__Params {
+    return new SeederUpdated__Params(this);
+  }
+}
 
-  constructor(event: RoleRevoked) {
+export class SeederUpdated__Params {
+  _event: SeederUpdated;
+
+  constructor(event: SeederUpdated) {
     this._event = event;
   }
 
-  get role(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get account(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get sender(): Address {
-    return this._event.parameters[2].value.toAddress();
+  get seeder(): Address {
+    return this._event.parameters[0].value.toAddress();
   }
 }
 
@@ -184,21 +340,80 @@ export class Transfer__Params {
   }
 }
 
-export class Unpaused extends ethereum.Event {
-  get params(): Unpaused__Params {
-    return new Unpaused__Params(this);
+export class NounsToken__checkpointsResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getFromBlock(): BigInt {
+    return this.value0;
+  }
+
+  getVotes(): BigInt {
+    return this.value1;
   }
 }
 
-export class Unpaused__Params {
-  _event: Unpaused;
+export class NounsToken__seedsResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: BigInt;
+  value3: BigInt;
+  value4: BigInt;
 
-  constructor(event: Unpaused) {
-    this._event = event;
+  constructor(
+    value0: BigInt,
+    value1: BigInt,
+    value2: BigInt,
+    value3: BigInt,
+    value4: BigInt
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
   }
 
-  get account(): Address {
-    return this._event.parameters[0].value.toAddress();
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
+    return map;
+  }
+
+  getBackground(): BigInt {
+    return this.value0;
+  }
+
+  getBody(): BigInt {
+    return this.value1;
+  }
+
+  getAccessory(): BigInt {
+    return this.value2;
+  }
+
+  getHead(): BigInt {
+    return this.value3;
+  }
+
+  getGlasses(): BigInt {
+    return this.value4;
   }
 }
 
@@ -207,20 +422,20 @@ export class NounsToken extends ethereum.SmartContract {
     return new NounsToken("NounsToken", address);
   }
 
-  DEFAULT_ADMIN_ROLE(): Bytes {
+  DELEGATION_TYPEHASH(): Bytes {
     let result = super.call(
-      "DEFAULT_ADMIN_ROLE",
-      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      "DELEGATION_TYPEHASH",
+      "DELEGATION_TYPEHASH():(bytes32)",
       []
     );
 
     return result[0].toBytes();
   }
 
-  try_DEFAULT_ADMIN_ROLE(): ethereum.CallResult<Bytes> {
+  try_DELEGATION_TYPEHASH(): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "DEFAULT_ADMIN_ROLE",
-      "DEFAULT_ADMIN_ROLE():(bytes32)",
+      "DELEGATION_TYPEHASH",
+      "DELEGATION_TYPEHASH():(bytes32)",
       []
     );
     if (result.reverted) {
@@ -230,29 +445,22 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  MINTER_ROLE(): Bytes {
-    let result = super.call("MINTER_ROLE", "MINTER_ROLE():(bytes32)", []);
+  DOMAIN_TYPEHASH(): Bytes {
+    let result = super.call(
+      "DOMAIN_TYPEHASH",
+      "DOMAIN_TYPEHASH():(bytes32)",
+      []
+    );
 
     return result[0].toBytes();
   }
 
-  try_MINTER_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("MINTER_ROLE", "MINTER_ROLE():(bytes32)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
-
-  PAUSER_ROLE(): Bytes {
-    let result = super.call("PAUSER_ROLE", "PAUSER_ROLE():(bytes32)", []);
-
-    return result[0].toBytes();
-  }
-
-  try_PAUSER_ROLE(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("PAUSER_ROLE", "PAUSER_ROLE():(bytes32)", []);
+  try_DOMAIN_TYPEHASH(): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "DOMAIN_TYPEHASH",
+      "DOMAIN_TYPEHASH():(bytes32)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -279,19 +487,127 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  baseURI(): string {
-    let result = super.call("baseURI", "baseURI():(string)", []);
+  checkpoints(param0: Address, param1: BigInt): NounsToken__checkpointsResult {
+    let result = super.call(
+      "checkpoints",
+      "checkpoints(address,uint32):(uint32,uint96)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return new NounsToken__checkpointsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_checkpoints(
+    param0: Address,
+    param1: BigInt
+  ): ethereum.CallResult<NounsToken__checkpointsResult> {
+    let result = super.tryCall(
+      "checkpoints",
+      "checkpoints(address,uint32):(uint32,uint96)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new NounsToken__checkpointsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  contractURI(): string {
+    let result = super.call("contractURI", "contractURI():(string)", []);
 
     return result[0].toString();
   }
 
-  try_baseURI(): ethereum.CallResult<string> {
-    let result = super.tryCall("baseURI", "baseURI():(string)", []);
+  try_contractURI(): ethereum.CallResult<string> {
+    let result = super.tryCall("contractURI", "contractURI():(string)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  dataURI(tokenId: BigInt): string {
+    let result = super.call("dataURI", "dataURI(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    ]);
+
+    return result[0].toString();
+  }
+
+  try_dataURI(tokenId: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall("dataURI", "dataURI(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  decimals(): i32 {
+    let result = super.call("decimals", "decimals():(uint8)", []);
+
+    return result[0].toI32();
+  }
+
+  try_decimals(): ethereum.CallResult<i32> {
+    let result = super.tryCall("decimals", "decimals():(uint8)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  delegates(delegator: Address): Address {
+    let result = super.call("delegates", "delegates(address):(address)", [
+      ethereum.Value.fromAddress(delegator)
+    ]);
+
+    return result[0].toAddress();
+  }
+
+  try_delegates(delegator: Address): ethereum.CallResult<Address> {
+    let result = super.tryCall("delegates", "delegates(address):(address)", [
+      ethereum.Value.fromAddress(delegator)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  descriptor(): Address {
+    let result = super.call("descriptor", "descriptor():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_descriptor(): ethereum.CallResult<Address> {
+    let result = super.tryCall("descriptor", "descriptor():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   getApproved(tokenId: BigInt): Address {
@@ -315,71 +631,21 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  getRoleAdmin(role: Bytes): Bytes {
-    let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
-      ethereum.Value.fromFixedBytes(role)
-    ]);
-
-    return result[0].toBytes();
-  }
-
-  try_getRoleAdmin(role: Bytes): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "getRoleAdmin",
-      "getRoleAdmin(bytes32):(bytes32)",
-      [ethereum.Value.fromFixedBytes(role)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
-
-  getRoleMember(role: Bytes, index: BigInt): Address {
+  getCurrentVotes(account: Address): BigInt {
     let result = super.call(
-      "getRoleMember",
-      "getRoleMember(bytes32,uint256):(address)",
-      [
-        ethereum.Value.fromFixedBytes(role),
-        ethereum.Value.fromUnsignedBigInt(index)
-      ]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_getRoleMember(role: Bytes, index: BigInt): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "getRoleMember",
-      "getRoleMember(bytes32,uint256):(address)",
-      [
-        ethereum.Value.fromFixedBytes(role),
-        ethereum.Value.fromUnsignedBigInt(index)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getRoleMemberCount(role: Bytes): BigInt {
-    let result = super.call(
-      "getRoleMemberCount",
-      "getRoleMemberCount(bytes32):(uint256)",
-      [ethereum.Value.fromFixedBytes(role)]
+      "getCurrentVotes",
+      "getCurrentVotes(address):(uint96)",
+      [ethereum.Value.fromAddress(account)]
     );
 
     return result[0].toBigInt();
   }
 
-  try_getRoleMemberCount(role: Bytes): ethereum.CallResult<BigInt> {
+  try_getCurrentVotes(account: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "getRoleMemberCount",
-      "getRoleMemberCount(bytes32):(uint256)",
-      [ethereum.Value.fromFixedBytes(role)]
+      "getCurrentVotes",
+      "getCurrentVotes(address):(uint96)",
+      [ethereum.Value.fromAddress(account)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -388,25 +654,36 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  hasRole(role: Bytes, account: Address): boolean {
-    let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
-      ethereum.Value.fromFixedBytes(role),
-      ethereum.Value.fromAddress(account)
-    ]);
+  getPriorVotes(account: Address, blockNumber: BigInt): BigInt {
+    let result = super.call(
+      "getPriorVotes",
+      "getPriorVotes(address,uint256):(uint96)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromUnsignedBigInt(blockNumber)
+      ]
+    );
 
-    return result[0].toBoolean();
+    return result[0].toBigInt();
   }
 
-  try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
-      ethereum.Value.fromFixedBytes(role),
-      ethereum.Value.fromAddress(account)
-    ]);
+  try_getPriorVotes(
+    account: Address,
+    blockNumber: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getPriorVotes",
+      "getPriorVotes(address,uint256):(uint96)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromUnsignedBigInt(blockNumber)
+      ]
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   isApprovedForAll(owner: Address, operator: Address): boolean {
@@ -435,6 +712,89 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  isDescriptorLocked(): boolean {
+    let result = super.call(
+      "isDescriptorLocked",
+      "isDescriptorLocked():(bool)",
+      []
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isDescriptorLocked(): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isDescriptorLocked",
+      "isDescriptorLocked():(bool)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isMinterLocked(): boolean {
+    let result = super.call("isMinterLocked", "isMinterLocked():(bool)", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_isMinterLocked(): ethereum.CallResult<boolean> {
+    let result = super.tryCall("isMinterLocked", "isMinterLocked():(bool)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  isSeederLocked(): boolean {
+    let result = super.call("isSeederLocked", "isSeederLocked():(bool)", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_isSeederLocked(): ethereum.CallResult<boolean> {
+    let result = super.tryCall("isSeederLocked", "isSeederLocked():(bool)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  mint(): BigInt {
+    let result = super.call("mint", "mint():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_mint(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("mint", "mint():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  minter(): Address {
+    let result = super.call("minter", "minter():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_minter(): ethereum.CallResult<Address> {
+    let result = super.tryCall("minter", "minter():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   name(): string {
     let result = super.call("name", "name():(string)", []);
 
@@ -448,6 +808,78 @@ export class NounsToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  nonces(param0: Address): BigInt {
+    let result = super.call("nonces", "nonces(address):(uint256)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_nonces(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("nonces", "nonces(address):(uint256)", [
+      ethereum.Value.fromAddress(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  noundersDAO(): Address {
+    let result = super.call("noundersDAO", "noundersDAO():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_noundersDAO(): ethereum.CallResult<Address> {
+    let result = super.tryCall("noundersDAO", "noundersDAO():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  numCheckpoints(param0: Address): BigInt {
+    let result = super.call(
+      "numCheckpoints",
+      "numCheckpoints(address):(uint32)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_numCheckpoints(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "numCheckpoints",
+      "numCheckpoints(address):(uint32)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   ownerOf(tokenId: BigInt): Address {
@@ -469,19 +901,75 @@ export class NounsToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  paused(): boolean {
-    let result = super.call("paused", "paused():(bool)", []);
+  proxyRegistry(): Address {
+    let result = super.call("proxyRegistry", "proxyRegistry():(address)", []);
 
-    return result[0].toBoolean();
+    return result[0].toAddress();
   }
 
-  try_paused(): ethereum.CallResult<boolean> {
-    let result = super.tryCall("paused", "paused():(bool)", []);
+  try_proxyRegistry(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "proxyRegistry",
+      "proxyRegistry():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  seeder(): Address {
+    let result = super.call("seeder", "seeder():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_seeder(): ethereum.CallResult<Address> {
+    let result = super.tryCall("seeder", "seeder():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  seeds(param0: BigInt): NounsToken__seedsResult {
+    let result = super.call(
+      "seeds",
+      "seeds(uint256):(uint48,uint48,uint48,uint48,uint48)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return new NounsToken__seedsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+      result[3].toBigInt(),
+      result[4].toBigInt()
+    );
+  }
+
+  try_seeds(param0: BigInt): ethereum.CallResult<NounsToken__seedsResult> {
+    let result = super.tryCall(
+      "seeds",
+      "seeds(uint256):(uint48,uint48,uint48,uint48,uint48)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new NounsToken__seedsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+        value[3].toBigInt(),
+        value[4].toBigInt()
+      )
+    );
   }
 
   supportsInterface(interfaceId: Bytes): boolean {
@@ -608,6 +1096,29 @@ export class NounsToken extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
+
+  votesToDelegate(delegator: Address): BigInt {
+    let result = super.call(
+      "votesToDelegate",
+      "votesToDelegate(address):(uint96)",
+      [ethereum.Value.fromAddress(delegator)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_votesToDelegate(delegator: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "votesToDelegate",
+      "votesToDelegate(address):(uint96)",
+      [ethereum.Value.fromAddress(delegator)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
 }
 
 export class ConstructorCall extends ethereum.Call {
@@ -627,16 +1138,24 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get name(): string {
-    return this._call.inputValues[0].value.toString();
+  get _noundersDAO(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get symbol(): string {
-    return this._call.inputValues[1].value.toString();
+  get _minter(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 
-  get baseURI(): string {
-    return this._call.inputValues[2].value.toString();
+  get _descriptor(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+
+  get _seeder(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+
+  get _proxyRegistry(): Address {
+    return this._call.inputValues[4].value.toAddress();
   }
 }
 
@@ -699,7 +1218,7 @@ export class BurnCall__Inputs {
     this._call = call;
   }
 
-  get tokenId(): BigInt {
+  get nounId(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 }
@@ -712,36 +1231,160 @@ export class BurnCall__Outputs {
   }
 }
 
-export class GrantRoleCall extends ethereum.Call {
-  get inputs(): GrantRoleCall__Inputs {
-    return new GrantRoleCall__Inputs(this);
+export class DelegateCall extends ethereum.Call {
+  get inputs(): DelegateCall__Inputs {
+    return new DelegateCall__Inputs(this);
   }
 
-  get outputs(): GrantRoleCall__Outputs {
-    return new GrantRoleCall__Outputs(this);
+  get outputs(): DelegateCall__Outputs {
+    return new DelegateCall__Outputs(this);
   }
 }
 
-export class GrantRoleCall__Inputs {
-  _call: GrantRoleCall;
+export class DelegateCall__Inputs {
+  _call: DelegateCall;
 
-  constructor(call: GrantRoleCall) {
+  constructor(call: DelegateCall) {
     this._call = call;
   }
 
-  get role(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get account(): Address {
-    return this._call.inputValues[1].value.toAddress();
+  get delegatee(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 }
 
-export class GrantRoleCall__Outputs {
-  _call: GrantRoleCall;
+export class DelegateCall__Outputs {
+  _call: DelegateCall;
 
-  constructor(call: GrantRoleCall) {
+  constructor(call: DelegateCall) {
+    this._call = call;
+  }
+}
+
+export class DelegateBySigCall extends ethereum.Call {
+  get inputs(): DelegateBySigCall__Inputs {
+    return new DelegateBySigCall__Inputs(this);
+  }
+
+  get outputs(): DelegateBySigCall__Outputs {
+    return new DelegateBySigCall__Outputs(this);
+  }
+}
+
+export class DelegateBySigCall__Inputs {
+  _call: DelegateBySigCall;
+
+  constructor(call: DelegateBySigCall) {
+    this._call = call;
+  }
+
+  get delegatee(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get nonce(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+
+  get expiry(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get v(): i32 {
+    return this._call.inputValues[3].value.toI32();
+  }
+
+  get r(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
+  }
+
+  get s(): Bytes {
+    return this._call.inputValues[5].value.toBytes();
+  }
+}
+
+export class DelegateBySigCall__Outputs {
+  _call: DelegateBySigCall;
+
+  constructor(call: DelegateBySigCall) {
+    this._call = call;
+  }
+}
+
+export class LockDescriptorCall extends ethereum.Call {
+  get inputs(): LockDescriptorCall__Inputs {
+    return new LockDescriptorCall__Inputs(this);
+  }
+
+  get outputs(): LockDescriptorCall__Outputs {
+    return new LockDescriptorCall__Outputs(this);
+  }
+}
+
+export class LockDescriptorCall__Inputs {
+  _call: LockDescriptorCall;
+
+  constructor(call: LockDescriptorCall) {
+    this._call = call;
+  }
+}
+
+export class LockDescriptorCall__Outputs {
+  _call: LockDescriptorCall;
+
+  constructor(call: LockDescriptorCall) {
+    this._call = call;
+  }
+}
+
+export class LockMinterCall extends ethereum.Call {
+  get inputs(): LockMinterCall__Inputs {
+    return new LockMinterCall__Inputs(this);
+  }
+
+  get outputs(): LockMinterCall__Outputs {
+    return new LockMinterCall__Outputs(this);
+  }
+}
+
+export class LockMinterCall__Inputs {
+  _call: LockMinterCall;
+
+  constructor(call: LockMinterCall) {
+    this._call = call;
+  }
+}
+
+export class LockMinterCall__Outputs {
+  _call: LockMinterCall;
+
+  constructor(call: LockMinterCall) {
+    this._call = call;
+  }
+}
+
+export class LockSeederCall extends ethereum.Call {
+  get inputs(): LockSeederCall__Inputs {
+    return new LockSeederCall__Inputs(this);
+  }
+
+  get outputs(): LockSeederCall__Outputs {
+    return new LockSeederCall__Outputs(this);
+  }
+}
+
+export class LockSeederCall__Inputs {
+  _call: LockSeederCall;
+
+  constructor(call: LockSeederCall) {
+    this._call = call;
+  }
+}
+
+export class LockSeederCall__Outputs {
+  _call: LockSeederCall;
+
+  constructor(call: LockSeederCall) {
     this._call = call;
   }
 }
@@ -762,10 +1405,6 @@ export class MintCall__Inputs {
   constructor(call: MintCall) {
     this._call = call;
   }
-
-  get to(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
 }
 
 export class MintCall__Outputs {
@@ -774,98 +1413,34 @@ export class MintCall__Outputs {
   constructor(call: MintCall) {
     this._call = call;
   }
-}
 
-export class PauseCall extends ethereum.Call {
-  get inputs(): PauseCall__Inputs {
-    return new PauseCall__Inputs(this);
-  }
-
-  get outputs(): PauseCall__Outputs {
-    return new PauseCall__Outputs(this);
+  get value0(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
   }
 }
 
-export class PauseCall__Inputs {
-  _call: PauseCall;
+export class RenounceOwnershipCall extends ethereum.Call {
+  get inputs(): RenounceOwnershipCall__Inputs {
+    return new RenounceOwnershipCall__Inputs(this);
+  }
 
-  constructor(call: PauseCall) {
+  get outputs(): RenounceOwnershipCall__Outputs {
+    return new RenounceOwnershipCall__Outputs(this);
+  }
+}
+
+export class RenounceOwnershipCall__Inputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
     this._call = call;
   }
 }
 
-export class PauseCall__Outputs {
-  _call: PauseCall;
+export class RenounceOwnershipCall__Outputs {
+  _call: RenounceOwnershipCall;
 
-  constructor(call: PauseCall) {
-    this._call = call;
-  }
-}
-
-export class RenounceRoleCall extends ethereum.Call {
-  get inputs(): RenounceRoleCall__Inputs {
-    return new RenounceRoleCall__Inputs(this);
-  }
-
-  get outputs(): RenounceRoleCall__Outputs {
-    return new RenounceRoleCall__Outputs(this);
-  }
-}
-
-export class RenounceRoleCall__Inputs {
-  _call: RenounceRoleCall;
-
-  constructor(call: RenounceRoleCall) {
-    this._call = call;
-  }
-
-  get role(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get account(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-}
-
-export class RenounceRoleCall__Outputs {
-  _call: RenounceRoleCall;
-
-  constructor(call: RenounceRoleCall) {
-    this._call = call;
-  }
-}
-
-export class RevokeRoleCall extends ethereum.Call {
-  get inputs(): RevokeRoleCall__Inputs {
-    return new RevokeRoleCall__Inputs(this);
-  }
-
-  get outputs(): RevokeRoleCall__Outputs {
-    return new RevokeRoleCall__Outputs(this);
-  }
-}
-
-export class RevokeRoleCall__Inputs {
-  _call: RevokeRoleCall;
-
-  constructor(call: RevokeRoleCall) {
-    this._call = call;
-  }
-
-  get role(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get account(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-}
-
-export class RevokeRoleCall__Outputs {
-  _call: RevokeRoleCall;
-
-  constructor(call: RevokeRoleCall) {
+  constructor(call: RenounceOwnershipCall) {
     this._call = call;
   }
 }
@@ -984,6 +1559,156 @@ export class SetApprovalForAllCall__Outputs {
   }
 }
 
+export class SetContractURIHashCall extends ethereum.Call {
+  get inputs(): SetContractURIHashCall__Inputs {
+    return new SetContractURIHashCall__Inputs(this);
+  }
+
+  get outputs(): SetContractURIHashCall__Outputs {
+    return new SetContractURIHashCall__Outputs(this);
+  }
+}
+
+export class SetContractURIHashCall__Inputs {
+  _call: SetContractURIHashCall;
+
+  constructor(call: SetContractURIHashCall) {
+    this._call = call;
+  }
+
+  get newContractURIHash(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+}
+
+export class SetContractURIHashCall__Outputs {
+  _call: SetContractURIHashCall;
+
+  constructor(call: SetContractURIHashCall) {
+    this._call = call;
+  }
+}
+
+export class SetDescriptorCall extends ethereum.Call {
+  get inputs(): SetDescriptorCall__Inputs {
+    return new SetDescriptorCall__Inputs(this);
+  }
+
+  get outputs(): SetDescriptorCall__Outputs {
+    return new SetDescriptorCall__Outputs(this);
+  }
+}
+
+export class SetDescriptorCall__Inputs {
+  _call: SetDescriptorCall;
+
+  constructor(call: SetDescriptorCall) {
+    this._call = call;
+  }
+
+  get _descriptor(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetDescriptorCall__Outputs {
+  _call: SetDescriptorCall;
+
+  constructor(call: SetDescriptorCall) {
+    this._call = call;
+  }
+}
+
+export class SetMinterCall extends ethereum.Call {
+  get inputs(): SetMinterCall__Inputs {
+    return new SetMinterCall__Inputs(this);
+  }
+
+  get outputs(): SetMinterCall__Outputs {
+    return new SetMinterCall__Outputs(this);
+  }
+}
+
+export class SetMinterCall__Inputs {
+  _call: SetMinterCall;
+
+  constructor(call: SetMinterCall) {
+    this._call = call;
+  }
+
+  get _minter(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetMinterCall__Outputs {
+  _call: SetMinterCall;
+
+  constructor(call: SetMinterCall) {
+    this._call = call;
+  }
+}
+
+export class SetNoundersDAOCall extends ethereum.Call {
+  get inputs(): SetNoundersDAOCall__Inputs {
+    return new SetNoundersDAOCall__Inputs(this);
+  }
+
+  get outputs(): SetNoundersDAOCall__Outputs {
+    return new SetNoundersDAOCall__Outputs(this);
+  }
+}
+
+export class SetNoundersDAOCall__Inputs {
+  _call: SetNoundersDAOCall;
+
+  constructor(call: SetNoundersDAOCall) {
+    this._call = call;
+  }
+
+  get _noundersDAO(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetNoundersDAOCall__Outputs {
+  _call: SetNoundersDAOCall;
+
+  constructor(call: SetNoundersDAOCall) {
+    this._call = call;
+  }
+}
+
+export class SetSeederCall extends ethereum.Call {
+  get inputs(): SetSeederCall__Inputs {
+    return new SetSeederCall__Inputs(this);
+  }
+
+  get outputs(): SetSeederCall__Outputs {
+    return new SetSeederCall__Outputs(this);
+  }
+}
+
+export class SetSeederCall__Inputs {
+  _call: SetSeederCall;
+
+  constructor(call: SetSeederCall) {
+    this._call = call;
+  }
+
+  get _seeder(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetSeederCall__Outputs {
+  _call: SetSeederCall;
+
+  constructor(call: SetSeederCall) {
+    this._call = call;
+  }
+}
+
 export class TransferFromCall extends ethereum.Call {
   get inputs(): TransferFromCall__Inputs {
     return new TransferFromCall__Inputs(this);
@@ -1022,28 +1747,32 @@ export class TransferFromCall__Outputs {
   }
 }
 
-export class UnpauseCall extends ethereum.Call {
-  get inputs(): UnpauseCall__Inputs {
-    return new UnpauseCall__Inputs(this);
+export class TransferOwnershipCall extends ethereum.Call {
+  get inputs(): TransferOwnershipCall__Inputs {
+    return new TransferOwnershipCall__Inputs(this);
   }
 
-  get outputs(): UnpauseCall__Outputs {
-    return new UnpauseCall__Outputs(this);
+  get outputs(): TransferOwnershipCall__Outputs {
+    return new TransferOwnershipCall__Outputs(this);
   }
 }
 
-export class UnpauseCall__Inputs {
-  _call: UnpauseCall;
+export class TransferOwnershipCall__Inputs {
+  _call: TransferOwnershipCall;
 
-  constructor(call: UnpauseCall) {
+  constructor(call: TransferOwnershipCall) {
     this._call = call;
   }
+
+  get newOwner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
 }
 
-export class UnpauseCall__Outputs {
-  _call: UnpauseCall;
+export class TransferOwnershipCall__Outputs {
+  _call: TransferOwnershipCall;
 
-  constructor(call: UnpauseCall) {
+  constructor(call: TransferOwnershipCall) {
     this._call = call;
   }
 }
