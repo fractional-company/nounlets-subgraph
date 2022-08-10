@@ -14,7 +14,7 @@
   },
 
   "nounletToken": {
-    "address": "0x7E3e9E54724a78e99bFD5e6197EcCB978952397B",
+    "address": "0x3cd078856c24B1A8B6B9D63fDfC9b2983038EC8e",
     "startBlock": 8947618,
     "abiFile": "NounletToken.json",
     "events": [
@@ -30,31 +30,27 @@
   },
 
   "nounletAuction": {
-    "address": "0x3BEFe736bC0E094ed75f342aB70232c0E7461b08",
+    "address": "0x6d7B5aD50c21c72844Da477f7D08c04829Bf1852",
     "startBlock": 8947618,
     "abiFile": "NounletAuction.json",
     "events": [
       {
-        "signature": "AuctionCreated(indexed address,indexed address,uint256,uint256,uint256)",
+        "signature": "Created(indexed address,indexed address,indexed uint256,uint256)",
         "handler": "handleAuctionCreated"
       },
       {
-        "signature": "AuctionBid(indexed address,indexed address,uint256,indexed address,uint256,bool)",
+        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256)",
         "handler": "handleAuctionBid"
       },
       {
-        "signature": "AuctionExtended(uint256,indexed address,indexed address,uint256)",
-        "handler": "handleAuctionExtended"
-      },
-      {
-        "signature": "AuctionSettled(indexed address,indexed address,uint256,indexed address,uint256)",
+        "signature": "Settled(indexed address,indexed address,indexed uint256,address,uint256)",
         "handler": "handleAuctionSettled"
       }
     ]
   },
 
   "nounletRegistry": {
-    "address": "0x7C11142b9f6715FB4b8a9fA7169b26ddbD76885B",
+    "address": "0x22625BB30d434d5d789fa808fa8eb668478aB4e2",
     "startBlock": 8947618,
     "abiFile": "NounletRegistry.json",
     "events": [

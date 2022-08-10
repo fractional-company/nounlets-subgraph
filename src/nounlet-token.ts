@@ -3,7 +3,6 @@ import {
     DelegateVotesChanged as DelegateVotesChangedEvent,
     TransferBatch as TransferBatchEvent,
     TransferSingle as TransferSingleEvent,
-    URI as URIEvent,
 } from "../generated/NounletToken/NounletToken";
 import {
     findOrCreateDelegate,

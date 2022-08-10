@@ -1,8 +1,7 @@
 import {
-    AuctionBid as AuctionBidEvent,
-    AuctionCreated as AuctionCreatedEvent,
-    AuctionExtended as AuctionExtendedEvent,
-    AuctionSettled as AuctionSettledEvent,
+    Bid as AuctionBidEvent,
+    Created as AuctionCreatedEvent,
+    Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
 import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
@@ -17,7 +16,8 @@ import {
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
     const nounletId: string = event.params._id.toString();
-    const startTime: BigInt = event.params._startTime;
+    const startTime: BigInt = event.block.timestamp;
+    // const startTime: BigInt = event.params._startTime;
     const endTime: BigInt = event.params._endTime;
 
     const vault = Vault.load(vaultId);
@@ -52,26 +52,26 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     auction.save();
 }
 
-export function handleAuctionExtended(event: AuctionExtendedEvent): void {
-    const auctionId = event.params._id.toString();
-    const endTime = event.params._endTime;
-
-    const auction = Auction.load(auctionId);
-    if (auction === null) {
-        log.error("[handleAuctionExtended] Auction not found for Nounlet #{}. Hash: {}", [
-            auctionId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-
-    auction.endTime = endTime;
-    auction.save();
-}
+// export function handleAuctionExtended(event: AuctionExtendedEvent): void {
+//     const auctionId = event.params._id.toString();
+//     const endTime = event.params._endTime;
+//
+//     const auction = Auction.load(auctionId);
+//     if (auction === null) {
+//         log.error("[handleAuctionExtended] Auction not found for Nounlet #{}. Hash: {}", [
+//             auctionId,
+//             event.transaction.hash.toHexString(),
+//         ]);
+//         return;
+//     }
+//
+//     auction.endTime = endTime;
+//     auction.save();
+// }
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
     const auctionId = event.params._id.toString();
-    const bidderAddress = event.params._sender.toHexString();
+    const bidderAddress = event.params._bidder.toHexString();
     const bidAmount = event.params._value;
     const bidId = event.transaction.hash.toHexString();
 

@@ -10,38 +10,16 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class ActiveModules extends ethereum.Event {
-  get params(): ActiveModules__Params {
-    return new ActiveModules__Params(this);
+export class Bid extends ethereum.Event {
+  get params(): Bid__Params {
+    return new Bid__Params(this);
   }
 }
 
-export class ActiveModules__Params {
-  _event: ActiveModules;
+export class Bid__Params {
+  _event: Bid;
 
-  constructor(event: ActiveModules) {
-    this._event = event;
-  }
-
-  get _vault(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get _modules(): Array<Address> {
-    return this._event.parameters[1].value.toAddressArray();
-  }
-}
-
-export class AuctionBid extends ethereum.Event {
-  get params(): AuctionBid__Params {
-    return new AuctionBid__Params(this);
-  }
-}
-
-export class AuctionBid__Params {
-  _event: AuctionBid;
-
-  constructor(event: AuctionBid) {
+  constructor(event: Bid) {
     this._event = event;
   }
 
@@ -57,29 +35,25 @@ export class AuctionBid__Params {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get _sender(): Address {
+  get _bidder(): Address {
     return this._event.parameters[3].value.toAddress();
   }
 
   get _value(): BigInt {
     return this._event.parameters[4].value.toBigInt();
   }
+}
 
-  get _extended(): boolean {
-    return this._event.parameters[5].value.toBoolean();
+export class Created extends ethereum.Event {
+  get params(): Created__Params {
+    return new Created__Params(this);
   }
 }
 
-export class AuctionCreated extends ethereum.Event {
-  get params(): AuctionCreated__Params {
-    return new AuctionCreated__Params(this);
-  }
-}
+export class Created__Params {
+  _event: Created;
 
-export class AuctionCreated__Params {
-  _event: AuctionCreated;
-
-  constructor(event: AuctionCreated) {
+  constructor(event: Created) {
     this._event = event;
   }
 
@@ -95,55 +69,21 @@ export class AuctionCreated__Params {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get _startTime(): BigInt {
-    return this._event.parameters[3].value.toBigInt();
-  }
-
   get _endTime(): BigInt {
-    return this._event.parameters[4].value.toBigInt();
-  }
-}
-
-export class AuctionExtended extends ethereum.Event {
-  get params(): AuctionExtended__Params {
-    return new AuctionExtended__Params(this);
-  }
-}
-
-export class AuctionExtended__Params {
-  _event: AuctionExtended;
-
-  constructor(event: AuctionExtended) {
-    this._event = event;
-  }
-
-  get _endTime(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
-  }
-
-  get _vault(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get _token(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
-
-  get _id(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
 }
 
-export class AuctionSettled extends ethereum.Event {
-  get params(): AuctionSettled__Params {
-    return new AuctionSettled__Params(this);
+export class Settled extends ethereum.Event {
+  get params(): Settled__Params {
+    return new Settled__Params(this);
   }
 }
 
-export class AuctionSettled__Params {
-  _event: AuctionSettled;
+export class Settled__Params {
+  _event: Settled;
 
-  constructor(event: AuctionSettled) {
+  constructor(event: Settled) {
     this._event = event;
   }
 
@@ -169,54 +109,34 @@ export class AuctionSettled__Params {
 }
 
 export class NounletAuction__auctionInfoResult {
-  value0: BigInt;
+  value0: Address;
   value1: BigInt;
   value2: BigInt;
-  value3: Address;
-  value4: boolean;
 
-  constructor(
-    value0: BigInt,
-    value1: BigInt,
-    value2: BigInt,
-    value3: Address,
-    value4: boolean
-  ) {
+  constructor(value0: Address, value1: BigInt, value2: BigInt) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
-    this.value3 = value3;
-    this.value4 = value4;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
-    map.set("value3", ethereum.Value.fromAddress(this.value3));
-    map.set("value4", ethereum.Value.fromBoolean(this.value4));
     return map;
   }
 
-  getAmount(): BigInt {
+  getBidder(): Address {
     return this.value0;
   }
 
-  getStartTime(): BigInt {
+  getAmount(): BigInt {
     return this.value1;
   }
 
   getEndTime(): BigInt {
     return this.value2;
-  }
-
-  getBidder(): Address {
-    return this.value3;
-  }
-
-  getSettled(): boolean {
-    return this.value4;
   }
 }
 
@@ -234,19 +154,44 @@ export class NounletAuction__getPermissionsResultPermissionsStruct extends ether
   }
 }
 
+export class NounletAuction__vaultInfoResult {
+  value0: Address;
+  value1: BigInt;
+
+  constructor(value0: Address, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+
+  getCurator(): Address {
+    return this.value0;
+  }
+
+  getCurrentId(): BigInt {
+    return this.value1;
+  }
+}
+
 export class NounletAuction extends ethereum.SmartContract {
   static bind(address: Address): NounletAuction {
     return new NounletAuction("NounletAuction", address);
   }
 
   DURATION(): BigInt {
-    let result = super.call("DURATION", "DURATION():(uint256)", []);
+    let result = super.call("DURATION", "DURATION():(uint48)", []);
 
     return result[0].toBigInt();
   }
 
   try_DURATION(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("DURATION", "DURATION():(uint256)", []);
+    let result = super.tryCall("DURATION", "DURATION():(uint48)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -254,29 +199,29 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  MIN_INCREASE(): i32 {
-    let result = super.call("MIN_INCREASE", "MIN_INCREASE():(uint8)", []);
+  MIN_INCREASE(): BigInt {
+    let result = super.call("MIN_INCREASE", "MIN_INCREASE():(uint48)", []);
 
-    return result[0].toI32();
+    return result[0].toBigInt();
   }
 
-  try_MIN_INCREASE(): ethereum.CallResult<i32> {
-    let result = super.tryCall("MIN_INCREASE", "MIN_INCREASE():(uint8)", []);
+  try_MIN_INCREASE(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("MIN_INCREASE", "MIN_INCREASE():(uint48)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toI32());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   TIME_BUFFER(): BigInt {
-    let result = super.call("TIME_BUFFER", "TIME_BUFFER():(uint256)", []);
+    let result = super.call("TIME_BUFFER", "TIME_BUFFER():(uint48)", []);
 
     return result[0].toBigInt();
   }
 
   try_TIME_BUFFER(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("TIME_BUFFER", "TIME_BUFFER():(uint256)", []);
+    let result = super.tryCall("TIME_BUFFER", "TIME_BUFFER():(uint48)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -285,13 +230,13 @@ export class NounletAuction extends ethereum.SmartContract {
   }
 
   TOTAL_SUPPLY(): BigInt {
-    let result = super.call("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
+    let result = super.call("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint48)", []);
 
     return result[0].toBigInt();
   }
 
   try_TOTAL_SUPPLY(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
+    let result = super.tryCall("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint48)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -299,59 +244,37 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  WETH_ADDRESS(): Address {
-    let result = super.call("WETH_ADDRESS", "WETH_ADDRESS():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_WETH_ADDRESS(): ethereum.CallResult<Address> {
-    let result = super.tryCall("WETH_ADDRESS", "WETH_ADDRESS():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  auctionEnded(): boolean {
-    let result = super.call("auctionEnded", "auctionEnded():(bool)", []);
-
-    return result[0].toBoolean();
-  }
-
-  try_auctionEnded(): ethereum.CallResult<boolean> {
-    let result = super.tryCall("auctionEnded", "auctionEnded():(bool)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  auctionInfo(param0: Address): NounletAuction__auctionInfoResult {
+  auctionInfo(
+    param0: Address,
+    param1: BigInt
+  ): NounletAuction__auctionInfoResult {
     let result = super.call(
       "auctionInfo",
-      "auctionInfo(address):(uint256,uint256,uint256,address,bool)",
-      [ethereum.Value.fromAddress(param0)]
+      "auctionInfo(address,uint256):(address,uint64,uint32)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
     );
 
     return new NounletAuction__auctionInfoResult(
-      result[0].toBigInt(),
+      result[0].toAddress(),
       result[1].toBigInt(),
-      result[2].toBigInt(),
-      result[3].toAddress(),
-      result[4].toBoolean()
+      result[2].toBigInt()
     );
   }
 
   try_auctionInfo(
-    param0: Address
+    param0: Address,
+    param1: BigInt
   ): ethereum.CallResult<NounletAuction__auctionInfoResult> {
     let result = super.tryCall(
       "auctionInfo",
-      "auctionInfo(address):(uint256,uint256,uint256,address,bool)",
-      [ethereum.Value.fromAddress(param0)]
+      "auctionInfo(address,uint256):(address,uint64,uint32)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -359,89 +282,11 @@ export class NounletAuction extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(
       new NounletAuction__auctionInfoResult(
-        value[0].toBigInt(),
+        value[0].toAddress(),
         value[1].toBigInt(),
-        value[2].toBigInt(),
-        value[3].toAddress(),
-        value[4].toBoolean()
+        value[2].toBigInt()
       )
     );
-  }
-
-  deployVault(
-    _modules: Array<Address>,
-    plugins: Array<Address>,
-    selectors: Array<Bytes>,
-    _mintProof: Array<Bytes>,
-    _descriptor: Address,
-    _nounId: BigInt
-  ): Address {
-    let result = super.call(
-      "deployVault",
-      "deployVault(address[],address[],bytes4[],bytes32[],address,uint256):(address)",
-      [
-        ethereum.Value.fromAddressArray(_modules),
-        ethereum.Value.fromAddressArray(plugins),
-        ethereum.Value.fromFixedBytesArray(selectors),
-        ethereum.Value.fromFixedBytesArray(_mintProof),
-        ethereum.Value.fromAddress(_descriptor),
-        ethereum.Value.fromUnsignedBigInt(_nounId)
-      ]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_deployVault(
-    _modules: Array<Address>,
-    plugins: Array<Address>,
-    selectors: Array<Bytes>,
-    _mintProof: Array<Bytes>,
-    _descriptor: Address,
-    _nounId: BigInt
-  ): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "deployVault",
-      "deployVault(address[],address[],bytes4[],bytes32[],address,uint256):(address)",
-      [
-        ethereum.Value.fromAddressArray(_modules),
-        ethereum.Value.fromAddressArray(plugins),
-        ethereum.Value.fromFixedBytesArray(selectors),
-        ethereum.Value.fromFixedBytesArray(_mintProof),
-        ethereum.Value.fromAddress(_descriptor),
-        ethereum.Value.fromUnsignedBigInt(_nounId)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  generateMerkleTree(_modules: Array<Address>): Array<Bytes> {
-    let result = super.call(
-      "generateMerkleTree",
-      "generateMerkleTree(address[]):(bytes32[])",
-      [ethereum.Value.fromAddressArray(_modules)]
-    );
-
-    return result[0].toBytesArray();
-  }
-
-  try_generateMerkleTree(
-    _modules: Array<Address>
-  ): ethereum.CallResult<Array<Bytes>> {
-    let result = super.tryCall(
-      "generateMerkleTree",
-      "generateMerkleTree(address[]):(bytes32[])",
-      [ethereum.Value.fromAddressArray(_modules)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytesArray());
   }
 
   getLeafNodes(): Array<Bytes> {
@@ -496,77 +341,44 @@ export class NounletAuction extends ethereum.SmartContract {
     );
   }
 
-  getProof(_data: Array<Bytes>, _node: BigInt): Array<Bytes> {
+  onERC1155BatchReceived(
+    param0: Address,
+    param1: Address,
+    param2: Array<BigInt>,
+    param3: Array<BigInt>,
+    param4: Bytes
+  ): Bytes {
     let result = super.call(
-      "getProof",
-      "getProof(bytes32[],uint256):(bytes32[])",
+      "onERC1155BatchReceived",
+      "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes):(bytes4)",
       [
-        ethereum.Value.fromFixedBytesArray(_data),
-        ethereum.Value.fromUnsignedBigInt(_node)
-      ]
-    );
-
-    return result[0].toBytesArray();
-  }
-
-  try_getProof(
-    _data: Array<Bytes>,
-    _node: BigInt
-  ): ethereum.CallResult<Array<Bytes>> {
-    let result = super.tryCall(
-      "getProof",
-      "getProof(bytes32[],uint256):(bytes32[])",
-      [
-        ethereum.Value.fromFixedBytesArray(_data),
-        ethereum.Value.fromUnsignedBigInt(_node)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytesArray());
-  }
-
-  getRoot(_data: Array<Bytes>): Bytes {
-    let result = super.call("getRoot", "getRoot(bytes32[]):(bytes32)", [
-      ethereum.Value.fromFixedBytesArray(_data)
-    ]);
-
-    return result[0].toBytes();
-  }
-
-  try_getRoot(_data: Array<Bytes>): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("getRoot", "getRoot(bytes32[]):(bytes32)", [
-      ethereum.Value.fromFixedBytesArray(_data)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
-
-  hashLeafPairs(_left: Bytes, _right: Bytes): Bytes {
-    let result = super.call(
-      "hashLeafPairs",
-      "hashLeafPairs(bytes32,bytes32):(bytes32)",
-      [
-        ethereum.Value.fromFixedBytes(_left),
-        ethereum.Value.fromFixedBytes(_right)
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigIntArray(param2),
+        ethereum.Value.fromUnsignedBigIntArray(param3),
+        ethereum.Value.fromBytes(param4)
       ]
     );
 
     return result[0].toBytes();
   }
 
-  try_hashLeafPairs(_left: Bytes, _right: Bytes): ethereum.CallResult<Bytes> {
+  try_onERC1155BatchReceived(
+    param0: Address,
+    param1: Address,
+    param2: Array<BigInt>,
+    param3: Array<BigInt>,
+    param4: Bytes
+  ): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "hashLeafPairs",
-      "hashLeafPairs(bytes32,bytes32):(bytes32)",
+      "onERC1155BatchReceived",
+      "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes):(bytes4)",
       [
-        ethereum.Value.fromFixedBytes(_left),
-        ethereum.Value.fromFixedBytes(_right)
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigIntArray(param2),
+        ethereum.Value.fromUnsignedBigIntArray(param3),
+        ethereum.Value.fromBytes(param4)
       ]
     );
     if (result.reverted) {
@@ -576,61 +388,94 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  log2ceil_naive(x: BigInt): BigInt {
+  onERC1155Received(
+    param0: Address,
+    param1: Address,
+    param2: BigInt,
+    param3: BigInt,
+    param4: Bytes
+  ): Bytes {
     let result = super.call(
-      "log2ceil_naive",
-      "log2ceil_naive(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(x)]
+      "onERC1155Received",
+      "onERC1155Received(address,address,uint256,uint256,bytes):(bytes4)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromUnsignedBigInt(param3),
+        ethereum.Value.fromBytes(param4)
+      ]
     );
 
-    return result[0].toBigInt();
+    return result[0].toBytes();
   }
 
-  try_log2ceil_naive(x: BigInt): ethereum.CallResult<BigInt> {
+  try_onERC1155Received(
+    param0: Address,
+    param1: Address,
+    param2: BigInt,
+    param3: BigInt,
+    param4: Bytes
+  ): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "log2ceil_naive",
-      "log2ceil_naive(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(x)]
+      "onERC1155Received",
+      "onERC1155Received(address,address,uint256,uint256,bytes):(bytes4)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromUnsignedBigInt(param3),
+        ethereum.Value.fromBytes(param4)
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  multicall(_data: Array<Bytes>): Array<Bytes> {
-    let result = super.call("multicall", "multicall(bytes[]):(bytes[])", [
-      ethereum.Value.fromBytesArray(_data)
-    ]);
+  onERC721Received(
+    param0: Address,
+    param1: Address,
+    param2: BigInt,
+    param3: Bytes
+  ): Bytes {
+    let result = super.call(
+      "onERC721Received",
+      "onERC721Received(address,address,uint256,bytes):(bytes4)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromBytes(param3)
+      ]
+    );
 
-    return result[0].toBytesArray();
+    return result[0].toBytes();
   }
 
-  try_multicall(_data: Array<Bytes>): ethereum.CallResult<Array<Bytes>> {
-    let result = super.tryCall("multicall", "multicall(bytes[]):(bytes[])", [
-      ethereum.Value.fromBytesArray(_data)
-    ]);
+  try_onERC721Received(
+    param0: Address,
+    param1: Address,
+    param2: BigInt,
+    param3: Bytes
+  ): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "onERC721Received",
+      "onERC721Received(address,address,uint256,bytes):(bytes4)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromAddress(param1),
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromBytes(param3)
+      ]
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytesArray());
-  }
-
-  nouns(): Address {
-    let result = super.call("nouns", "nouns():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_nouns(): ethereum.CallResult<Address> {
-    let result = super.tryCall("nouns", "nouns():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   registry(): Address {
@@ -648,14 +493,14 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  transfer(): Address {
-    let result = super.call("transfer", "transfer():(address)", []);
+  supply(): Address {
+    let result = super.call("supply", "supply():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_transfer(): ethereum.CallResult<Address> {
-    let result = super.tryCall("transfer", "transfer():(address)", []);
+  try_supply(): ethereum.CallResult<Address> {
+    let result = super.tryCall("supply", "supply():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -663,87 +508,37 @@ export class NounletAuction extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  vaultCurator(param0: Address): Address {
-    let result = super.call("vaultCurator", "vaultCurator(address):(address)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-
-    return result[0].toAddress();
-  }
-
-  try_vaultCurator(param0: Address): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "vaultCurator",
-      "vaultCurator(address):(address)",
-      [ethereum.Value.fromAddress(param0)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  vaultFractions(param0: Address): BigInt {
+  vaultInfo(param0: Address): NounletAuction__vaultInfoResult {
     let result = super.call(
-      "vaultFractions",
-      "vaultFractions(address):(uint256)",
+      "vaultInfo",
+      "vaultInfo(address):(address,uint96)",
       [ethereum.Value.fromAddress(param0)]
     );
 
-    return result[0].toBigInt();
+    return new NounletAuction__vaultInfoResult(
+      result[0].toAddress(),
+      result[1].toBigInt()
+    );
   }
 
-  try_vaultFractions(param0: Address): ethereum.CallResult<BigInt> {
+  try_vaultInfo(
+    param0: Address
+  ): ethereum.CallResult<NounletAuction__vaultInfoResult> {
     let result = super.tryCall(
-      "vaultFractions",
-      "vaultFractions(address):(uint256)",
+      "vaultInfo",
+      "vaultInfo(address):(address,uint96)",
       [ethereum.Value.fromAddress(param0)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  verifyProof(
-    _root: Bytes,
-    _proof: Array<Bytes>,
-    _valueToProve: Bytes
-  ): boolean {
-    let result = super.call(
-      "verifyProof",
-      "verifyProof(bytes32,bytes32[],bytes32):(bool)",
-      [
-        ethereum.Value.fromFixedBytes(_root),
-        ethereum.Value.fromFixedBytesArray(_proof),
-        ethereum.Value.fromFixedBytes(_valueToProve)
-      ]
+    return ethereum.CallResult.fromValue(
+      new NounletAuction__vaultInfoResult(
+        value[0].toAddress(),
+        value[1].toBigInt()
+      )
     );
-
-    return result[0].toBoolean();
-  }
-
-  try_verifyProof(
-    _root: Bytes,
-    _proof: Array<Bytes>,
-    _valueToProve: Bytes
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "verifyProof",
-      "verifyProof(bytes32,bytes32[],bytes32):(bool)",
-      [
-        ethereum.Value.fromFixedBytes(_root),
-        ethereum.Value.fromFixedBytesArray(_proof),
-        ethereum.Value.fromFixedBytes(_valueToProve)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 }
 
@@ -768,12 +563,8 @@ export class ConstructorCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get _nouns(): Address {
+  get _supply(): Address {
     return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _transfer(): Address {
-    return this._call.inputValues[2].value.toAddress();
   }
 }
 
@@ -785,20 +576,20 @@ export class ConstructorCall__Outputs {
   }
 }
 
-export class CreateBidCall extends ethereum.Call {
-  get inputs(): CreateBidCall__Inputs {
-    return new CreateBidCall__Inputs(this);
+export class BidCall extends ethereum.Call {
+  get inputs(): BidCall__Inputs {
+    return new BidCall__Inputs(this);
   }
 
-  get outputs(): CreateBidCall__Outputs {
-    return new CreateBidCall__Outputs(this);
+  get outputs(): BidCall__Outputs {
+    return new BidCall__Outputs(this);
   }
 }
 
-export class CreateBidCall__Inputs {
-  _call: CreateBidCall;
+export class BidCall__Inputs {
+  _call: BidCall;
 
-  constructor(call: CreateBidCall) {
+  constructor(call: BidCall) {
     this._call = call;
   }
 
@@ -807,116 +598,212 @@ export class CreateBidCall__Inputs {
   }
 }
 
-export class CreateBidCall__Outputs {
-  _call: CreateBidCall;
+export class BidCall__Outputs {
+  _call: BidCall;
 
-  constructor(call: CreateBidCall) {
+  constructor(call: BidCall) {
     this._call = call;
   }
 }
 
-export class DeployVaultCall extends ethereum.Call {
-  get inputs(): DeployVaultCall__Inputs {
-    return new DeployVaultCall__Inputs(this);
+export class CreateAuctionCall extends ethereum.Call {
+  get inputs(): CreateAuctionCall__Inputs {
+    return new CreateAuctionCall__Inputs(this);
   }
 
-  get outputs(): DeployVaultCall__Outputs {
-    return new DeployVaultCall__Outputs(this);
+  get outputs(): CreateAuctionCall__Outputs {
+    return new CreateAuctionCall__Outputs(this);
   }
 }
 
-export class DeployVaultCall__Inputs {
-  _call: DeployVaultCall;
+export class CreateAuctionCall__Inputs {
+  _call: CreateAuctionCall;
 
-  constructor(call: DeployVaultCall) {
+  constructor(call: CreateAuctionCall) {
     this._call = call;
   }
 
-  get _modules(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
+  get _vault(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get plugins(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
-  }
-
-  get selectors(): Array<Bytes> {
-    return this._call.inputValues[2].value.toBytesArray();
+  get _curator(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 
   get _mintProof(): Array<Bytes> {
-    return this._call.inputValues[3].value.toBytesArray();
-  }
-
-  get _descriptor(): Address {
-    return this._call.inputValues[4].value.toAddress();
-  }
-
-  get _nounId(): BigInt {
-    return this._call.inputValues[5].value.toBigInt();
+    return this._call.inputValues[2].value.toBytesArray();
   }
 }
 
-export class DeployVaultCall__Outputs {
-  _call: DeployVaultCall;
+export class CreateAuctionCall__Outputs {
+  _call: CreateAuctionCall;
 
-  constructor(call: DeployVaultCall) {
+  constructor(call: CreateAuctionCall) {
+    this._call = call;
+  }
+}
+
+export class OnERC1155BatchReceivedCall extends ethereum.Call {
+  get inputs(): OnERC1155BatchReceivedCall__Inputs {
+    return new OnERC1155BatchReceivedCall__Inputs(this);
+  }
+
+  get outputs(): OnERC1155BatchReceivedCall__Outputs {
+    return new OnERC1155BatchReceivedCall__Outputs(this);
+  }
+}
+
+export class OnERC1155BatchReceivedCall__Inputs {
+  _call: OnERC1155BatchReceivedCall;
+
+  constructor(call: OnERC1155BatchReceivedCall) {
     this._call = call;
   }
 
-  get vault(): Address {
-    return this._call.outputValues[0].value.toAddress();
+  get value0(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get value1(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get value2(): Array<BigInt> {
+    return this._call.inputValues[2].value.toBigIntArray();
+  }
+
+  get value3(): Array<BigInt> {
+    return this._call.inputValues[3].value.toBigIntArray();
+  }
+
+  get value4(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 
-export class MulticallCall extends ethereum.Call {
-  get inputs(): MulticallCall__Inputs {
-    return new MulticallCall__Inputs(this);
-  }
+export class OnERC1155BatchReceivedCall__Outputs {
+  _call: OnERC1155BatchReceivedCall;
 
-  get outputs(): MulticallCall__Outputs {
-    return new MulticallCall__Outputs(this);
-  }
-}
-
-export class MulticallCall__Inputs {
-  _call: MulticallCall;
-
-  constructor(call: MulticallCall) {
+  constructor(call: OnERC1155BatchReceivedCall) {
     this._call = call;
   }
 
-  get _data(): Array<Bytes> {
-    return this._call.inputValues[0].value.toBytesArray();
+  get value0(): Bytes {
+    return this._call.outputValues[0].value.toBytes();
   }
 }
 
-export class MulticallCall__Outputs {
-  _call: MulticallCall;
+export class OnERC1155ReceivedCall extends ethereum.Call {
+  get inputs(): OnERC1155ReceivedCall__Inputs {
+    return new OnERC1155ReceivedCall__Inputs(this);
+  }
 
-  constructor(call: MulticallCall) {
+  get outputs(): OnERC1155ReceivedCall__Outputs {
+    return new OnERC1155ReceivedCall__Outputs(this);
+  }
+}
+
+export class OnERC1155ReceivedCall__Inputs {
+  _call: OnERC1155ReceivedCall;
+
+  constructor(call: OnERC1155ReceivedCall) {
     this._call = call;
   }
 
-  get results(): Array<Bytes> {
-    return this._call.outputValues[0].value.toBytesArray();
+  get value0(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get value1(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get value2(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get value3(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get value4(): Bytes {
+    return this._call.inputValues[4].value.toBytes();
   }
 }
 
-export class SettleCurrentAndCreateNewAuctionCall extends ethereum.Call {
-  get inputs(): SettleCurrentAndCreateNewAuctionCall__Inputs {
-    return new SettleCurrentAndCreateNewAuctionCall__Inputs(this);
+export class OnERC1155ReceivedCall__Outputs {
+  _call: OnERC1155ReceivedCall;
+
+  constructor(call: OnERC1155ReceivedCall) {
+    this._call = call;
   }
 
-  get outputs(): SettleCurrentAndCreateNewAuctionCall__Outputs {
-    return new SettleCurrentAndCreateNewAuctionCall__Outputs(this);
+  get value0(): Bytes {
+    return this._call.outputValues[0].value.toBytes();
   }
 }
 
-export class SettleCurrentAndCreateNewAuctionCall__Inputs {
-  _call: SettleCurrentAndCreateNewAuctionCall;
+export class OnERC721ReceivedCall extends ethereum.Call {
+  get inputs(): OnERC721ReceivedCall__Inputs {
+    return new OnERC721ReceivedCall__Inputs(this);
+  }
 
-  constructor(call: SettleCurrentAndCreateNewAuctionCall) {
+  get outputs(): OnERC721ReceivedCall__Outputs {
+    return new OnERC721ReceivedCall__Outputs(this);
+  }
+}
+
+export class OnERC721ReceivedCall__Inputs {
+  _call: OnERC721ReceivedCall;
+
+  constructor(call: OnERC721ReceivedCall) {
+    this._call = call;
+  }
+
+  get value0(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get value1(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get value2(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get value3(): Bytes {
+    return this._call.inputValues[3].value.toBytes();
+  }
+}
+
+export class OnERC721ReceivedCall__Outputs {
+  _call: OnERC721ReceivedCall;
+
+  constructor(call: OnERC721ReceivedCall) {
+    this._call = call;
+  }
+
+  get value0(): Bytes {
+    return this._call.outputValues[0].value.toBytes();
+  }
+}
+
+export class SettleAuctionCall extends ethereum.Call {
+  get inputs(): SettleAuctionCall__Inputs {
+    return new SettleAuctionCall__Inputs(this);
+  }
+
+  get outputs(): SettleAuctionCall__Outputs {
+    return new SettleAuctionCall__Outputs(this);
+  }
+}
+
+export class SettleAuctionCall__Inputs {
+  _call: SettleAuctionCall;
+
+  constructor(call: SettleAuctionCall) {
     this._call = call;
   }
 
@@ -929,10 +816,44 @@ export class SettleCurrentAndCreateNewAuctionCall__Inputs {
   }
 }
 
-export class SettleCurrentAndCreateNewAuctionCall__Outputs {
-  _call: SettleCurrentAndCreateNewAuctionCall;
+export class SettleAuctionCall__Outputs {
+  _call: SettleAuctionCall;
 
-  constructor(call: SettleCurrentAndCreateNewAuctionCall) {
+  constructor(call: SettleAuctionCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawNounletCall extends ethereum.Call {
+  get inputs(): WithdrawNounletCall__Inputs {
+    return new WithdrawNounletCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawNounletCall__Outputs {
+    return new WithdrawNounletCall__Outputs(this);
+  }
+}
+
+export class WithdrawNounletCall__Inputs {
+  _call: WithdrawNounletCall;
+
+  constructor(call: WithdrawNounletCall) {
+    this._call = call;
+  }
+
+  get _vault(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _id(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class WithdrawNounletCall__Outputs {
+  _call: WithdrawNounletCall;
+
+  constructor(call: WithdrawNounletCall) {
     this._call = call;
   }
 }

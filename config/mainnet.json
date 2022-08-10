@@ -33,19 +33,15 @@
     "abiFile": "NounletAuction.json",
     "events": [
       {
-        "signature": "AuctionCreated(indexed address,indexed address,uint256,uint256,uint256)",
+        "signature": "Created(indexed address,indexed address,indexed uint256,uint256)",
         "handler": "handleAuctionCreated"
       },
       {
-        "signature": "AuctionBid(indexed address,indexed address,uint256,indexed address,uint256,bool)",
+        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256)",
         "handler": "handleAuctionBid"
       },
       {
-        "signature": "AuctionExtended(uint256,indexed address,indexed address,uint256)",
-        "handler": "handleAuctionExtended"
-      },
-      {
-        "signature": "AuctionSettled(indexed address,indexed address,uint256,indexed address,uint256)",
+        "signature": "Settled(indexed address,indexed address,indexed uint256,address,uint256)",
         "handler": "handleAuctionSettled"
       }
     ]

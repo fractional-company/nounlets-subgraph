@@ -3,13 +3,13 @@ import { clearStore } from "matchstick-as";
 import {
     handleAuctionBid,
     handleAuctionCreated,
-    handleAuctionExtended,
+    // handleAuctionExtended,
     handleAuctionSettled,
 } from "../src/nounlet-auction";
 import {
     generateAuctionBidEvent,
     generateAuctionCreatedEvent,
-    generateAuctionExtendedEvent,
+    // generateAuctionExtendedEvent,
     generateAuctionSettledEvent,
 } from "./mock-event-generator";
 import { BigInt, log } from "@graphprotocol/graph-ts";
@@ -90,51 +90,51 @@ describe("Nounlet Auction", () => {
         });
     });
 
-    describe("Auction Extended Handler", () => {
-        test("Should not extend an auction if there is no auction for a Nounlet to extend", () => {
-            // Given
-            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.noun = "1";
-            vault.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
-            const tokenId = BigInt.fromI32(1);
-            // Extend auction for 10 min
-            const endTime = BigInt.fromI64(1672873934 as i64);
-
-            // When
-            handleAuctionExtended(generateAuctionExtendedEvent(vault.id, tokenAddress, tokenId, endTime));
-
-            // Then
-            assert.notInStore("Nounlet", tokenId.toString());
-            assert.notInStore("Auction", tokenId.toString());
-        });
-
-        test("Should extend an auction by updating an endTime", () => {
-            // Given
-            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.noun = "1";
-            vault.save();
-            const tokenId = BigInt.fromI32(1);
-            const auction = new Auction(tokenId.toString());
-            auction.nounlet = tokenId.toString();
-            auction.settled = false;
-            auction.amount = BigInt.fromI32(0);
-            auction.bidder = null;
-            auction.startTime = BigInt.fromI64(1657873934 as i64);
-            auction.endTime = BigInt.fromI64(1672273934 as i64);
-            auction.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
-            // Extend auction for 10 min
-            const endTime = BigInt.fromI64(1672873934 as i64);
-
-            // When
-            handleAuctionExtended(generateAuctionExtendedEvent(vault.id, tokenAddress, tokenId, endTime));
-            const nounletId = tokenId.toString();
-
-            // Then
-            assert.fieldEquals("Auction", nounletId, "endTime", endTime.toString());
-        });
-    });
+    // describe("Auction Extended Handler", () => {
+    //     test("Should not extend an auction if there is no auction for a Nounlet to extend", () => {
+    //         // Given
+    //         const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+    //         vault.noun = "1";
+    //         vault.save();
+    //         const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+    //         const tokenId = BigInt.fromI32(1);
+    //         // Extend auction for 10 min
+    //         const endTime = BigInt.fromI64(1672873934 as i64);
+    //
+    //         // When
+    //         handleAuctionExtended(generateAuctionExtendedEvent(vault.id, tokenAddress, tokenId, endTime));
+    //
+    //         // Then
+    //         assert.notInStore("Nounlet", tokenId.toString());
+    //         assert.notInStore("Auction", tokenId.toString());
+    //     });
+    //
+    //     test("Should extend an auction by updating an endTime", () => {
+    //         // Given
+    //         const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+    //         vault.noun = "1";
+    //         vault.save();
+    //         const tokenId = BigInt.fromI32(1);
+    //         const auction = new Auction(tokenId.toString());
+    //         auction.nounlet = tokenId.toString();
+    //         auction.settled = false;
+    //         auction.amount = BigInt.fromI32(0);
+    //         auction.bidder = null;
+    //         auction.startTime = BigInt.fromI64(1657873934 as i64);
+    //         auction.endTime = BigInt.fromI64(1672273934 as i64);
+    //         auction.save();
+    //         const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+    //         // Extend auction for 10 min
+    //         const endTime = BigInt.fromI64(1672873934 as i64);
+    //
+    //         // When
+    //         handleAuctionExtended(generateAuctionExtendedEvent(vault.id, tokenAddress, tokenId, endTime));
+    //         const nounletId = tokenId.toString();
+    //
+    //         // Then
+    //         assert.fieldEquals("Auction", nounletId, "endTime", endTime.toString());
+    //     });
+    // });
 
     describe("Auction Bid Handler", () => {
         test("Should prevent a bid if there is no auction", () => {

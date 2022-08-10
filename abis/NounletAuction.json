@@ -1,31 +1,44 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "_registry", "type": "address" },
-      { "internalType": "address", "name": "_nouns", "type": "address" },
-      { "internalType": "address", "name": "_transfer", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "_registry",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_supply",
+        "type": "address"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_vault",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "_modules",
-        "type": "address[]"
-      }
-    ],
-    "name": "ActiveModules",
-    "type": "event"
+    "inputs": [],
+    "name": "AuctionAlreadyCreated",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AuctionExpired",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AuctionNotCompleted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBidIncrease",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotWinner",
+    "type": "error"
   },
   {
     "anonymous": false,
@@ -43,15 +56,15 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "_sender",
+        "name": "_bidder",
         "type": "address"
       },
       {
@@ -59,15 +72,9 @@
         "internalType": "uint256",
         "name": "_value",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "_extended",
-        "type": "bool"
       }
     ],
-    "name": "AuctionBid",
+    "name": "Bid",
     "type": "event"
   },
   {
@@ -86,15 +93,9 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_startTime",
         "type": "uint256"
       },
       {
@@ -104,38 +105,7 @@
         "type": "uint256"
       }
     ],
-    "name": "AuctionCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_endTime",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_vault",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "AuctionExtended",
+    "name": "Created",
     "type": "event"
   },
   {
@@ -154,13 +124,13 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_winner",
         "type": "address"
@@ -172,115 +142,140 @@
         "type": "uint256"
       }
     ],
-    "name": "AuctionSettled",
+    "name": "Settled",
     "type": "event"
   },
   {
     "inputs": [],
     "name": "DURATION",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint48",
+        "name": "",
+        "type": "uint48"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "MIN_INCREASE",
-    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+    "outputs": [
+      {
+        "internalType": "uint48",
+        "name": "",
+        "type": "uint48"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "TIME_BUFFER",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint48",
+        "name": "",
+        "type": "uint48"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "TOTAL_SUPPLY",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "WETH_ADDRESS",
     "outputs": [
-      { "internalType": "address payable", "name": "", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "auctionEnded",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "auctionInfo",
-    "outputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint256", "name": "startTime", "type": "uint256" },
-      { "internalType": "uint256", "name": "endTime", "type": "uint256" },
       {
-        "internalType": "address payable",
-        "name": "bidder",
-        "type": "address"
-      },
-      { "internalType": "bool", "name": "settled", "type": "bool" }
+        "internalType": "uint48",
+        "name": "",
+        "type": "uint48"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_vault", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    "name": "createBid",
+    "name": "auctionInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "bidder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "amount",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint32",
+        "name": "endTime",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_vault",
+        "type": "address"
+      }
+    ],
+    "name": "bid",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address[]", "name": "_modules", "type": "address[]" },
-      { "internalType": "address[]", "name": "plugins", "type": "address[]" },
-      { "internalType": "bytes4[]", "name": "selectors", "type": "bytes4[]" },
+      {
+        "internalType": "address",
+        "name": "_vault",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_curator",
+        "type": "address"
+      },
       {
         "internalType": "bytes32[]",
         "name": "_mintProof",
         "type": "bytes32[]"
-      },
-      { "internalType": "address", "name": "_descriptor", "type": "address" },
-      { "internalType": "uint256", "name": "_nounId", "type": "uint256" }
+      }
     ],
-    "name": "deployVault",
-    "outputs": [
-      { "internalType": "address", "name": "vault", "type": "address" }
-    ],
+    "name": "createAuction",
+    "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address[]", "name": "_modules", "type": "address[]" }
-    ],
-    "name": "generateMerkleTree",
-    "outputs": [
-      { "internalType": "bytes32[]", "name": "hashes", "type": "bytes32[]" }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "getLeafNodes",
     "outputs": [
-      { "internalType": "bytes32[]", "name": "nodes", "type": "bytes32[]" }
+      {
+        "internalType": "bytes32[]",
+        "name": "nodes",
+        "type": "bytes32[]"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -291,9 +286,21 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "address", "name": "module", "type": "address" },
-          { "internalType": "address", "name": "target", "type": "address" },
-          { "internalType": "bytes4", "name": "selector", "type": "bytes4" }
+          {
+            "internalType": "address",
+            "name": "module",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4",
+            "name": "selector",
+            "type": "bytes4"
+          }
         ],
         "internalType": "struct Permission[]",
         "name": "permissions",
@@ -305,111 +312,200 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32[]", "name": "_data", "type": "bytes32[]" },
-      { "internalType": "uint256", "name": "_node", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
     ],
-    "name": "getProof",
+    "name": "onERC1155BatchReceived",
     "outputs": [
-      { "internalType": "bytes32[]", "name": "", "type": "bytes32[]" }
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32[]", "name": "_data", "type": "bytes32[]" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
     ],
-    "name": "getRoot",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "pure",
+    "name": "onERC1155Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "_left", "type": "bytes32" },
-      { "internalType": "bytes32", "name": "_right", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
     ],
-    "name": "hashLeafPairs",
+    "name": "onERC721Received",
     "outputs": [
-      { "internalType": "bytes32", "name": "data", "type": "bytes32" }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "x", "type": "uint256" }],
-    "name": "log2ceil_naive",
-    "outputs": [
-      { "internalType": "uint256", "name": "ceil", "type": "uint256" }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes[]", "name": "_data", "type": "bytes[]" }
-    ],
-    "name": "multicall",
-    "outputs": [
-      { "internalType": "bytes[]", "name": "results", "type": "bytes[]" }
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "nouns",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "registry",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_vault", "type": "address" },
-      { "internalType": "bytes32[]", "name": "_mintProof", "type": "bytes32[]" }
+      {
+        "internalType": "address",
+        "name": "_vault",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "_mintProof",
+        "type": "bytes32[]"
+      }
     ],
-    "name": "settleCurrentAndCreateNewAuction",
+    "name": "settleAuction",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "transfer",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "vaultCurator",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "vaultFractions",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "supply",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "_root", "type": "bytes32" },
-      { "internalType": "bytes32[]", "name": "_proof", "type": "bytes32[]" },
-      { "internalType": "bytes32", "name": "_valueToProve", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    "name": "verifyProof",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "pure",
+    "name": "vaultInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "curator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint96",
+        "name": "currentId",
+        "type": "uint96"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_vault",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawNounlet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

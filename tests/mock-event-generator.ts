@@ -6,7 +6,7 @@ import {
     TransferBatch,
     TransferSingle,
 } from "../generated/NounletToken/NounletToken";
-import { AuctionBid, AuctionCreated, AuctionExtended, AuctionSettled } from "../generated/NounletAuction/NounletAuction";
+import { Bid, Created, Settled } from "../generated/NounletAuction/NounletAuction";
 import { VaultDeployed } from "../generated/NounletRegistry/NounletRegistry";
 
 const generateMockEvent = (parameters: ethereum.EventParam[] = []): ethereum.Event => {
@@ -199,8 +199,8 @@ export function generateAuctionCreatedEvent(
     tokenId: BigInt,
     startTime: BigInt,
     endTime: BigInt
-): AuctionCreated {
-    return new AuctionCreated(
+): Created {
+    return new Created(
         new Address(10),
         new BigInt(20),
         new BigInt(10),
@@ -216,7 +216,7 @@ export function generateAuctionCreatedEvent(
             new BigInt(1),
             new BigInt(1),
             new BigInt(1),
-            new BigInt(1),
+            startTime,
             new BigInt(1),
             new BigInt(1),
             new BigInt(1),
@@ -237,61 +237,60 @@ export function generateAuctionCreatedEvent(
             new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
             new ethereum.EventParam("_token", ethereum.Value.fromAddress(Address.fromString(tokenAddress))),
             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(tokenId)),
-            new ethereum.EventParam("_startTime", ethereum.Value.fromUnsignedBigInt(startTime)),
             new ethereum.EventParam("_endTime", ethereum.Value.fromUnsignedBigInt(endTime)),
         ],
         null
     );
 }
 
-export function generateAuctionExtendedEvent(
-    vaultId: string,
-    tokenAddress: string,
-    tokenId: BigInt,
-    endTime: BigInt
-): AuctionExtended {
-    return new AuctionExtended(
-        new Address(10),
-        new BigInt(20),
-        new BigInt(10),
-        null,
-        new ethereum.Block(
-            new Bytes(1),
-            new Bytes(1),
-            new Bytes(1),
-            new Address(1),
-            new Bytes(1),
-            new Bytes(1),
-            new Bytes(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1),
-            new BigInt(1)
-        ),
-        new ethereum.Transaction(
-            new Bytes(1),
-            new BigInt(1),
-            new Address(123456),
-            null,
-            new BigInt(10),
-            new BigInt(20),
-            new BigInt(2),
-            new Bytes(1),
-            new BigInt(1000)
-        ),
-        [
-            new ethereum.EventParam("_endTime", ethereum.Value.fromUnsignedBigInt(endTime)),
-            new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
-            new ethereum.EventParam("_token", ethereum.Value.fromAddress(Address.fromString(tokenAddress))),
-            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(tokenId)),
-        ],
-        null
-    );
-}
+// export function generateAuctionExtendedEvent(
+//     vaultId: string,
+//     tokenAddress: string,
+//     tokenId: BigInt,
+//     endTime: BigInt
+// ): AuctionExtended {
+//     return new AuctionExtended(
+//         new Address(10),
+//         new BigInt(20),
+//         new BigInt(10),
+//         null,
+//         new ethereum.Block(
+//             new Bytes(1),
+//             new Bytes(1),
+//             new Bytes(1),
+//             new Address(1),
+//             new Bytes(1),
+//             new Bytes(1),
+//             new Bytes(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1),
+//             new BigInt(1)
+//         ),
+//         new ethereum.Transaction(
+//             new Bytes(1),
+//             new BigInt(1),
+//             new Address(123456),
+//             null,
+//             new BigInt(10),
+//             new BigInt(20),
+//             new BigInt(2),
+//             new Bytes(1),
+//             new BigInt(1000)
+//         ),
+//         [
+//             new ethereum.EventParam("_endTime", ethereum.Value.fromUnsignedBigInt(endTime)),
+//             new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
+//             new ethereum.EventParam("_token", ethereum.Value.fromAddress(Address.fromString(tokenAddress))),
+//             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(tokenId)),
+//         ],
+//         null
+//     );
+// }
 
 export function generateAuctionBidEvent(
     transactionId: string,
@@ -301,8 +300,8 @@ export function generateAuctionBidEvent(
     bidderAddress: string,
     bidAmount: number,
     extended: boolean
-): AuctionBid {
-    return new AuctionBid(
+): Bid {
+    return new Bid(
         new Address(10),
         new BigInt(20),
         new BigInt(10),
@@ -353,8 +352,8 @@ export function generateAuctionSettledEvent(
     tokenId: number,
     winnerAddress: string,
     winningAmount: number
-): AuctionSettled {
-    return new AuctionSettled(
+): Settled {
+    return new Settled(
         new Address(10),
         new BigInt(20),
         new BigInt(10),
