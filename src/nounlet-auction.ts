@@ -17,7 +17,6 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
     const nounletId: string = event.params._id.toString();
     const startTime: BigInt = event.block.timestamp;
-    // const startTime: BigInt = event.params._startTime;
     const endTime: BigInt = event.params._endTime;
 
     const vault = Vault.load(vaultId);
@@ -52,27 +51,11 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     auction.save();
 }
 
-// export function handleAuctionExtended(event: AuctionExtendedEvent): void {
-//     const auctionId = event.params._id.toString();
-//     const endTime = event.params._endTime;
-//
-//     const auction = Auction.load(auctionId);
-//     if (auction === null) {
-//         log.error("[handleAuctionExtended] Auction not found for Nounlet #{}. Hash: {}", [
-//             auctionId,
-//             event.transaction.hash.toHexString(),
-//         ]);
-//         return;
-//     }
-//
-//     auction.endTime = endTime;
-//     auction.save();
-// }
-
 export function handleAuctionBid(event: AuctionBidEvent): void {
     const auctionId = event.params._id.toString();
     const bidderAddress = event.params._bidder.toHexString();
     const bidAmount = event.params._value;
+    const endTime = event.params._extendedTime;
     const bidId = event.transaction.hash.toHexString();
 
     const auction = Auction.load(auctionId);
@@ -85,6 +68,7 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
     }
     auction.bidder = bidderAddress;
     auction.amount = bidAmount;
+    auction.endTime = endTime;
     auction.save();
 
     const bidder = findOrCreateAccount(bidderAddress);

@@ -72,6 +72,12 @@
         "internalType": "uint256",
         "name": "_value",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_extendedTime",
+        "type": "uint256"
       }
     ],
     "name": "Bid",

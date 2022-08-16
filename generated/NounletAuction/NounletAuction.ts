@@ -42,6 +42,10 @@ export class Bid__Params {
   get _value(): BigInt {
     return this._event.parameters[4].value.toBigInt();
   }
+
+  get _extendedTime(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
 }
 
 export class Created extends ethereum.Event {

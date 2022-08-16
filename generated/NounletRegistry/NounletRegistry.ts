@@ -84,20 +84,31 @@ export class NounletRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  fNFTImplementation(): Address {
-    let result = super.call(
-      "fNFTImplementation",
-      "fNFTImplementation():(address)",
-      []
-    );
+  factory(): Address {
+    let result = super.call("factory", "factory():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_fNFTImplementation(): ethereum.CallResult<Address> {
+  try_factory(): ethereum.CallResult<Address> {
+    let result = super.tryCall("factory", "factory():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  implementation(): Address {
+    let result = super.call("implementation", "implementation():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_implementation(): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "fNFTImplementation",
-      "fNFTImplementation():(address)",
+      "implementation",
+      "implementation():(address)",
       []
     );
     if (result.reverted) {
@@ -107,14 +118,37 @@ export class NounletRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  factory(): Address {
-    let result = super.call("factory", "factory():(address)", []);
+  nounsToken(): Address {
+    let result = super.call("nounsToken", "nounsToken():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_factory(): ethereum.CallResult<Address> {
-    let result = super.tryCall("factory", "factory():(address)", []);
+  try_nounsToken(): ethereum.CallResult<Address> {
+    let result = super.tryCall("nounsToken", "nounsToken():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  royaltyBeneficiary(): Address {
+    let result = super.call(
+      "royaltyBeneficiary",
+      "royaltyBeneficiary():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_royaltyBeneficiary(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "royaltyBeneficiary",
+      "royaltyBeneficiary():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -180,6 +214,14 @@ export class ConstructorCall__Inputs {
 
   constructor(call: ConstructorCall) {
     this._call = call;
+  }
+
+  get _royaltyBeneficiary(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _nounsToken(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 }
 
