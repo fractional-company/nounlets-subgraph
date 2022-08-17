@@ -36,19 +36,7 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
         ]);
         return;
     }
-
-    const fromDelegate = findOrNewDelegate(fromDelegateAddress, nounlet.noun as string);
-    let fromDelegateNounlets = fromDelegate.nounletsRepresented;
-    fromDelegateNounlets = fromDelegateNounlets.filter((nId) => nId != nounletId);
-    fromDelegate.nounletsRepresented = fromDelegateNounlets.filter((nId) => nId != nounletId);
-    fromDelegate.save();
-
-    const toDelegate = findOrNewDelegate(toDelegateAddress, nounlet.noun as string);
-    const toDelegateNounlets = toDelegate.nounletsRepresented;
-    toDelegateNounlets.push(nounletId);
-    toDelegate.nounletsRepresented = toDelegateNounlets;
-    toDelegate.save();
-
+    const toDelegate = findOrNewDelegate(toDelegateAddress, nounlet.noun as string, true);
     nounlet.delegate = toDelegate.id;
     nounlet.save();
 }
