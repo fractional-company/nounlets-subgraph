@@ -41,7 +41,6 @@ export function findOrNewDelegate(walletId: string, nounId: string, persistNew: 
     let delegate = Delegate.load(delegateId);
     if (delegate === null) {
         delegate = new Delegate(delegateId);
-        delegate.nounletsRepresented = [];
         if (persistNew) {
             delegate.save();
         }
