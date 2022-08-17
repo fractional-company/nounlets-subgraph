@@ -175,15 +175,25 @@ describe("Nounlet Auction", () => {
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const bidderAddress = "0x5Bf1d2a415561A2F225F4523f3cbf552a6c692B7".toLowerCase();
             const bidAmount = 1234;
+            const extendedTime = 1672279999;
 
             // When
             handleAuctionBid(
-                generateAuctionBidEvent(transactionId, vault.id, tokenAddress, tokenId, bidderAddress, bidAmount, false)
+                generateAuctionBidEvent(
+                    transactionId,
+                    vault.id,
+                    tokenAddress,
+                    tokenId,
+                    bidderAddress,
+                    bidAmount,
+                    extendedTime
+                )
             );
 
             // Then
             assert.fieldEquals("Auction", auction.id, "bidder", bidderAddress);
             assert.fieldEquals("Auction", auction.id, "amount", bidAmount.toString());
+            assert.fieldEquals("Auction", auction.id, "endTime", extendedTime.toString());
             assert.fieldEquals("Bid", transactionId, "auction", auction.id);
             assert.fieldEquals("Bid", transactionId, "bidder", bidderAddress);
             assert.fieldEquals("Bid", transactionId, "amount", bidAmount.toString());
@@ -297,7 +307,6 @@ describe("Nounlet Auction", () => {
             const winner = Account.load(winnerAddress);
             assert.assertNotNull(winner);
             if (winner !== null) {
-                log.info("Winner nounlets: {}", [winner.nounlets.toString()]);
                 assert.stringEquals([tokenId].toString(), winner.nounlets.toString());
             }
             // assert.fieldEquals("Account", winnerAddress, "nounlets", `[${tokenId.toString()}]`);

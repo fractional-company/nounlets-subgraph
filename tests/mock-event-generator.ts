@@ -299,7 +299,7 @@ export function generateAuctionBidEvent(
     tokenId: number,
     bidderAddress: string,
     bidAmount: number,
-    extended: boolean
+    extendedTime: number
 ): Bid {
     return new Bid(
         new Address(10),
@@ -340,7 +340,10 @@ export function generateAuctionBidEvent(
             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(tokenId as i32))),
             new ethereum.EventParam("_sender", ethereum.Value.fromAddress(Address.fromString(bidderAddress))),
             new ethereum.EventParam("_value", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(bidAmount as i32))),
-            new ethereum.EventParam("_extended", ethereum.Value.fromBoolean(extended)),
+            new ethereum.EventParam(
+                "_extendedTime",
+                ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(extendedTime as i32))
+            ),
         ],
         null
     );
