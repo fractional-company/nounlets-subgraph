@@ -43,7 +43,7 @@ export class Bid__Params {
     return this._event.parameters[4].value.toBigInt();
   }
 
-  get _extendedTime(): BigInt {
+  get _endTime(): BigInt {
     return this._event.parameters[5].value.toBigInt();
   }
 }

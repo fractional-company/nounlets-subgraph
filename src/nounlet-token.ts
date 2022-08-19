@@ -9,6 +9,7 @@ import {
     findOrNewDelegate,
     findOrNewDelegateVote,
     findOrNewNounlet,
+    generateNounletId,
     transferBatchOfNounlets,
 } from "./utils/helpers";
 import { Nounlet } from "../generated/schema";
@@ -18,7 +19,15 @@ let nounletId: string;
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const fromDelegateAddress = event.params._fromDelegate.toHexString();
     const toDelegateAddress = event.params._toDelegate.toHexString();
-    nounletId = event.params._id.toString();
+    const tokenAddress = event.address.toHexString();
+    const tokenAddress2 = event.transaction.from.toHexString();
+    const tokenAddress3 = event.block.author.toHexString();
+    const tokenId = event.params._id.toString();
+    const nounletId = generateNounletId(tokenAddress, tokenId);
+
+    log.info("Token address candidate 1: {}", [tokenAddress]);
+    log.info("Token address candidate 2: {}", [tokenAddress2]);
+    log.info("Token address candidate 3: {}", [tokenAddress3]);
 
     const nounlet = Nounlet.load(nounletId);
     if (nounlet === null) {
@@ -45,7 +54,15 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
     const delegateAddress = event.params._delegate.toHexString();
     const previousBalance = event.params._previousBalance;
     const newBalance = event.params._newBalance;
-    const nounletId = event.params._id.toString();
+    const tokenAddress = event.address.toHexString();
+    const tokenAddress2 = event.transaction.from.toHexString();
+    const tokenAddress3 = event.block.author.toHexString();
+    const tokenId = event.params._id.toString();
+    const nounletId = generateNounletId(tokenAddress, tokenId);
+
+    log.info("Token address candidate 1: {}", [tokenAddress]);
+    log.info("Token address candidate 2: {}", [tokenAddress2]);
+    log.info("Token address candidate 3: {}", [tokenAddress3]);
 
     const nounlet = findOrNewNounlet(nounletId);
     if (nounlet.noun === null) {
@@ -57,8 +74,6 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
     }
 
     const delegate = findOrCreateDelegate(delegateAddress, nounlet.noun as string);
-    // delegate.delegatedVotes = newBalance;
-    // delegate.save();
 
     const delegateVote = findOrNewDelegateVote(delegate.id, nounletId);
     delegateVote.timestamp = event.block.timestamp;
@@ -69,6 +84,7 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
 export function handleTransferBatch(event: TransferBatchEvent): void {
     const from = event.params.from.toHexString();
     const to = event.params.to.toHexString();
+    // TODO: Tle moraš dobit _token param.
     const nounletIds = event.params.ids;
 
     transferBatchOfNounlets(from, to, nounletIds);
@@ -77,6 +93,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
 export function handleTransferSingle(event: TransferSingleEvent): void {
     const from = event.params.from.toHexString();
     const to = event.params.to.toHexString();
+    // TODO: Tle moraš dobit _token param.
     const nounletId = event.params.id;
 
     transferBatchOfNounlets(from, to, [nounletId]);

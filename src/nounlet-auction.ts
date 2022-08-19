@@ -11,13 +11,17 @@ import {
     findOrNewDelegate,
     findOrNewNounlet,
     findOrNewVault,
+    generateAuctionId,
+    generateNounletId,
 } from "./utils/helpers";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     const vaultId: string = event.params._vault.toHexString();
-    const nounletId: string = event.params._id.toString();
+    const tokenId: string = event.params._id.toString();
+    const tokenAddress: string = event.params._token.toHexString();
     const startTime: BigInt = event.block.timestamp;
     const endTime: BigInt = event.params._endTime;
+    const nounletId: string = generateNounletId(tokenAddress, tokenId);
 
     const vault = Vault.load(vaultId);
     if (vault === null) {
@@ -52,10 +56,12 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
 }
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
-    const auctionId = event.params._id.toString();
+    const tokenAddress = event.params._token.toHexString();
+    const tokenId = event.params._id.toString();
+    const auctionId = generateAuctionId(tokenAddress, tokenId);
     const bidderAddress = event.params._bidder.toHexString();
     const bidAmount = event.params._value;
-    const endTime = event.params._extendedTime;
+    const endTime = event.params._endTime;
     const bidId = event.transaction.hash.toHexString();
 
     const auction = Auction.load(auctionId);
@@ -85,7 +91,9 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
 
 export function handleAuctionSettled(event: AuctionSettledEvent): void {
     const vaultId = event.params._vault.toHexString();
-    const auctionId = event.params._id.toString();
+    const tokenAddress = event.params._token.toHexString();
+    const tokenId = event.params._id.toString();
+    const auctionId = generateAuctionId(tokenAddress, tokenId);
     const amount = event.params._amount;
     const winnerAddress = event.params._winner.toHexString();
 

@@ -76,7 +76,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_extendedTime",
+        "name": "_endTime",
         "type": "uint256"
       }
     ],

@@ -14,6 +14,7 @@ describe("Noun Token", () => {
             // Given
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
+            fractionalVault.tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -32,6 +33,7 @@ describe("Noun Token", () => {
             // Given
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
+            fractionalVault.tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -50,6 +52,7 @@ describe("Noun Token", () => {
             // Given
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
+            fractionalVault.tokenAddress = "0x3045CeAF286a8728a398a20cd872e01b0aC109E3".toLowerCase();
             fractionalVault.save();
             const tokenId = 1;
             const fractionalNoun = new Noun(tokenId.toString());
@@ -72,6 +75,7 @@ describe("Noun Token", () => {
             const fromAddress = "0xE377541c0B5D53708d90C879f44a124a57c2943A".toLowerCase();
             const fractionalVault = new Vault(fromAddress);
             fractionalVault.noun = noun.id;
+            fractionalVault.tokenAddress = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
             fractionalVault.save();
             const toAddress = "0x6d2F62f32b79AD7A548dF1b396040F180c678858".toLowerCase();
 

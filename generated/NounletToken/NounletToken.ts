@@ -96,32 +96,6 @@ export class DelegateVotesChanged__Params {
   }
 }
 
-export class SetRoyalty extends ethereum.Event {
-  get params(): SetRoyalty__Params {
-    return new SetRoyalty__Params(this);
-  }
-}
-
-export class SetRoyalty__Params {
-  _event: SetRoyalty;
-
-  constructor(event: SetRoyalty) {
-    this._event = event;
-  }
-
-  get _receiver(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get _id(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
-  }
-
-  get _percentage(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
 export class SingleApproval extends ethereum.Event {
   get params(): SingleApproval__Params {
     return new SingleApproval__Params(this);
@@ -305,7 +279,7 @@ export class NounletToken__royaltyInfoResult {
     return map;
   }
 
-  getReceiver(): Address {
+  getBeneficiary(): Address {
     return this.value0;
   }
 
@@ -319,29 +293,22 @@ export class NounletToken extends ethereum.SmartContract {
     return new NounletToken("NounletToken", address);
   }
 
-  CONTRACT_URI(): string {
-    let result = super.call("CONTRACT_URI", "CONTRACT_URI():(string)", []);
-
-    return result[0].toString();
-  }
-
-  try_CONTRACT_URI(): ethereum.CallResult<string> {
-    let result = super.tryCall("CONTRACT_URI", "CONTRACT_URI():(string)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
-  DESCRIPTOR(): Address {
-    let result = super.call("DESCRIPTOR", "DESCRIPTOR():(address)", []);
+  NOUNLET_REGISTRY(): Address {
+    let result = super.call(
+      "NOUNLET_REGISTRY",
+      "NOUNLET_REGISTRY():(address)",
+      []
+    );
 
     return result[0].toAddress();
   }
 
-  try_DESCRIPTOR(): ethereum.CallResult<Address> {
-    let result = super.tryCall("DESCRIPTOR", "DESCRIPTOR():(address)", []);
+  try_NOUNLET_REGISTRY(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "NOUNLET_REGISTRY",
+      "NOUNLET_REGISTRY():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -349,29 +316,56 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  NAME(): string {
-    let result = super.call("NAME", "NAME():(string)", []);
+  NOUNS_DESCRIPTOR(): Address {
+    let result = super.call(
+      "NOUNS_DESCRIPTOR",
+      "NOUNS_DESCRIPTOR():(address)",
+      []
+    );
 
-    return result[0].toString();
+    return result[0].toAddress();
   }
 
-  try_NAME(): ethereum.CallResult<string> {
-    let result = super.tryCall("NAME", "NAME():(string)", []);
+  try_NOUNS_DESCRIPTOR(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "NOUNS_DESCRIPTOR",
+      "NOUNS_DESCRIPTOR():(address)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  NOUN_ID(): BigInt {
-    let result = super.call("NOUN_ID", "NOUN_ID():(uint256)", []);
+  NOUNS_TOKEN(): Address {
+    let result = super.call("NOUNS_TOKEN", "NOUNS_TOKEN():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_NOUNS_TOKEN(): ethereum.CallResult<Address> {
+    let result = super.tryCall("NOUNS_TOKEN", "NOUNS_TOKEN():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  NOUNS_TOKEN_ID(): BigInt {
+    let result = super.call("NOUNS_TOKEN_ID", "NOUNS_TOKEN_ID():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_NOUN_ID(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("NOUN_ID", "NOUN_ID():(uint256)", []);
+  try_NOUNS_TOKEN_ID(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "NOUNS_TOKEN_ID",
+      "NOUNS_TOKEN_ID():(uint256)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -379,10 +373,33 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  ROYALTY_BENEFICIARY(): Address {
+    let result = super.call(
+      "ROYALTY_BENEFICIARY",
+      "ROYALTY_BENEFICIARY():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_ROYALTY_BENEFICIARY(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "ROYALTY_BENEFICIARY",
+      "ROYALTY_BENEFICIARY():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   ROYALTY_PERCENT(): BigInt {
     let result = super.call(
       "ROYALTY_PERCENT",
-      "ROYALTY_PERCENT():(uint256)",
+      "ROYALTY_PERCENT():(uint96)",
       []
     );
 
@@ -392,7 +409,7 @@ export class NounletToken extends ethereum.SmartContract {
   try_ROYALTY_PERCENT(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "ROYALTY_PERCENT",
-      "ROYALTY_PERCENT():(uint256)",
+      "ROYALTY_PERCENT():(uint96)",
       []
     );
     if (result.reverted) {
@@ -400,63 +417,6 @@ export class NounletToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  ROYALTY_RECEIVER(): Address {
-    let result = super.call(
-      "ROYALTY_RECEIVER",
-      "ROYALTY_RECEIVER():(address)",
-      []
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_ROYALTY_RECEIVER(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "ROYALTY_RECEIVER",
-      "ROYALTY_RECEIVER():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  VAULT_REGISTRY(): Address {
-    let result = super.call("VAULT_REGISTRY", "VAULT_REGISTRY():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_VAULT_REGISTRY(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "VAULT_REGISTRY",
-      "VAULT_REGISTRY():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  VERSION(): string {
-    let result = super.call("VERSION", "VERSION():(string)", []);
-
-    return result[0].toString();
-  }
-
-  try_VERSION(): ethereum.CallResult<string> {
-    let result = super.tryCall("VERSION", "VERSION():(string)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   _ballots(param0: Address): BigInt {
@@ -610,11 +570,11 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  generateSeed(tokenId: BigInt): NounletToken__generateSeedResultValue0Struct {
+  generateSeed(_id: BigInt): NounletToken__generateSeedResultValue0Struct {
     let result = super.call(
       "generateSeed",
       "generateSeed(uint256):((uint48,uint48,uint48,uint48,uint48))",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)]
+      [ethereum.Value.fromUnsignedBigInt(_id)]
     );
 
     return changetype<NounletToken__generateSeedResultValue0Struct>(
@@ -623,12 +583,12 @@ export class NounletToken extends ethereum.SmartContract {
   }
 
   try_generateSeed(
-    tokenId: BigInt
+    _id: BigInt
   ): ethereum.CallResult<NounletToken__generateSeedResultValue0Struct> {
     let result = super.tryCall(
       "generateSeed",
       "generateSeed(uint256):((uint48,uint48,uint48,uint48,uint48))",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)]
+      [ethereum.Value.fromUnsignedBigInt(_id)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -772,21 +732,6 @@ export class NounletToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  metadata(): Address {
-    let result = super.call("metadata", "metadata():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_metadata(): ethereum.CallResult<Address> {
-    let result = super.tryCall("metadata", "metadata():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
   nonces(param0: Address): BigInt {
     let result = super.call("nonces", "nonces(address):(uint256)", [
       ethereum.Value.fromAddress(param0)
@@ -891,21 +836,21 @@ export class NounletToken extends ethereum.SmartContract {
     );
   }
 
-  supportsInterface(interfaceId: Bytes): boolean {
+  supportsInterface(_interfaceId: Bytes): boolean {
     let result = super.call(
       "supportsInterface",
       "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)]
+      [ethereum.Value.fromFixedBytes(_interfaceId)]
     );
 
     return result[0].toBoolean();
   }
 
-  try_supportsInterface(interfaceId: Bytes): ethereum.CallResult<boolean> {
+  try_supportsInterface(_interfaceId: Bytes): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "supportsInterface",
       "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)]
+      [ethereum.Value.fromFixedBytes(_interfaceId)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();

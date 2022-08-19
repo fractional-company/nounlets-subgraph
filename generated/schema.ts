@@ -58,6 +58,15 @@ export class Vault extends Entity {
       this.set("noun", Value.fromString(<string>value));
     }
   }
+
+  get tokenAddress(): string {
+    let value = this.get("tokenAddress");
+    return value!.toString();
+  }
+
+  set tokenAddress(value: string) {
+    this.set("tokenAddress", Value.fromString(value));
+  }
 }
 
 export class Account extends Entity {

@@ -15,7 +15,15 @@ import {
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import { Account, Auction, Noun, Nounlet, Vault } from "../generated/schema";
 import { now as Date_now } from "assemblyscript/std/assembly/bindings/Date";
-import { findOrCreateAccount, findOrNewAccount, findOrNewDelegate, findOrNewNounlet } from "../src/utils/helpers";
+import {
+    findOrCreateAccount,
+    findOrNewAccount,
+    findOrNewDelegate,
+    findOrNewNounlet,
+    generateAuctionId,
+    generateDelegateId,
+    generateNounletId,
+} from "../src/utils/helpers";
 
 describe("Nounlet Auction", () => {
     beforeEach(() => {
@@ -44,10 +52,11 @@ describe("Nounlet Auction", () => {
 
         test("Should not persist a Nounlet, a Seed, and an Auction if a vault does not contain a Noun", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+            vault.tokenAddress = tokenAddress;
             // Vault noun not defined
             vault.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const tokenId = BigInt.fromI32(1);
             const startTime = BigInt.fromI64(1657873934 as i64);
             // Set auction length of 4 hours
@@ -65,10 +74,11 @@ describe("Nounlet Auction", () => {
 
         test("Should persist a Nounlet, a Seed, and an Auction if the vault exists", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const tokenId = BigInt.fromI32(1);
             const startTime = BigInt.fromI64(1657873934 as i64);
             // Set auction length of 4 hours
@@ -76,7 +86,7 @@ describe("Nounlet Auction", () => {
 
             // When
             handleAuctionCreated(generateAuctionCreatedEvent(vault.id, tokenAddress, tokenId, startTime, endTime));
-            const nounletId = tokenId.toString();
+            const nounletId = generateNounletId(tokenAddress, tokenId.toString());
 
             // Then
             // assert.fieldEquals("Seed", nounletId, "id", nounletId);
@@ -139,18 +149,28 @@ describe("Nounlet Auction", () => {
     describe("Auction Bid Handler", () => {
         test("Should prevent a bid if there is no auction", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const tokenId = 1;
             const bidderAddress = "0x5Bf1d2a415561A2F225F4523f3cbf552a6c692B7".toLowerCase();
             const bidAmount = 1234;
+            const extendedTime = 1672279999;
 
             // When
             handleAuctionBid(
-                generateAuctionBidEvent(transactionId, vault.id, tokenAddress, tokenId, bidderAddress, bidAmount, false)
+                generateAuctionBidEvent(
+                    transactionId,
+                    vault.id,
+                    tokenAddress,
+                    tokenId,
+                    bidderAddress,
+                    bidAmount,
+                    extendedTime
+                )
             );
 
             // Then
@@ -159,11 +179,13 @@ describe("Nounlet Auction", () => {
 
         test("Should process an auction bid", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
             auction.amount = BigInt.fromI32(0);
@@ -172,7 +194,6 @@ describe("Nounlet Auction", () => {
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
             const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const bidderAddress = "0x5Bf1d2a415561A2F225F4523f3cbf552a6c692B7".toLowerCase();
             const bidAmount = 1234;
             const extendedTime = 1672279999;
@@ -203,10 +224,11 @@ describe("Nounlet Auction", () => {
     describe("Auction Settled Handler", () => {
         test("Should not settle an auction if an auction does not exist", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
@@ -222,10 +244,11 @@ describe("Nounlet Auction", () => {
 
         test("Should not settle an auction if a noun was moved from the vault", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = null;
+            vault.tokenAddress = tokenAddress;
             vault.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
@@ -242,11 +265,13 @@ describe("Nounlet Auction", () => {
 
         test("Should set an auction as settled when settling an auction", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
             auction.amount = BigInt.fromI32(0);
@@ -254,11 +279,10 @@ describe("Nounlet Auction", () => {
             auction.startTime = BigInt.fromI64(1657873934 as i64);
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
-            const nounlet = new Nounlet(tokenId.toString());
+            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
             nounlet.noun = vault.noun as string;
             nounlet.auction = auction.id;
             nounlet.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
@@ -268,18 +292,20 @@ describe("Nounlet Auction", () => {
             );
 
             // Then
-            assert.fieldEquals("Auction", tokenId.toString(), "settled", "true");
-            assert.fieldEquals("Auction", tokenId.toString(), "bidder", winnerAddress.toString());
-            assert.fieldEquals("Auction", tokenId.toString(), "amount", winnerAmount.toString());
+            assert.fieldEquals("Auction", auction.id, "settled", "true");
+            assert.fieldEquals("Auction", auction.id, "bidder", winnerAddress.toString());
+            assert.fieldEquals("Auction", auction.id, "amount", winnerAmount.toString());
         });
 
         test("Should save a nounlet to an account when settling an auction", () => {
             // Given
+            const tokenAddress = "0x20Cb1aA46f710115e2591474d0a00f3F28bcc9ef".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
             auction.amount = BigInt.fromI32(0);
@@ -287,11 +313,10 @@ describe("Nounlet Auction", () => {
             auction.startTime = BigInt.fromI64(1657873934 as i64);
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
-            const nounlet = new Nounlet(tokenId.toString());
+            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
             nounlet.noun = vault.noun as string;
             nounlet.auction = auction.id;
             nounlet.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
@@ -307,19 +332,21 @@ describe("Nounlet Auction", () => {
             const winner = Account.load(winnerAddress);
             assert.assertNotNull(winner);
             if (winner !== null) {
-                assert.stringEquals([tokenId].toString(), winner.nounlets.toString());
+                assert.stringEquals([nounlet.id].toString(), winner.nounlets.toString());
             }
             // assert.fieldEquals("Account", winnerAddress, "nounlets", `[${tokenId.toString()}]`);
         });
 
         test("Should make an auction holder a default nounlet delegate when settling an auction", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const nounId = "1";
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = nounId;
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
             auction.amount = BigInt.fromI32(0);
@@ -327,11 +354,10 @@ describe("Nounlet Auction", () => {
             auction.startTime = BigInt.fromI64(1657873934 as i64);
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
-            const nounlet = new Nounlet(tokenId.toString());
+            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
             nounlet.noun = vault.noun as string;
             nounlet.auction = auction.id;
             nounlet.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
@@ -341,17 +367,19 @@ describe("Nounlet Auction", () => {
             );
 
             // Then
-            const delegateId = winnerAddress.concat("-").concat(nounId);
+            const delegateId = generateDelegateId(winnerAddress, nounId);
             assert.fieldEquals("Delegate", delegateId, "nounletsRepresented", `[${nounlet.id}]`);
         });
 
         test("Should settle an auction even if a nounlet is not present in the store but the vault contains a noun", () => {
             // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
+            vault.tokenAddress = tokenAddress;
             vault.save();
             const tokenId = 1;
-            const auction = new Auction(tokenId.toString());
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
             auction.amount = BigInt.fromI32(0);
@@ -359,7 +387,6 @@ describe("Nounlet Auction", () => {
             auction.startTime = BigInt.fromI64(1657873934 as i64);
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
-            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
@@ -369,9 +396,9 @@ describe("Nounlet Auction", () => {
             );
 
             // Then
-            assert.fieldEquals("Auction", tokenId.toString(), "settled", "true");
-            assert.fieldEquals("Auction", tokenId.toString(), "bidder", winnerAddress.toString());
-            assert.fieldEquals("Auction", tokenId.toString(), "amount", winnerAmount.toString());
+            assert.fieldEquals("Auction", auction.id, "settled", "true");
+            assert.fieldEquals("Auction", auction.id, "bidder", winnerAddress.toString());
+            assert.fieldEquals("Auction", auction.id, "amount", winnerAmount.toString());
         });
     });
 });

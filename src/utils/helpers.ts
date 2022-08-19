@@ -37,10 +37,11 @@ export function findOrCreateDelegate(walletId: string, nounId: string): Delegate
 }
 
 export function findOrNewDelegate(walletId: string, nounId: string, persistNew: boolean = false): Delegate {
-    const delegateId = walletId.concat("-").concat(nounId);
+    const delegateId = generateDelegateId(walletId, nounId);
     let delegate = Delegate.load(delegateId);
     if (delegate === null) {
         delegate = new Delegate(delegateId);
+        // delegate.nounletsRepresented = [];
         if (persistNew) {
             delegate.save();
         }
@@ -76,7 +77,7 @@ export function findOrNewNounlet(nounletId: string, persistNew: boolean = false)
 }
 
 export function findOrNewDelegateVote(delegateId: string, nounletId: string, persistNew: boolean = false): DelegateVote {
-    const delegateVoteId = delegateId.concat("-").concat(nounletId);
+    const delegateVoteId = generateDelegateVoteId(delegateId, nounletId);
     let delegateVote = DelegateVote.load(delegateVoteId);
     if (delegateVote === null) {
         delegateVote = new DelegateVote(delegateVoteId);
@@ -115,4 +116,20 @@ export function transferBatchOfNounlets(fromAddress: string, toAddress: string, 
 
     toAccount.totalNounletsHeld = toAccount.totalNounletsHeld.plus(BigInt.fromI32(nounletsTransferedCount));
     toAccount.save();
+}
+
+export function generateDelegateId(walletId: string, nounId: string): string {
+    return walletId.concat("-").concat(nounId);
+}
+
+export function generateDelegateVoteId(delegateId: string, nounletId: string): string {
+    return delegateId.concat("-").concat(nounletId);
+}
+
+export function generateNounletId(tokenAddress: string, tokenId: string): string {
+    return tokenAddress.concat("-").concat(tokenId);
+}
+
+export function generateAuctionId(tokenAddress: string, tokenId: string): string {
+    return generateNounletId(tokenAddress, tokenId);
 }

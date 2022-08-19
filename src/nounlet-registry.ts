@@ -1,6 +1,8 @@
 import { VaultDeployed as VaultDeployedEvent } from "../generated/NounletRegistry/NounletRegistry";
-import { findOrCreateVault } from "./utils/helpers";
+import { findOrNewVault } from "./utils/helpers";
 
 export function handleVaultDeployed(event: VaultDeployedEvent): void {
-    findOrCreateVault(event.params._vault.toHexString());
+    const vault = findOrNewVault(event.params._vault.toHexString());
+    vault.tokenAddress = event.params._token.toHexString();
+    vault.save();
 }

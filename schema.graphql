@@ -11,6 +11,9 @@ type Vault @entity {
 
   "A Noun that the Vault holds"
   noun: Noun
+
+  "A token address of a vault"
+  tokenAddress: String!
 }
 
 type Account @entity {
