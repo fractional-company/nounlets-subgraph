@@ -103,7 +103,7 @@ export function transferBatchOfNounlets(fromAddress: string, toAddress: string, 
 
         if (nounlet !== null) {
             // Remove the delegate for each nounlet that's being transferred.
-            nounlet.delegate = null;
+            nounlet.delegate = toAccount.id;
             nounlet.holder = toAccount.id;
             nounlet.save();
             nounletsTransferedCount++;
