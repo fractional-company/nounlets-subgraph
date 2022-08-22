@@ -51,29 +51,6 @@ dataSources:
         {{/nounletAuction.events}}
       file: ./src/nounlet-auction.ts
   - kind: ethereum
-    name: NounletToken
-    network: {{network}}
-    source:
-      address: '{{nounletToken.address}}'
-      abi: NounletToken
-      startBlock: {{nounletToken.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - DelegateChanged
-        - DelegateVotesChanged
-      abis:
-        - name: NounletToken
-          file: ./abis/{{nounletToken.abiFile}}
-      eventHandlers:
-        {{#nounletToken.events}}
-          - event: {{signature}}
-            handler: {{handler}}
-        {{/nounletToken.events}}
-      file: ./src/nounlet-token.ts
-  - kind: ethereum
     name: NounletRegistry
     network: {{network}}
     source:
@@ -95,3 +72,28 @@ dataSources:
             handler: {{handler}}
         {{/nounletRegistry.events}}
       file: ./src/nounlet-registry.ts
+templates:
+  - name: NounletToken
+    kind: ethereum
+    network: {{network}}
+    source:
+      abi: NounletToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DelegateChanged
+        - DelegateVotesChanged
+      abis:
+        - name: NounletToken
+          file: ./abis/{{nounletToken.abiFile}}
+      eventHandlers:
+        {{#nounletToken.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletToken.events}}
+      file: ./src/nounlet-token.ts
+
+
+
