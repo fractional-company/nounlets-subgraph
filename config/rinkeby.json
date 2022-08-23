@@ -2,7 +2,7 @@
   "network": "rinkeby",
 
   "nounsToken": {
-    "address": "0xa1e43eb6373e4c8d5f42a2b93d412f06a37af25e",
+    "address": "0x315845413276733cbafdd75ce1240653e60114c0",
     "startBlock": 8947618,
     "abiFile": "NounsTokenMock.json",
     "events": [
@@ -14,7 +14,7 @@
   },
 
   "nounletToken": {
-    "address": "0x92F2880d6D22dd87cECeAD9015C3f6Ab04202432",
+    "address": "0x44aebB139ae4a3Ba542b950A638C5182e6706B06",
     "startBlock": 8947618,
     "abiFile": "NounletToken.json",
     "events": [
@@ -30,7 +30,7 @@
   },
 
   "nounletAuction": {
-    "address": "0x7915259bdef8f419dc733ae661c283855a904413",
+    "address": "0x4c023845c26dc6d6b377b69d1403b63024b48ca5",
     "startBlock": 8947618,
     "abiFile": "NounletAuction.json",
     "events": [
@@ -50,7 +50,7 @@
   },
 
   "nounletRegistry": {
-    "address": "0xedf9beddc7805c041ce0d17fe84b2b448590f129",
+    "address": "0xf626db27793c6f759b8c9a82d977883e16c1be27",
     "startBlock": 8947618,
     "abiFile": "NounletRegistry.json",
     "events": [
