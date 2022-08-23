@@ -2,3 +2,7 @@ subgraph.yaml
 node_modules
 .idea/
 build
+generated
+tests/.bin
+tests/.docker
+tests/.latest.json
