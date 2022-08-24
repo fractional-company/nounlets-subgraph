@@ -23,8 +23,16 @@
         "handler": "handleDelegateChanged"
       },
       {
-        "signature": "DelegateVotesChanged(indexed address,uint256,uint256,uint256)",
-        "handler": "handleDelegateVotesChanged"
+        "signature": "DelegatesMoved(uint256,indexed address,indexed address)",
+        "handler": "handleDelegatesMoved"
+      },
+      {
+        "signature": "TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)",
+        "handler": "handleTransferSingle"
+      },
+      {
+        "signature": "TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])",
+        "handler": "handleTransferBatch"
       }
     ]
   },
