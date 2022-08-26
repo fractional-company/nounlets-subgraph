@@ -19,6 +19,9 @@ type Noun @entity {
   "The Noun's ERC721 token id"
   id: ID!
 
+  "The current delegate address of the Noun (Zero Address by default)"
+  currentDelegate: String!
+
   "Fractions of a Noun"
   nounlets: [Nounlet!]! @derivedFrom(field: "noun")
 }

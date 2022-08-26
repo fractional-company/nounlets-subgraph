@@ -67,5 +67,17 @@
         "handler": "handleVaultDeployed"
       }
     ]
+  },
+
+  "nounletGovernance": {
+    "address": "0x419ccce46c915c6df3c246bae260433b16211ce1",
+    "startBlock": 8947618,
+    "abiFile": "NounletGovernance.json",
+    "events": [
+      {
+        "signature": "ClaimDelegate(address,address,address)",
+        "handler": "handleClaimDelegate"
+      }
+    ]
   }
 }

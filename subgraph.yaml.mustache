@@ -72,6 +72,28 @@ dataSources:
             handler: {{handler}}
         {{/nounletRegistry.events}}
       file: ./src/nounlet-registry.ts
+  - kind: ethereum
+    name: NounletGovernance
+    network: {{network}}
+    source:
+      address: '{{nounletGovernance.address}}'
+      abi: NounletGovernance
+      startBlock: {{nounletGovernance.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ClaimDelegate
+      abis:
+        - name: NounletGovernance
+          file: ./abis/{{nounletGovernance.abiFile}}
+      eventHandlers:
+        {{#nounletGovernance.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletGovernance.events}}
+      file: ./src/nounlet-governance.ts
 templates:
   - name: NounletToken
     kind: ethereum

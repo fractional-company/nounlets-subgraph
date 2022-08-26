@@ -1,5 +1,6 @@
 import { Account, Delegate, DelegateVote, Noun, Nounlet, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
+import { ZERO_ADDRESS } from "./constants";
 
 export function findOrCreateNoun(nounId: string): Noun {
     return findOrNewNoun(nounId, true);
@@ -9,6 +10,7 @@ export function findOrNewNoun(nounId: string, persistNew: boolean = false): Noun
     let noun = Noun.load(nounId);
     if (noun === null) {
         noun = new Noun(nounId);
+        noun.currentDelegate = ZERO_ADDRESS;
         if (persistNew) {
             noun.save();
         }
@@ -74,6 +76,7 @@ export function findOrNewVault(vaultId: string, persistNew: boolean = false): Va
     let vault = Vault.load(vaultId);
     if (vault === null) {
         vault = new Vault(vaultId);
+        vault.tokenAddress = ZERO_ADDRESS;
         if (persistNew) {
             vault.save();
         }

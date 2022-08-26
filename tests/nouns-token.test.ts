@@ -55,8 +55,7 @@ describe("Noun Token", () => {
             fractionalVault.tokenAddress = "0x3045CeAF286a8728a398a20cd872e01b0aC109E3".toLowerCase();
             fractionalVault.save();
             const tokenId = 1;
-            const fractionalNoun = new Noun(tokenId.toString());
-            fractionalNoun.save();
+            const fractionalNoun = findOrCreateNoun(tokenId.toString());
             const event = generateTransferEvent(
                 "0xeBC4054A73D336b620D8d41FF2107Ec124bF0EA6",
                 fractionalVault.id,

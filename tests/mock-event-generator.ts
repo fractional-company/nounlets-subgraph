@@ -8,6 +8,7 @@ import {
 } from "../generated/templates/NounletToken/NounletToken";
 import { Bid, Created, Settled } from "../generated/NounletAuction/NounletAuction";
 import { VaultDeployed } from "../generated/NounletRegistry/NounletRegistry";
+import { ClaimDelegate } from "../generated/NounletGovernance/NounletGovernance";
 
 const generateMockEvent = (parameters: ethereum.EventParam[] = []): ethereum.Event => {
     return new ethereum.Event(
@@ -540,6 +541,56 @@ export function generateVaultDeployedEvent(vaultId: string, nounAddress: string,
             new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
             new ethereum.EventParam("_token", ethereum.Value.fromAddress(Address.fromString(nounAddress))),
             new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounId as i32))),
+        ],
+        null
+    );
+}
+
+export function generateClaimDelegateEvent(
+    vaultId: string,
+    previousDelegate: string,
+    newDelegate: string
+): ClaimDelegate {
+    return new ClaimDelegate(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("_vault", ethereum.Value.fromAddress(Address.fromString(vaultId))),
+            new ethereum.EventParam("_newDelegate", ethereum.Value.fromAddress(Address.fromString(newDelegate))),
+            new ethereum.EventParam(
+                "_previousDelegate",
+                ethereum.Value.fromAddress(Address.fromString(previousDelegate))
+            ),
         ],
         null
     );
