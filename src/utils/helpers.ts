@@ -1,5 +1,5 @@
 import { Account, Delegate, DelegateVote, Noun, Nounlet, Vault } from "../../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function findOrCreateNoun(nounId: string): Noun {
     return findOrNewNoun(nounId, true);
@@ -16,15 +16,17 @@ export function findOrNewNoun(nounId: string, persistNew: boolean = false): Noun
     return noun;
 }
 
-export function findOrCreateAccount(accountId: string): Account {
-    return findOrNewAccount(accountId, true);
+export function findOrCreateAccount(walletId: string, tokenAddress: string): Account {
+    return findOrNewAccount(walletId, tokenAddress, true);
 }
 
-export function findOrNewAccount(accountId: string, persistNew: boolean = false): Account {
+export function findOrNewAccount(walletId: string, tokenAddress: string, persistNew: boolean = false): Account {
+    const accountId = generateAccountId(walletId, tokenAddress);
     let account = Account.load(accountId);
     if (account === null) {
         account = new Account(accountId);
-        account.totalNounletsHeld = BigInt.fromI32(0);
+        account.nounletsHeldCount = 0;
+        account.nounletsHeld = [];
         if (persistNew) {
             account.save();
         }
@@ -32,16 +34,17 @@ export function findOrNewAccount(accountId: string, persistNew: boolean = false)
     return account;
 }
 
-export function findOrCreateDelegate(walletId: string, nounId: string): Delegate {
-    return findOrNewDelegate(walletId, nounId, true);
+export function findOrCreateDelegate(walletId: string, tokenAddress: string): Delegate {
+    return findOrNewDelegate(walletId, tokenAddress, true);
 }
 
-export function findOrNewDelegate(walletId: string, nounId: string, persistNew: boolean = false): Delegate {
-    const delegateId = generateDelegateId(walletId, nounId);
+export function findOrNewDelegate(walletId: string, tokenAddress: string, persistNew: boolean = false): Delegate {
+    const delegateId = generateDelegateId(walletId, tokenAddress);
     let delegate = Delegate.load(delegateId);
     if (delegate === null) {
         delegate = new Delegate(delegateId);
-        // delegate.nounletsRepresented = [];
+        delegate.nounletsRepresentedCount = 0;
+        delegate.nounletsRepresented = [];
         if (persistNew) {
             delegate.save();
         }
@@ -64,7 +67,8 @@ export function findOrNewVault(vaultId: string, persistNew: boolean = false): Va
     return vault;
 }
 
-export function findOrNewNounlet(nounletId: string, persistNew: boolean = false): Nounlet {
+export function findOrNewNounlet(tokenId: string, tokenAddress: string, persistNew: boolean = false): Nounlet {
+    const nounletId = generateNounletId(tokenAddress, tokenId);
     let nounlet = Nounlet.load(nounletId);
     if (nounlet === null) {
         nounlet = new Nounlet(nounletId);
@@ -92,34 +96,8 @@ export function findOrNewDelegateVote(delegateId: string, nounletId: string, per
     return delegateVote;
 }
 
-export function transferBatchOfNounlets(fromAddress: string, toAddress: string, nounletIds: BigInt[]): void {
-    const fromAccount = findOrCreateAccount(fromAddress);
-    let toAccount = findOrCreateAccount(toAddress);
-    let nounletsTransferedCount = 0;
-
-    for (let i = 0; i < nounletIds.length; i++) {
-        const nounletId = nounletIds[i].toString();
-        const nounlet = Nounlet.load(nounletId);
-
-        if (nounlet !== null) {
-            // Remove the delegate for each nounlet that's being transferred.
-            nounlet.delegate = toAccount.id;
-            nounlet.holder = toAccount.id;
-            nounlet.save();
-            nounletsTransferedCount++;
-        } else {
-            log.error("[transferBatchOfNounlets] Cannot transfer Nounlet #{} as it does not exist in the store", [
-                nounletId,
-            ]);
-        }
-    }
-
-    toAccount.totalNounletsHeld = toAccount.totalNounletsHeld.plus(BigInt.fromI32(nounletsTransferedCount));
-    toAccount.save();
-}
-
-export function generateDelegateId(walletId: string, nounId: string): string {
-    return walletId.concat("-").concat(nounId);
+export function generateAccountId(walletId: string, tokenAddress: string): string {
+    return tokenAddress.concat("-").concat(walletId);
 }
 
 export function generateDelegateVoteId(delegateId: string, nounletId: string): string {
@@ -132,4 +110,8 @@ export function generateNounletId(tokenAddress: string, tokenId: string): string
 
 export function generateAuctionId(tokenAddress: string, tokenId: string): string {
     return generateNounletId(tokenAddress, tokenId);
+}
+
+export function generateDelegateId(walletId: string, tokenAddress: string): string {
+    return generateAccountId(walletId, tokenAddress);
 }

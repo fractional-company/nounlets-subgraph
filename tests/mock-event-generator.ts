@@ -5,7 +5,7 @@ import {
     DelegateVotesChanged,
     TransferBatch,
     TransferSingle,
-} from "../generated/NounletToken/NounletToken";
+} from "../generated/templates/NounletToken/NounletToken";
 import { Bid, Created, Settled } from "../generated/NounletAuction/NounletAuction";
 import { VaultDeployed } from "../generated/NounletRegistry/NounletRegistry";
 
@@ -92,6 +92,7 @@ export function generateTransferEvent(fromAddress: string, toAddress: string, to
 }
 
 export function generateTransferSingleEvent(
+    tokenAddress: string,
     operator: string,
     fromAddress: string,
     toAddress: string,
@@ -99,7 +100,7 @@ export function generateTransferSingleEvent(
     amount: BigInt
 ): TransferSingle {
     return new TransferSingle(
-        new Address(10),
+        Address.fromString(tokenAddress),
         new BigInt(20),
         new BigInt(10),
         null,
@@ -133,9 +134,9 @@ export function generateTransferSingleEvent(
         ),
         [
             new ethereum.EventParam("operator", ethereum.Value.fromAddress(Address.fromString(operator))),
-            new ethereum.EventParam("fromAddress", ethereum.Value.fromAddress(Address.fromString(fromAddress))),
-            new ethereum.EventParam("toAddress", ethereum.Value.fromAddress(Address.fromString(toAddress))),
-            new ethereum.EventParam("tokenId", ethereum.Value.fromUnsignedBigInt(tokenId)),
+            new ethereum.EventParam("from", ethereum.Value.fromAddress(Address.fromString(fromAddress))),
+            new ethereum.EventParam("to", ethereum.Value.fromAddress(Address.fromString(toAddress))),
+            new ethereum.EventParam("id", ethereum.Value.fromUnsignedBigInt(tokenId)),
             new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount)),
         ],
         null
@@ -143,6 +144,7 @@ export function generateTransferSingleEvent(
 }
 
 export function generateTransferBatchEvent(
+    tokenAddress: string,
     operator: string,
     fromAddress: string,
     toAddress: string,
@@ -150,7 +152,7 @@ export function generateTransferBatchEvent(
     amounts: BigInt[]
 ): TransferBatch {
     return new TransferBatch(
-        new Address(10),
+        Address.fromString(tokenAddress),
         new BigInt(20),
         new BigInt(10),
         null,
@@ -184,9 +186,9 @@ export function generateTransferBatchEvent(
         ),
         [
             new ethereum.EventParam("operator", ethereum.Value.fromAddress(Address.fromString(operator))),
-            new ethereum.EventParam("fromAddress", ethereum.Value.fromAddress(Address.fromString(fromAddress))),
-            new ethereum.EventParam("toAddress", ethereum.Value.fromAddress(Address.fromString(toAddress))),
-            new ethereum.EventParam("tokenIds", ethereum.Value.fromUnsignedBigIntArray(tokenIds)),
+            new ethereum.EventParam("from", ethereum.Value.fromAddress(Address.fromString(fromAddress))),
+            new ethereum.EventParam("to", ethereum.Value.fromAddress(Address.fromString(toAddress))),
+            new ethereum.EventParam("ids", ethereum.Value.fromUnsignedBigIntArray(tokenIds)),
             new ethereum.EventParam("amounts", ethereum.Value.fromUnsignedBigIntArray(amounts)),
         ],
         null
@@ -453,13 +455,13 @@ export function generateDelegateVotesChangedEvent(
 }
 
 export function generateDelegateChangedEvent(
+    tokenAddress: string,
     delegatorId: string,
-    nounletId: number,
     fromDelegateId: string,
     toDelegateId: string
 ): DelegateChanged {
     return new DelegateChanged(
-        new Address(10),
+        Address.fromString(tokenAddress),
         new BigInt(20),
         new BigInt(10),
         null,
@@ -493,7 +495,6 @@ export function generateDelegateChangedEvent(
         ),
         [
             new ethereum.EventParam("_delegator", ethereum.Value.fromAddress(Address.fromString(delegatorId))),
-            new ethereum.EventParam("_id", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(nounletId as i32))),
             new ethereum.EventParam("_fromDelegate", ethereum.Value.fromAddress(Address.fromString(fromDelegateId))),
             new ethereum.EventParam("_toDelegate", ethereum.Value.fromAddress(Address.fromString(toDelegateId))),
         ],

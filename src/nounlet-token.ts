@@ -3,98 +3,192 @@ import {
     DelegateVotesChanged as DelegateVotesChangedEvent,
     TransferBatch as TransferBatchEvent,
     TransferSingle as TransferSingleEvent,
-} from "../generated/NounletToken/NounletToken";
+} from "../generated/templates/NounletToken/NounletToken";
 import {
+    findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewDelegate,
-    findOrNewDelegateVote,
     findOrNewNounlet,
-    generateNounletId,
-    transferBatchOfNounlets,
+    generateDelegateVoteId,
 } from "./utils/helpers";
-import { Nounlet } from "../generated/schema";
-import { log } from "@graphprotocol/graph-ts";
+import { Account, Delegate, DelegateVote, Noun, Nounlet } from "../generated/schema";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 
-let nounletId: string;
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
-    const fromDelegateAddress = event.params._fromDelegate.toHexString();
-    const toDelegateAddress = event.params._toDelegate.toHexString();
+    log.debug("[handleDelegatesChanged] Address: {}, _delegator: {}, _fromDelegate: {}, _toDelegate: {}", [
+        event.address.toHexString(),
+        event.params._delegator.toHexString(),
+        event.params._fromDelegate.toHexString(),
+        event.params._toDelegate.toHexString(),
+    ]);
+
     const tokenAddress = event.address.toHexString();
-    const tokenAddress2 = event.transaction.from.toHexString();
-    const tokenAddress3 = event.block.author.toHexString();
-    const tokenId = event.params._id.toString();
-    const nounletId = generateNounletId(tokenAddress, tokenId);
+    const timestamp = event.block.timestamp;
+    const holder = findOrCreateAccount(event.params._delegator.toHexString(), tokenAddress);
+    const fromDelegate = findOrCreateDelegate(event.params._fromDelegate.toHexString(), tokenAddress);
+    const toDelegate = findOrCreateDelegate(event.params._toDelegate.toHexString(), tokenAddress);
+    const fromDelegateNounletsCount = fromDelegate.nounletsRepresented.length;
+    const toDelegateNounletsCount = toDelegate.nounletsRepresented.length;
 
-    log.info("Token address candidate 1: {}", [tokenAddress]);
-    log.info("Token address candidate 2: {}", [tokenAddress2]);
-    log.info("Token address candidate 3: {}", [tokenAddress3]);
+    const holderNounlets = holder.nounletsHeld;
+    for (let i = 0; i < holderNounlets.length; i++) {
+        // Change Nounlet delegate
+        const nounlet = Nounlet.load(holderNounlets[i]) as Nounlet;
+        nounlet.delegate = toDelegate.id;
 
-    const nounlet = Nounlet.load(nounletId);
-    if (nounlet === null) {
-        log.error("[handleDelegateChanged] Nounlet #{} not found. Hash: ", [
-            nounletId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
+        // Add delegate vote
+        const delegateVote = new DelegateVote(generateDelegateVoteId(toDelegate.id, nounlet.id));
+        delegateVote.delegate = toDelegate.id;
+        delegateVote.nounlet = nounlet.id;
+        delegateVote.voteAmount = BigInt.fromI32(1);
+        delegateVote.reason = "Delegate Changed";
+        delegateVote.timestamp = timestamp;
+
+        nounlet.save();
+        delegateVote.save();
     }
 
-    if (nounlet.noun === null) {
-        log.error("[handleDelegateChanged] Noun not found for Nounlet #{}. Hash: ", [
-            nounletId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-    const toDelegate = findOrNewDelegate(toDelegateAddress, nounlet.noun as string, true);
-    nounlet.delegate = toDelegate.id;
-    nounlet.save();
+    // Update nounlets represented count
+    fromDelegate.nounletsRepresentedCount = Math.max(fromDelegateNounletsCount - holderNounlets.length, 0) as i32;
+    toDelegate.nounletsRepresentedCount = Math.max(
+        toDelegateNounletsCount + holderNounlets.length,
+        holderNounlets.length
+    ) as i32;
+    fromDelegate.save();
+    toDelegate.save();
 }
 
 export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): void {
-    const delegateAddress = event.params._delegate.toHexString();
-    const previousBalance = event.params._previousBalance;
-    const newBalance = event.params._newBalance;
-    const tokenAddress = event.address.toHexString();
-    const tokenAddress2 = event.transaction.from.toHexString();
-    const tokenAddress3 = event.block.author.toHexString();
-    const tokenId = event.params._id.toString();
-    const nounletId = generateNounletId(tokenAddress, tokenId);
+    log.debug("handleDelegateVotesChanged called. Address: {}, Delegate: {}, Previous Balance: {}, New Balance: {}", [
+        event.address.toHexString(),
+        event.params._delegate.toString(),
+        event.params._previousBalance.toHexString(),
+        event.params._newBalance.toHexString(),
+    ]);
 
-    log.info("Token address candidate 1: {}", [tokenAddress]);
-    log.info("Token address candidate 2: {}", [tokenAddress2]);
-    log.info("Token address candidate 3: {}", [tokenAddress3]);
-
-    const nounlet = findOrNewNounlet(nounletId);
-    if (nounlet.noun === null) {
-        log.error("[handleDelegateVotesChanged] Noun for nounlet {} not found. Hash: ", [
-            nounletId,
-            event.transaction.hash.toHexString(),
-        ]);
-        return;
-    }
-
-    const delegate = findOrCreateDelegate(delegateAddress, nounlet.noun as string);
-
-    const delegateVote = findOrNewDelegateVote(delegate.id, nounletId);
-    delegateVote.timestamp = event.block.timestamp;
-    delegateVote.voteAmount = newBalance.minus(previousBalance).abs();
-    delegateVote.save();
+    // This event handler gets triggered on:
+    //  - mint
+    //  - batchMint
+    //  - burn
+    //  - batchBurn
+    //  - transferFrom
+    //  - batchTransferFrom
+    //  - safeTransferFrom
+    //  - batchSafeTransferFrom
+    //  - delegate
 }
 
 export function handleTransferBatch(event: TransferBatchEvent): void {
+    log.debug("handleTransferBatch handler called. Address: {}, operator: {}, from: {}, to: {}, amounts: {}, ids: {}", [
+        event.address.toHexString(),
+        event.params.operator.toHexString(),
+        event.params.from.toHexString(),
+        event.params.to.toHexString(),
+        event.params.amounts.toString(),
+        event.params.ids.toString(),
+    ]);
+
+    const tokenAddress = event.address.toHexString();
     const from = event.params.from.toHexString();
     const to = event.params.to.toHexString();
-    // TODO: Tle moraš dobit _token param.
     const nounletIds = event.params.ids;
 
-    transferBatchOfNounlets(from, to, nounletIds);
+    transferBatchOfNounlets(tokenAddress, from, to, nounletIds);
 }
 
 export function handleTransferSingle(event: TransferSingleEvent): void {
+    log.debug("handleTransferSingle handler called. Address: {}, operator: {}, from: {}, to: {}, amount: {}, id: {}", [
+        event.address.toHexString(),
+        event.params.operator.toHexString(),
+        event.params.from.toHexString(),
+        event.params.to.toHexString(),
+        event.params.amount.toString(),
+        event.params.id.toString(),
+    ]);
+
+    const tokenAddress = event.address.toHexString();
     const from = event.params.from.toHexString();
     const to = event.params.to.toHexString();
-    // TODO: Tle moraš dobit _token param.
     const nounletId = event.params.id;
 
-    transferBatchOfNounlets(from, to, [nounletId]);
+    transferBatchOfNounlets(tokenAddress, from, to, [nounletId]);
+}
+
+function transferBatchOfNounlets(
+    tokenAddress: string,
+    fromAddress: string,
+    toAddress: string,
+    nounletIds: BigInt[]
+): void {
+    let oldHolder = findOrCreateAccount(fromAddress, tokenAddress);
+    const oldHolderNounletsCount = oldHolder.nounletsHeld.length;
+    let newHolder = findOrCreateAccount(toAddress, tokenAddress);
+    const newHolderNounletsCount = newHolder.nounletsHeld.length;
+    let newDelegate = findOrCreateDelegate(toAddress, tokenAddress);
+    const newDelegateNounletsCount = newDelegate.nounletsRepresented.length;
+
+    // const nounletsMapper = {};
+    for (let i = 0; i < nounletIds.length; i++) {
+        const nounlet = findOrNewNounlet(nounletIds[i].toString(), tokenAddress);
+        if (nounlet.delegate !== null) {
+            const currentDelegateWalletAddress = (nounlet.delegate as string).replace(tokenAddress, "").replace("-", "");
+            const currentDelegate = findOrNewDelegate(currentDelegateWalletAddress, tokenAddress);
+
+            let currentDelegateNounletsCount = currentDelegate.nounletsRepresented.length;
+            // if (nounletsMapper[currentDelegate.id]) {
+            //     currentDelegateNounletsCount = nounletsMapper[currentDelegate.id];
+            // } else {
+            //     nounletsMapper[currentDelegate.id] = currentDelegateNounletsCount;
+            // }
+
+            currentDelegate.nounletsRepresentedCount = Math.max(currentDelegateNounletsCount - 1, 0) as i32;
+            currentDelegate.save();
+        }
+
+        nounlet.delegate = newDelegate.id;
+        nounlet.holder = newHolder.id;
+        nounlet.save();
+    }
+
+    oldHolder = Account.load(oldHolder.id) as Account;
+    newHolder = Account.load(newHolder.id) as Account;
+    newDelegate = Delegate.load(newDelegate.id) as Delegate;
+    oldHolder.nounletsHeldCount = Math.max(oldHolderNounletsCount - nounletIds.length, 0) as i32;
+    newHolder.nounletsHeldCount = Math.max(newHolderNounletsCount + nounletIds.length, nounletIds.length) as i32;
+    newDelegate.nounletsRepresentedCount = Math.max(
+        newDelegateNounletsCount + nounletIds.length,
+        nounletIds.length
+    ) as i32;
+    oldHolder.save();
+    newHolder.save();
+    newDelegate.save();
+}
+
+function moveNounlets(
+    nounletIds: string[],
+    tokenAddress: string,
+    oldHolder: Account,
+    newHolder: Account,
+    oldDelegate: Delegate,
+    newDelegate: Delegate
+): void {
+    for (let i = 0; i < nounletIds.length; i++) {
+        const nounlet = findOrNewNounlet(nounletIds[i], tokenAddress);
+        nounlet.delegate = newDelegate.id;
+        nounlet.holder = newHolder.id;
+        nounlet.save();
+    }
+
+    oldHolder = Account.load(oldHolder.id) as Account;
+    newHolder = Account.load(newHolder.id) as Account;
+    oldDelegate = Delegate.load(oldDelegate.id) as Delegate;
+    newDelegate = Delegate.load(newDelegate.id) as Delegate;
+    oldHolder.nounletsHeldCount = oldHolder.nounletsHeld.length;
+    newHolder.nounletsHeldCount = newHolder.nounletsHeld.length;
+    oldDelegate.nounletsRepresentedCount = oldDelegate.nounletsRepresented.length;
+    newDelegate.nounletsRepresentedCount = newDelegate.nounletsRepresented.length;
+    oldHolder.save();
+    newHolder.save();
+    oldDelegate.save();
+    newDelegate.save();
 }

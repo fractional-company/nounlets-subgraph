@@ -7,6 +7,7 @@ import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
+    findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
     findOrNewNounlet,
@@ -48,7 +49,7 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     // Store the auction
     const auction = new Auction(nounletId);
     auction.nounlet = nounlet.id;
-    auction.amount = BigInt.fromI32(0);
+    auction.highestBidAmount = BigInt.fromI32(0);
     auction.settled = false;
     auction.startTime = startTime;
     auction.endTime = endTime;
@@ -72,12 +73,13 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
         ]);
         return;
     }
-    auction.bidder = bidderAddress;
-    auction.amount = bidAmount;
+
+    const bidder = findOrCreateAccount(bidderAddress, tokenAddress);
+
+    auction.highestBidder = bidder.id;
+    auction.highestBidAmount = bidAmount;
     auction.endTime = endTime;
     auction.save();
-
-    const bidder = findOrCreateAccount(bidderAddress);
 
     const bid = new Bid(bidId);
     bid.auction = auction.id;
@@ -108,7 +110,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     }
 
     // Verify noun existence
-    const nounlet = attemptNounAssignment(findOrNewNounlet(auctionId), vaultId);
+    const nounlet = attemptNounAssignment(findOrNewNounlet(tokenId, tokenAddress), vaultId);
     if (nounlet.noun === null) {
         log.error("[handleAuctionSettled] Cannot find a Noun for Nounlet #{}. Hash: {}", [
             auctionId,
@@ -118,22 +120,22 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     }
 
     // Update Account with token holdings info
-    const account = findOrNewAccount(winnerAddress);
-    account.totalNounletsHeld = account.totalNounletsHeld.plus(BigInt.fromI32(1));
+    const account = findOrNewAccount(winnerAddress, tokenAddress);
+    const totalNounletsCount = account.nounletsHeld.length;
+    account.nounletsHeldCount = Math.max(totalNounletsCount + 1, 1) as i32;
     account.save();
 
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
-    const delegate = findOrNewDelegate(winnerAddress, nounlet.noun as string);
-    delegate.save();
+    const delegate = findOrCreateDelegate(winnerAddress, tokenAddress);
 
     // Settle auction
     auction.settled = true;
-    auction.amount = amount;
-    auction.bidder = winnerAddress;
+    auction.highestBidAmount = amount;
+    auction.highestBidder = account.id;
     auction.save();
 
     // Set nounlet holder and default delegate
-    nounlet.holder = winnerAddress;
+    nounlet.holder = account.id;
     nounlet.delegate = delegate.id;
     nounlet.save();
 }
