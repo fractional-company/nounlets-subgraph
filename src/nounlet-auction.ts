@@ -9,7 +9,6 @@ import {
     findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewAccount,
-    findOrNewDelegate,
     findOrNewNounlet,
     findOrNewVault,
     generateAuctionId,
@@ -17,6 +16,14 @@ import {
 } from "./utils/helpers";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
+    log.debug("[handleAuctionCreated] _token: {}, _id: {}, _vault: {}, start time: {}, _endTime: {}", [
+        event.params._token.toHexString(),
+        event.params._id.toString(),
+        event.params._vault.toHexString(),
+        event.block.timestamp.toString(),
+        event.params._endTime.toString(),
+    ]);
+
     const vaultId: string = event.params._vault.toHexString();
     const tokenId: string = event.params._id.toString();
     const tokenAddress: string = event.params._token.toHexString();
@@ -57,6 +64,15 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
 }
 
 export function handleAuctionBid(event: AuctionBidEvent): void {
+    log.debug("[handleAuctionBid] _token: {}, _id: {}, _bidder: {}, _value: {}, _endTime: {}, Bid ID: {}", [
+        event.params._token.toHexString(),
+        event.params._id.toString(),
+        event.params._bidder.toHexString(),
+        event.params._value.toString(),
+        event.params._endTime.toString(),
+        event.transaction.hash.toHexString(),
+    ]);
+
     const tokenAddress = event.params._token.toHexString();
     const tokenId = event.params._id.toString();
     const auctionId = generateAuctionId(tokenAddress, tokenId);
@@ -92,6 +108,14 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
 }
 
 export function handleAuctionSettled(event: AuctionSettledEvent): void {
+    log.debug("[handleAuctionSettled] _token: {}, _id: {}, _vault: {}, _amount: {}, _winner: {}", [
+        event.params._token.toHexString(),
+        event.params._id.toString(),
+        event.params._vault.toHexString(),
+        event.params._amount.toString(),
+        event.params._winner.toHexString(),
+    ]);
+
     const vaultId = event.params._vault.toHexString();
     const tokenAddress = event.params._token.toHexString();
     const tokenId = event.params._id.toString();

@@ -1,4 +1,4 @@
-import { afterEach, assert, beforeEach, describe, test } from "matchstick-as/assembly";
+import { assert, beforeEach, describe, test } from "matchstick-as/assembly";
 import { clearStore } from "matchstick-as";
 import { handleVaultDeployed } from "../src/nounlet-registry";
 import { generateVaultDeployedEvent } from "./mock-event-generator";

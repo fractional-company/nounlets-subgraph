@@ -1,6 +1,6 @@
-import { describe, test, assert, afterEach, clearStore, beforeEach } from "matchstick-as/assembly";
+import { describe, test, assert, clearStore, beforeEach } from "matchstick-as/assembly";
 import { handleTransfer } from "../src/nouns-token";
-import { Auction, Bid, Noun, Nounlet, Vault } from "../generated/schema";
+import { Noun, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
 import { findOrCreateNoun } from "../src/utils/helpers";
 

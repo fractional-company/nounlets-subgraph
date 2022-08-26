@@ -14,17 +14,7 @@ import {
 } from "./mock-event-generator";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import { Account, Auction, Noun, Nounlet, Vault } from "../generated/schema";
-import { now as Date_now } from "assemblyscript/std/assembly/bindings/Date";
-import {
-    findOrCreateAccount,
-    findOrNewAccount,
-    findOrNewDelegate,
-    findOrNewNounlet,
-    generateAccountId,
-    generateAuctionId,
-    generateDelegateId,
-    generateNounletId,
-} from "../src/utils/helpers";
+import { generateAccountId, generateAuctionId, generateDelegateId, generateNounletId } from "../src/utils/helpers";
 
 describe("Nounlet Auction", () => {
     beforeEach(() => {

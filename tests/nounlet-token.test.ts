@@ -1,12 +1,7 @@
 import { assert, beforeEach, describe, test } from "matchstick-as/assembly";
 import { clearStore } from "matchstick-as";
 import { Account, Delegate, Noun, Nounlet } from "../generated/schema";
-import {
-    handleDelegateChanged,
-    handleDelegateVotesChanged,
-    handleTransferBatch,
-    handleTransferSingle,
-} from "../src/nounlet-token";
+import { handleDelegateChanged, handleTransferBatch, handleTransferSingle } from "../src/nounlet-token";
 import {
     generateDelegateChangedEvent,
     generateTransferBatchEvent,
@@ -16,11 +11,7 @@ import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrCreateDelegate,
-    findOrNewAccount,
-    findOrNewDelegate,
-    findOrNewDelegateVote,
     findOrNewNounlet,
-    generateAccountId,
     generateDelegateVoteId,
 } from "../src/utils/helpers";
 

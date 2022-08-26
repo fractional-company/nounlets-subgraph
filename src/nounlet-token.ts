@@ -59,7 +59,7 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
 }
 
 export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): void {
-    log.debug("handleDelegateVotesChanged called. Address: {}, Delegate: {}, Previous Balance: {}, New Balance: {}", [
+    log.debug("[handleDelegateVotesChanged] Address: {}, Delegate: {}, Previous Balance: {}, New Balance: {}", [
         event.address.toHexString(),
         event.params._delegate.toString(),
         event.params._previousBalance.toHexString(),
@@ -79,7 +79,7 @@ export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): vo
 }
 
 export function handleTransferBatch(event: TransferBatchEvent): void {
-    log.debug("handleTransferBatch handler called. Address: {}, operator: {}, from: {}, to: {}, amounts: {}, ids: {}", [
+    log.debug("[handleTransferBatch] Address: {}, operator: {}, from: {}, to: {}, amounts: {}, ids: {}", [
         event.address.toHexString(),
         event.params.operator.toHexString(),
         event.params.from.toHexString(),
@@ -97,7 +97,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
 }
 
 export function handleTransferSingle(event: TransferSingleEvent): void {
-    log.debug("handleTransferSingle handler called. Address: {}, operator: {}, from: {}, to: {}, amount: {}, id: {}", [
+    log.debug("[handleTransferSingle] Address: {}, operator: {}, from: {}, to: {}, amount: {}, id: {}", [
         event.address.toHexString(),
         event.params.operator.toHexString(),
         event.params.from.toHexString(),
