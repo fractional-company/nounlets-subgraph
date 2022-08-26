@@ -3,7 +3,7 @@ import {
     Created as AuctionCreatedEvent,
     Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Account, Auction, Bid, Nounlet, Vault } from "../generated/schema";
+import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,

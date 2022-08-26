@@ -1,4 +1,4 @@
-import { Account, Delegate, DelegateVote, Noun, Nounlet, Vault } from "../../generated/schema";
+import { Account, Delegate, DelegateVote, Noun, Nounlet, Token, Vault } from "../../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import { ZERO_ADDRESS } from "./constants";
 
@@ -39,6 +39,7 @@ export function createAccount(walletId: string, tokenAddress: string): Account {
 
 export function newAccount(walletId: string, tokenAddress: string): Account {
     const account = new Account(generateAccountId(walletId, tokenAddress));
+    account.token = tokenAddress;
     account.nounletsHeldCount = 0;
     return account;
 }
@@ -64,8 +65,24 @@ export function createDelegate(walletId: string, tokenAddress: string): Delegate
 
 export function newDelegate(walletId: string, tokenAddress: string): Delegate {
     const delegate = new Delegate(generateDelegateId(walletId, tokenAddress));
+    delegate.token = tokenAddress;
     delegate.nounletsRepresentedCount = 0;
     return delegate;
+}
+
+export function findOrCreateToken(tokenAddress: string): Token {
+    return findOrNewToken(tokenAddress, true);
+}
+
+export function findOrNewToken(tokenAddress: string, persistNew: boolean = false): Token {
+    let token = Token.load(tokenAddress);
+    if (token === null) {
+        token = new Token(tokenAddress);
+        if (persistNew) {
+            token.save();
+        }
+    }
+    return token;
 }
 
 export function findOrCreateVault(vaultId: string): Vault {
@@ -76,7 +93,7 @@ export function findOrNewVault(vaultId: string, persistNew: boolean = false): Va
     let vault = Vault.load(vaultId);
     if (vault === null) {
         vault = new Vault(vaultId);
-        vault.tokenAddress = ZERO_ADDRESS;
+        vault.token = getZeroToken().id;
         if (persistNew) {
             vault.save();
         }
@@ -89,7 +106,6 @@ export function findOrNewNounlet(tokenId: string, tokenAddress: string, persistN
     let nounlet = Nounlet.load(nounletId);
     if (nounlet === null) {
         nounlet = new Nounlet(nounletId);
-        nounlet.delegateVotes = [];
         if (persistNew) {
             nounlet.save();
         }
@@ -131,4 +147,13 @@ export function generateAuctionId(tokenAddress: string, tokenId: string): string
 
 export function generateDelegateId(walletId: string, tokenAddress: string): string {
     return generateAccountId(walletId, tokenAddress);
+}
+
+export function getZeroToken(): Token {
+    let zeroToken = Token.load(ZERO_ADDRESS);
+    if (zeroToken === null) {
+        zeroToken = new Token(ZERO_ADDRESS);
+        zeroToken.save();
+    }
+    return zeroToken;
 }

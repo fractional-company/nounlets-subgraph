@@ -2,7 +2,7 @@ import { describe, test, assert, clearStore, beforeEach } from "matchstick-as/as
 import { handleTransfer } from "../src/nouns-token";
 import { Noun, Vault } from "../generated/schema";
 import { generateTransferEvent } from "./mock-event-generator";
-import { findOrCreateNoun } from "../src/utils/helpers";
+import { findOrCreateNoun, findOrCreateToken } from "../src/utils/helpers";
 
 describe("Noun Token", () => {
     describe("Transfer Handler", () => {
@@ -12,9 +12,11 @@ describe("Noun Token", () => {
 
         test("Should dismiss a noun if 'to' address is not a fractional vault address", () => {
             // Given
+            const tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
-            fractionalVault.tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
+            fractionalVault.token = token.id;
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -31,9 +33,11 @@ describe("Noun Token", () => {
 
         test("Should persist a noun if 'to' address is a fractional vault address", () => {
             // Given
+            const tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
-            fractionalVault.tokenAddress = "0x5E32E16D1F3998B88b2d1b5c0455B92C5F0a9e09".toLowerCase();
+            fractionalVault.token = token.id;
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -50,9 +54,11 @@ describe("Noun Token", () => {
 
         test("Should retrieve a noun if it is already in the store and if 'to' address is a fractional vault address", () => {
             // Given
+            const tokenAddress = "0x3045CeAF286a8728a398a20cd872e01b0aC109E3".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
-            fractionalVault.tokenAddress = "0x3045CeAF286a8728a398a20cd872e01b0aC109E3".toLowerCase();
+            fractionalVault.token = token.id;
             fractionalVault.save();
             const tokenId = 1;
             const fractionalNoun = findOrCreateNoun(tokenId.toString());
@@ -70,11 +76,13 @@ describe("Noun Token", () => {
 
         test("Should remove a noun if 'from' address is a fractional vault", () => {
             // Given
+            const tokenAddress = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const noun = findOrCreateNoun("51");
             const fromAddress = "0xE377541c0B5D53708d90C879f44a124a57c2943A".toLowerCase();
             const fractionalVault = new Vault(fromAddress);
             fractionalVault.noun = noun.id;
-            fractionalVault.tokenAddress = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            fractionalVault.token = token.id;
             fractionalVault.save();
             const toAddress = "0x6d2F62f32b79AD7A548dF1b396040F180c678858".toLowerCase();
 

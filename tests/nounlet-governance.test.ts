@@ -1,5 +1,5 @@
 import { assert, describe, test } from "matchstick-as/assembly";
-import { findOrCreateNoun, findOrCreateVault, findOrNewVault } from "../src/utils/helpers";
+import { findOrCreateNoun, findOrNewVault } from "../src/utils/helpers";
 import { handleClaimDelegate } from "../src/nounlet-governance";
 import { generateClaimDelegateEvent } from "./mock-event-generator";
 

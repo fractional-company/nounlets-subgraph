@@ -14,7 +14,13 @@ import {
 } from "./mock-event-generator";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import { Account, Auction, Noun, Nounlet, Vault } from "../generated/schema";
-import { generateAccountId, generateAuctionId, generateDelegateId, generateNounletId } from "../src/utils/helpers";
+import {
+    findOrCreateToken,
+    generateAccountId,
+    generateAuctionId,
+    generateDelegateId,
+    generateNounletId,
+} from "../src/utils/helpers";
 
 describe("Nounlet Auction", () => {
     beforeEach(() => {
@@ -44,8 +50,9 @@ describe("Nounlet Auction", () => {
         test("Should not persist a Nounlet, a Seed, and an Auction if a vault does not contain a Noun", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             // Vault noun not defined
             vault.save();
             const tokenId = BigInt.fromI32(1);
@@ -66,9 +73,10 @@ describe("Nounlet Auction", () => {
         test("Should persist a Nounlet, a Seed, and an Auction if the vault exists", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = BigInt.fromI32(1);
             const startTime = BigInt.fromI64(1657873934 as i64);
@@ -95,9 +103,10 @@ describe("Nounlet Auction", () => {
         test("Should prevent a bid if there is no auction", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
             const tokenId = 1;
@@ -125,9 +134,10 @@ describe("Nounlet Auction", () => {
         test("Should process an auction bid", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -171,9 +181,10 @@ describe("Nounlet Auction", () => {
         test("Should not settle an auction if an auction does not exist", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
@@ -191,9 +202,10 @@ describe("Nounlet Auction", () => {
         test("Should not settle an auction if a noun was moved from the vault", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = null;
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
@@ -212,9 +224,10 @@ describe("Nounlet Auction", () => {
         test("Should set an auction as settled when settling an auction", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -251,9 +264,10 @@ describe("Nounlet Auction", () => {
         test("Should save a nounlet to an account when settling an auction", () => {
             // Given
             const tokenAddress = "0x20Cb1aA46f710115e2591474d0a00f3F28bcc9ef".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -290,10 +304,11 @@ describe("Nounlet Auction", () => {
         test("Should make an auction holder a default nounlet delegate when settling an auction", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const nounId = "1";
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = nounId;
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -324,9 +339,10 @@ describe("Nounlet Auction", () => {
         test("Should settle an auction even if a nounlet is not present in the store but the vault contains a noun", () => {
             // Given
             const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
-            vault.tokenAddress = tokenAddress;
+            vault.token = token.id;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));

@@ -4,6 +4,17 @@
 #  field: String!
 #) on FIELD_DEFINITION
 
+type Token @entity {
+  "The Token Address"
+  id: ID!
+
+  "Accounts that belong to this vault"
+  accounts: [Account!]! @derivedFrom(field: "token")
+
+  "Delegates that belong to this vault"
+  delegates: [Delegate!]! @derivedFrom(field: "token")
+}
+
 type Vault @entity {
   "The Vault's address"
   id: ID!
@@ -12,7 +23,7 @@ type Vault @entity {
   noun: Noun
 
   "Token address associated with the vault"
-  tokenAddress: String!
+  token: Token!
 }
 
 type Noun @entity {
@@ -26,10 +37,12 @@ type Noun @entity {
   nounlets: [Nounlet!]! @derivedFrom(field: "noun")
 }
 
-
 type Account @entity {
   "Token Address + Wallet Address"
   id: ID!
+
+  "The Token that the Delegate depends on"
+  token: Token!
 
   "The sum of the nounlets held by the Account"
   nounletsHeldCount: Int!
@@ -44,6 +57,9 @@ type Account @entity {
 type Delegate @entity {
   "Token Address + Wallet Address"
   id: ID!
+
+  "The Token that the Delegate depends on"
+  token: Token!
 
   "The sum of the nounlets represented by the Delegate"
   nounletsRepresentedCount: Int!

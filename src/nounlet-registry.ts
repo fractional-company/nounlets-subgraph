@@ -1,5 +1,5 @@
 import { VaultDeployed as VaultDeployedEvent } from "../generated/NounletRegistry/NounletRegistry";
-import { findOrNewVault } from "./utils/helpers";
+import { findOrCreateToken, findOrNewVault } from "./utils/helpers";
 import { NounletToken } from "../generated/templates";
 import { log } from "@graphprotocol/graph-ts";
 
@@ -9,8 +9,11 @@ export function handleVaultDeployed(event: VaultDeployedEvent): void {
         event.params._token.toHexString(),
     ]);
 
+    const tokenAddress = event.params._token;
+
+    const token = findOrCreateToken(tokenAddress.toHexString());
     const vault = findOrNewVault(event.params._vault.toHexString());
-    vault.tokenAddress = event.params._token.toHexString();
+    vault.token = token.id;
     vault.save();
-    NounletToken.create(event.params._token);
+    NounletToken.create(tokenAddress);
 }

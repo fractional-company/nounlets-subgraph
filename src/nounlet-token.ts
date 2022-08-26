@@ -5,18 +5,14 @@ import {
     TransferSingle as TransferSingleEvent,
 } from "../generated/templates/NounletToken/NounletToken";
 import {
-    createAccount,
-    createDelegate,
     findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
     findOrNewNounlet,
-    generateAccountId,
-    generateDelegateId,
     generateDelegateVoteId,
 } from "./utils/helpers";
-import { Account, Delegate, DelegateVote, Noun, Nounlet } from "../generated/schema";
+import { DelegateVote, Nounlet } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
@@ -68,9 +64,9 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
 export function handleDelegateVotesChanged(event: DelegateVotesChangedEvent): void {
     log.debug("[handleDelegateVotesChanged] Address: {}, Delegate: {}, Previous Balance: {}, New Balance: {}", [
         event.address.toHexString(),
-        event.params._delegate.toString(),
-        event.params._previousBalance.toHexString(),
-        event.params._newBalance.toHexString(),
+        event.params._delegate.toHexString(),
+        event.params._previousBalance.toString(),
+        event.params._newBalance.toString(),
     ]);
 
     // This event handler gets triggered on:
@@ -131,7 +127,6 @@ function transferBatchOfNounlets(
     const newHolder = findOrNewAccount(toAddress, tokenAddress);
     const newDelegate = findOrNewDelegate(toAddress, tokenAddress);
 
-    // const delegateCountMapper = new Map<string, number>();
     for (let i = 0; i < nounletIds.length; i++) {
         const nounlet = findOrNewNounlet(nounletIds[i].toString(), tokenAddress);
         if (nounlet.delegate !== null) {
@@ -139,8 +134,6 @@ function transferBatchOfNounlets(
             let currentDelegate = findOrCreateDelegate(currentDelegateAddress, tokenAddress);
             currentDelegate.nounletsRepresentedCount = Math.max(currentDelegate.nounletsRepresentedCount - 1, 0) as i32;
             currentDelegate.save();
-
-            // delegateCountMapper.set(currentDelegate.id, currentDelegate.nounletsRepresentedCount);
         }
 
         nounlet.delegate = newDelegate.id;
