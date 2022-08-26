@@ -82,12 +82,6 @@
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
         "indexed": true,
         "internalType": "address",
         "name": "_fromDelegate",
@@ -107,25 +101,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_delegate",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "_previousBalance",
         "type": "uint256"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_fromDelegate",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_toDelegate",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newBalance",
+        "type": "uint256"
       }
     ],
-    "name": "DelegatesMoved",
+    "name": "DelegateVotesChanged",
     "type": "event"
   },
   {
@@ -941,6 +935,45 @@
     "name": "safeTransferFrom",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "seeds",
+    "outputs": [
+      {
+        "internalType": "uint48",
+        "name": "background",
+        "type": "uint48"
+      },
+      {
+        "internalType": "uint48",
+        "name": "body",
+        "type": "uint48"
+      },
+      {
+        "internalType": "uint48",
+        "name": "accessory",
+        "type": "uint48"
+      },
+      {
+        "internalType": "uint48",
+        "name": "head",
+        "type": "uint48"
+      },
+      {
+        "internalType": "uint48",
+        "name": "glasses",
+        "type": "uint48"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
