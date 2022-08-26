@@ -246,6 +246,10 @@ describe("Nounlet Token", () => {
 
             const sender = findOrCreateAccount(senderAddress, tokenAddress);
             const currentDelegate = findOrCreateDelegate(senderAddress, tokenAddress);
+            const currentDelegate2 = findOrCreateDelegate(
+                "0x34D842d327144397d29E086eebeea70B981D93a8".toLowerCase(),
+                tokenAddress
+            );
 
             const nounlet1 = findOrNewNounlet(tokenIds[0].toString(), tokenAddress);
             nounlet1.noun = nounId;
@@ -262,7 +266,7 @@ describe("Nounlet Token", () => {
             const nounlet3 = findOrNewNounlet(tokenIds[2].toString(), tokenAddress);
             nounlet3.noun = nounId;
             nounlet3.holder = sender.id;
-            nounlet3.delegate = "some-delegate";
+            nounlet3.delegate = currentDelegate2.id;
             nounlet3.save();
 
             const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
@@ -300,6 +304,9 @@ describe("Nounlet Token", () => {
             assert.fieldEquals("Nounlet", nounlet5.id, "delegate", newDelegate.id);
             assert.fieldEquals("Delegate", newDelegate.id, "nounletsRepresentedCount", "5");
             assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedCount", "0");
+            assert.fieldEquals("Delegate", currentDelegate2.id, "nounletsRepresentedCount", "0");
         });
+
+        test("Should transfer Nounlets from multiple senders to receiver", () => {});
     });
 });

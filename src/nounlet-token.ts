@@ -127,22 +127,21 @@ function transferBatchOfNounlets(
     let newDelegate = findOrCreateDelegate(toAddress, tokenAddress);
     const newDelegateNounletsCount = newDelegate.nounletsRepresented.length;
 
-    // const nounletsMapper = {};
+    const delegateCountMapper = new Map<string, number>();
     for (let i = 0; i < nounletIds.length; i++) {
         const nounlet = findOrNewNounlet(nounletIds[i].toString(), tokenAddress);
         if (nounlet.delegate !== null) {
             const currentDelegateWalletAddress = (nounlet.delegate as string).replace(tokenAddress, "").replace("-", "");
             const currentDelegate = findOrNewDelegate(currentDelegateWalletAddress, tokenAddress);
 
-            let currentDelegateNounletsCount = currentDelegate.nounletsRepresented.length;
-            // if (nounletsMapper[currentDelegate.id]) {
-            //     currentDelegateNounletsCount = nounletsMapper[currentDelegate.id];
-            // } else {
-            //     nounletsMapper[currentDelegate.id] = currentDelegateNounletsCount;
-            // }
+            const currentDelegateNounletsCount = delegateCountMapper.has(currentDelegate.id)
+                ? delegateCountMapper.get(currentDelegate.id)
+                : currentDelegate.nounletsRepresented.length;
 
             currentDelegate.nounletsRepresentedCount = Math.max(currentDelegateNounletsCount - 1, 0) as i32;
             currentDelegate.save();
+
+            delegateCountMapper.set(currentDelegate.id, currentDelegate.nounletsRepresentedCount);
         }
 
         nounlet.delegate = newDelegate.id;

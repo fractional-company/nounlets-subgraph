@@ -33,8 +33,8 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
         return;
     }
 
-    const noun = vault.noun;
-    if (noun === null) {
+    const nounId = vault.noun;
+    if (nounId === null) {
         log.error("[handleAuctionCreated] Vault {} does not contain a Noun. Hash: {}", [
             vaultId,
             event.transaction.hash.toHexString(),
@@ -44,7 +44,7 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
 
     // Store the nounlet
     const nounlet = new Nounlet(nounletId);
-    nounlet.noun = noun;
+    nounlet.noun = nounId;
     nounlet.save();
     // Store the auction
     const auction = new Auction(nounletId);
