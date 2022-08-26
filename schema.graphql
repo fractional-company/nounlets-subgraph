@@ -106,7 +106,7 @@ type Bid @entity {
   auction: Auction!
 
   "Bidder account"
-  bidder: Account
+  bidder: Account!
 
   "Bid amount"
   amount: BigInt!
