@@ -3,7 +3,7 @@ import {
     Created as AuctionCreatedEvent,
     Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
+import { Account, Auction, Bid, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
@@ -145,8 +145,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     // Update Account with token holdings info
     const account = findOrNewAccount(winnerAddress, tokenAddress);
-    const totalNounletsCount = account.nounletsHeld.length;
-    account.nounletsHeldCount = Math.max(totalNounletsCount + 1, 1) as i32;
+    account.nounletsHeldCount = Math.max(account.nounletsHeldCount + 1, 1) as i32;
     account.save();
 
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)

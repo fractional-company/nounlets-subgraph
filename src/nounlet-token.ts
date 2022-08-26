@@ -5,17 +5,22 @@ import {
     TransferSingle as TransferSingleEvent,
 } from "../generated/templates/NounletToken/NounletToken";
 import {
+    createAccount,
+    createDelegate,
     findOrCreateAccount,
     findOrCreateDelegate,
+    findOrNewAccount,
     findOrNewDelegate,
     findOrNewNounlet,
+    generateAccountId,
+    generateDelegateId,
     generateDelegateVoteId,
 } from "./utils/helpers";
 import { Account, Delegate, DelegateVote, Noun, Nounlet } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
-    log.debug("[handleDelegatesChanged] Address: {}, _delegator: {}, _fromDelegate: {}, _toDelegate: {}", [
+    log.debug("[handleDelegateChanged] Address: {}, _delegator: {}, _fromDelegate: {}, _toDelegate: {}", [
         event.address.toHexString(),
         event.params._delegator.toHexString(),
         event.params._fromDelegate.toHexString(),
@@ -25,12 +30,11 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const tokenAddress = event.address.toHexString();
     const timestamp = event.block.timestamp;
     const holder = findOrCreateAccount(event.params._delegator.toHexString(), tokenAddress);
+
     const fromDelegate = findOrCreateDelegate(event.params._fromDelegate.toHexString(), tokenAddress);
     const toDelegate = findOrCreateDelegate(event.params._toDelegate.toHexString(), tokenAddress);
-    const fromDelegateNounletsCount = fromDelegate.nounletsRepresented.length;
-    const toDelegateNounletsCount = toDelegate.nounletsRepresented.length;
 
-    const holderNounlets = holder.nounletsHeld;
+    const holderNounlets = holder.nounletsHeld || [];
     for (let i = 0; i < holderNounlets.length; i++) {
         // Change Nounlet delegate
         const nounlet = Nounlet.load(holderNounlets[i]) as Nounlet;
@@ -49,9 +53,12 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     }
 
     // Update nounlets represented count
-    fromDelegate.nounletsRepresentedCount = Math.max(fromDelegateNounletsCount - holderNounlets.length, 0) as i32;
+    fromDelegate.nounletsRepresentedCount = Math.max(
+        fromDelegate.nounletsRepresentedCount - holderNounlets.length,
+        0
+    ) as i32;
     toDelegate.nounletsRepresentedCount = Math.max(
-        toDelegateNounletsCount + holderNounlets.length,
+        toDelegate.nounletsRepresentedCount + holderNounlets.length,
         holderNounlets.length
     ) as i32;
     fromDelegate.save();
@@ -120,28 +127,20 @@ function transferBatchOfNounlets(
     toAddress: string,
     nounletIds: BigInt[]
 ): void {
-    let oldHolder = findOrCreateAccount(fromAddress, tokenAddress);
-    const oldHolderNounletsCount = oldHolder.nounletsHeld.length;
-    let newHolder = findOrCreateAccount(toAddress, tokenAddress);
-    const newHolderNounletsCount = newHolder.nounletsHeld.length;
-    let newDelegate = findOrCreateDelegate(toAddress, tokenAddress);
-    const newDelegateNounletsCount = newDelegate.nounletsRepresented.length;
+    const oldHolder = findOrNewAccount(fromAddress, tokenAddress);
+    const newHolder = findOrNewAccount(toAddress, tokenAddress);
+    const newDelegate = findOrNewDelegate(toAddress, tokenAddress);
 
-    const delegateCountMapper = new Map<string, number>();
+    // const delegateCountMapper = new Map<string, number>();
     for (let i = 0; i < nounletIds.length; i++) {
         const nounlet = findOrNewNounlet(nounletIds[i].toString(), tokenAddress);
         if (nounlet.delegate !== null) {
-            const currentDelegateWalletAddress = (nounlet.delegate as string).replace(tokenAddress, "").replace("-", "");
-            const currentDelegate = findOrNewDelegate(currentDelegateWalletAddress, tokenAddress);
-
-            const currentDelegateNounletsCount = delegateCountMapper.has(currentDelegate.id)
-                ? delegateCountMapper.get(currentDelegate.id)
-                : currentDelegate.nounletsRepresented.length;
-
-            currentDelegate.nounletsRepresentedCount = Math.max(currentDelegateNounletsCount - 1, 0) as i32;
+            const currentDelegateAddress = (nounlet.delegate as string).replace(tokenAddress, "").replace("-", "");
+            let currentDelegate = findOrCreateDelegate(currentDelegateAddress, tokenAddress);
+            currentDelegate.nounletsRepresentedCount = Math.max(currentDelegate.nounletsRepresentedCount - 1, 0) as i32;
             currentDelegate.save();
 
-            delegateCountMapper.set(currentDelegate.id, currentDelegate.nounletsRepresentedCount);
+            // delegateCountMapper.set(currentDelegate.id, currentDelegate.nounletsRepresentedCount);
         }
 
         nounlet.delegate = newDelegate.id;
@@ -149,45 +148,13 @@ function transferBatchOfNounlets(
         nounlet.save();
     }
 
-    oldHolder = Account.load(oldHolder.id) as Account;
-    newHolder = Account.load(newHolder.id) as Account;
-    newDelegate = Delegate.load(newDelegate.id) as Delegate;
-    oldHolder.nounletsHeldCount = Math.max(oldHolderNounletsCount - nounletIds.length, 0) as i32;
-    newHolder.nounletsHeldCount = Math.max(newHolderNounletsCount + nounletIds.length, nounletIds.length) as i32;
+    oldHolder.nounletsHeldCount = Math.max(oldHolder.nounletsHeldCount - nounletIds.length, 0) as i32;
+    newHolder.nounletsHeldCount = Math.max(newHolder.nounletsHeldCount + nounletIds.length, nounletIds.length) as i32;
     newDelegate.nounletsRepresentedCount = Math.max(
-        newDelegateNounletsCount + nounletIds.length,
+        newDelegate.nounletsRepresentedCount + nounletIds.length,
         nounletIds.length
     ) as i32;
     oldHolder.save();
     newHolder.save();
-    newDelegate.save();
-}
-
-function moveNounlets(
-    nounletIds: string[],
-    tokenAddress: string,
-    oldHolder: Account,
-    newHolder: Account,
-    oldDelegate: Delegate,
-    newDelegate: Delegate
-): void {
-    for (let i = 0; i < nounletIds.length; i++) {
-        const nounlet = findOrNewNounlet(nounletIds[i], tokenAddress);
-        nounlet.delegate = newDelegate.id;
-        nounlet.holder = newHolder.id;
-        nounlet.save();
-    }
-
-    oldHolder = Account.load(oldHolder.id) as Account;
-    newHolder = Account.load(newHolder.id) as Account;
-    oldDelegate = Delegate.load(oldDelegate.id) as Delegate;
-    newDelegate = Delegate.load(newDelegate.id) as Delegate;
-    oldHolder.nounletsHeldCount = oldHolder.nounletsHeld.length;
-    newHolder.nounletsHeldCount = newHolder.nounletsHeld.length;
-    oldDelegate.nounletsRepresentedCount = oldDelegate.nounletsRepresented.length;
-    newDelegate.nounletsRepresentedCount = newDelegate.nounletsRepresented.length;
-    oldHolder.save();
-    newHolder.save();
-    oldDelegate.save();
     newDelegate.save();
 }

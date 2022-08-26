@@ -1,5 +1,5 @@
 import { Account, Delegate, DelegateVote, Noun, Nounlet, Vault } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function findOrCreateNoun(nounId: string): Noun {
     return findOrNewNoun(nounId, true);
@@ -22,15 +22,22 @@ export function findOrCreateAccount(walletId: string, tokenAddress: string): Acc
 
 export function findOrNewAccount(walletId: string, tokenAddress: string, persistNew: boolean = false): Account {
     const accountId = generateAccountId(walletId, tokenAddress);
-    let account = Account.load(accountId);
+    const account = Account.load(accountId);
     if (account === null) {
-        account = new Account(accountId);
-        account.nounletsHeldCount = 0;
-        account.nounletsHeld = [];
-        if (persistNew) {
-            account.save();
-        }
+        return persistNew ? createAccount(walletId, tokenAddress) : newAccount(walletId, tokenAddress);
     }
+    return account;
+}
+
+export function createAccount(walletId: string, tokenAddress: string): Account {
+    const account = newAccount(walletId, tokenAddress);
+    account.save();
+    return account;
+}
+
+export function newAccount(walletId: string, tokenAddress: string): Account {
+    const account = new Account(generateAccountId(walletId, tokenAddress));
+    account.nounletsHeldCount = 0;
     return account;
 }
 
@@ -40,15 +47,22 @@ export function findOrCreateDelegate(walletId: string, tokenAddress: string): De
 
 export function findOrNewDelegate(walletId: string, tokenAddress: string, persistNew: boolean = false): Delegate {
     const delegateId = generateDelegateId(walletId, tokenAddress);
-    let delegate = Delegate.load(delegateId);
+    const delegate = Delegate.load(delegateId);
     if (delegate === null) {
-        delegate = new Delegate(delegateId);
-        delegate.nounletsRepresentedCount = 0;
-        delegate.nounletsRepresented = [];
-        if (persistNew) {
-            delegate.save();
-        }
+        return persistNew ? createDelegate(walletId, tokenAddress) : newDelegate(walletId, tokenAddress);
     }
+    return delegate;
+}
+
+export function createDelegate(walletId: string, tokenAddress: string): Delegate {
+    const delegate = newDelegate(walletId, tokenAddress);
+    delegate.save();
+    return delegate;
+}
+
+export function newDelegate(walletId: string, tokenAddress: string): Delegate {
+    const delegate = new Delegate(generateDelegateId(walletId, tokenAddress));
+    delegate.nounletsRepresentedCount = 0;
     return delegate;
 }
 

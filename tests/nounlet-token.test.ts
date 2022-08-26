@@ -187,6 +187,11 @@ describe("Nounlet Token", () => {
             nounlet3.delegate = "some-delegate";
             nounlet3.save();
 
+            sender.nounletsHeldCount = 3;
+            sender.save();
+            currentDelegate.nounletsRepresentedCount = 2;
+            currentDelegate.save();
+
             const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
             const newDelegate = findOrCreateDelegate(receiverAddress, tokenAddress);
 
@@ -201,6 +206,11 @@ describe("Nounlet Token", () => {
             nounlet5.holder = receiver.id;
             nounlet5.delegate = newDelegate.id;
             nounlet5.save();
+
+            receiver.nounletsHeldCount = 2;
+            receiver.save();
+            newDelegate.nounletsRepresentedCount = 2;
+            newDelegate.save();
 
             // When
             handleTransferSingle(
@@ -260,6 +270,13 @@ describe("Nounlet Token", () => {
             nounlet3.delegate = currentDelegate2.id;
             nounlet3.save();
 
+            sender.nounletsHeldCount = 3;
+            sender.save();
+            currentDelegate.nounletsRepresentedCount = 2;
+            currentDelegate.save();
+            currentDelegate2.nounletsRepresentedCount = 1;
+            currentDelegate2.save();
+
             const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
             const newDelegate = findOrCreateDelegate(receiverAddress, tokenAddress);
 
@@ -274,6 +291,11 @@ describe("Nounlet Token", () => {
             nounlet5.holder = receiver.id;
             nounlet5.delegate = newDelegate.id;
             nounlet5.save();
+
+            receiver.nounletsHeldCount = 2;
+            receiver.save();
+            newDelegate.nounletsRepresentedCount = 2;
+            newDelegate.save();
 
             // When
             handleTransferBatch(
