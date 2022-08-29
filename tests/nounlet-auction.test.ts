@@ -270,18 +270,17 @@ describe("Nounlet Auction", () => {
             vault.token = token.id;
             vault.save();
             const tokenId = 1;
+            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
+            nounlet.noun = vault.noun as string;
+            nounlet.save();
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
-            auction.nounlet = tokenId.toString();
+            auction.nounlet = nounlet.id;
             auction.settled = false;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
             auction.endTime = BigInt.fromI64(1672273934 as i64);
             auction.save();
-            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
-            nounlet.noun = vault.noun as string;
-            nounlet.auction = auction.id;
-            nounlet.save();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
@@ -294,11 +293,47 @@ describe("Nounlet Auction", () => {
             const winnerId = generateAccountId(winnerAddress.toString(), tokenAddress);
             assert.fieldEquals("Nounlet", nounlet.id, "holder", winnerId);
             assert.fieldEquals("Nounlet", nounlet.id, "delegate", generateDelegateId(winnerAddress, tokenAddress));
-            assert.fieldEquals("Account", winnerId, "nounletsHeldCount", "1");
+            assert.fieldEquals("Account", winnerId, "nounletsHeldIDs", `[${nounlet.id}]`);
             assert.fieldEquals("Account", winnerId, "nounletsHeld", `[${nounlet.id}]`);
             const winner = Account.load(winnerId) as Account;
             assert.stringEquals([nounlet.id].toString(), winner.nounletsHeld.toString());
             // assert.fieldEquals("Account", winnerAddress, "nounlets", `[${tokenId.toString()}]`);
+        });
+
+        test("Should not duplicate hald nounlet IDs when saving nounlets to an account", () => {
+            // Given
+            const tokenAddress = "0x20Cb1aA46f710115e2591474d0a00f3F28bcc9ef".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
+            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+            vault.noun = "1";
+            vault.token = token.id;
+            vault.save();
+            const tokenId = 1;
+            const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
+            nounlet.noun = vault.noun as string;
+            nounlet.save();
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
+            auction.nounlet = nounlet.id;
+            auction.settled = false;
+            auction.highestBidAmount = BigInt.fromI32(0);
+            auction.highestBidder = null;
+            auction.startTime = BigInt.fromI64(1657873934 as i64);
+            auction.endTime = BigInt.fromI64(1672273934 as i64);
+            auction.save();
+            const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
+            const winnerAmount = 9999;
+
+            // When
+            handleAuctionSettled(
+                generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
+            );
+            handleAuctionSettled(
+                generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
+            );
+
+            // Then
+            const winnerId = generateAccountId(winnerAddress.toString(), tokenAddress);
+            assert.fieldEquals("Account", winnerId, "nounletsHeldIDs", `[${nounlet.id}]`);
         });
 
         test("Should make an auction holder a default nounlet delegate when settling an auction", () => {

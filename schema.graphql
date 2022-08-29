@@ -44,8 +44,8 @@ type Account @entity {
   "The Token that the Delegate depends on"
   token: Token!
 
-  "The sum of the nounlets held by the Account"
-  nounletsHeldCount: Int!
+  "IDs of Nounlets held (subgraph cannot fetch them from derived fields)"
+  nounletsHeldIDs: [String!]!
 
   "The Nounlets held by this account"
   nounletsHeld: [Nounlet!]! @derivedFrom(field: "holder")
@@ -61,8 +61,8 @@ type Delegate @entity {
   "The Token that the Delegate depends on"
   token: Token!
 
-  "The sum of the nounlets represented by the Delegate"
-  nounletsRepresentedCount: Int!
+  "IDs of the represented Nounlets (subgraph cannot fetch them from derived fields)"
+  nounletsRepresentedIDs: [String!]!
 
   "Nounlets that this delegate represents"
   nounletsRepresented: [Nounlet!]! @derivedFrom(field: "delegate")

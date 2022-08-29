@@ -10,9 +10,12 @@ import {
     findOrNewAccount,
     findOrNewDelegate,
     findOrNewNounlet,
+    generateAccountId,
     generateDelegateVoteId,
+    getDistinctValues,
+    removeValueFromArray,
 } from "./utils/helpers";
-import { DelegateVote, Nounlet } from "../generated/schema";
+import { Account, DelegateVote, Nounlet } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
@@ -26,15 +29,22 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
     const tokenAddress = event.address.toHexString();
     const timestamp = event.block.timestamp;
     const holder = findOrCreateAccount(event.params._delegator.toHexString(), tokenAddress);
-
     const fromDelegate = findOrCreateDelegate(event.params._fromDelegate.toHexString(), tokenAddress);
     const toDelegate = findOrCreateDelegate(event.params._toDelegate.toHexString(), tokenAddress);
 
-    const holderNounlets = holder.nounletsHeld || [];
+    let holderNounlets = holder.nounletsHeldIDs;
+    let fromDelegateNounletIDs = fromDelegate.nounletsRepresentedIDs;
+    let toDelegateNounletIDs = toDelegate.nounletsRepresentedIDs;
+
     for (let i = 0; i < holderNounlets.length; i++) {
         // Change Nounlet delegate
         const nounlet = Nounlet.load(holderNounlets[i]) as Nounlet;
         nounlet.delegate = toDelegate.id;
+        nounlet.save();
+
+        // Swap nounlet IDs
+        fromDelegateNounletIDs = removeValueFromArray(fromDelegateNounletIDs, nounlet.id);
+        toDelegateNounletIDs.push(nounlet.id);
 
         // Add delegate vote
         const delegateVote = new DelegateVote(generateDelegateVoteId(toDelegate.id, nounlet.id));
@@ -43,20 +53,12 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
         delegateVote.voteAmount = BigInt.fromI32(1);
         delegateVote.reason = "Delegate Changed";
         delegateVote.timestamp = timestamp;
-
-        nounlet.save();
         delegateVote.save();
     }
 
-    // Update nounlets represented count
-    fromDelegate.nounletsRepresentedCount = Math.max(
-        fromDelegate.nounletsRepresentedCount - holderNounlets.length,
-        0
-    ) as i32;
-    toDelegate.nounletsRepresentedCount = Math.max(
-        toDelegate.nounletsRepresentedCount + holderNounlets.length,
-        holderNounlets.length
-    ) as i32;
+    // Update nounlets represented IDs
+    fromDelegate.nounletsRepresentedIDs = fromDelegateNounletIDs;
+    toDelegate.nounletsRepresentedIDs = getDistinctValues(toDelegateNounletIDs);
     fromDelegate.save();
     toDelegate.save();
 }
@@ -126,27 +128,34 @@ function transferBatchOfNounlets(
     const oldHolder = findOrNewAccount(fromAddress, tokenAddress);
     const newHolder = findOrNewAccount(toAddress, tokenAddress);
     const newDelegate = findOrNewDelegate(toAddress, tokenAddress);
+    let oldHolderNounletsHeldIDs = oldHolder.nounletsHeldIDs;
+    let newHolderNounletsHeldIDs = newHolder.nounletsHeldIDs;
+    let newDelegateNounletIDs = newDelegate.nounletsRepresentedIDs;
 
     for (let i = 0; i < nounletIds.length; i++) {
         const nounlet = findOrNewNounlet(nounletIds[i].toString(), tokenAddress);
+
+        oldHolderNounletsHeldIDs = removeValueFromArray(oldHolderNounletsHeldIDs, nounlet.id);
+        newHolderNounletsHeldIDs.push(nounlet.id);
+
         if (nounlet.delegate !== null) {
             const currentDelegateAddress = (nounlet.delegate as string).replace(tokenAddress, "").replace("-", "");
             let currentDelegate = findOrCreateDelegate(currentDelegateAddress, tokenAddress);
-            currentDelegate.nounletsRepresentedCount = Math.max(currentDelegate.nounletsRepresentedCount - 1, 0) as i32;
+            let currentDelegateNounletIDs = currentDelegate.nounletsRepresentedIDs;
+            currentDelegateNounletIDs = removeValueFromArray(currentDelegateNounletIDs, nounlet.id);
+            currentDelegate.nounletsRepresentedIDs = currentDelegateNounletIDs;
             currentDelegate.save();
         }
+        newDelegateNounletIDs.push(nounlet.id);
 
         nounlet.delegate = newDelegate.id;
         nounlet.holder = newHolder.id;
         nounlet.save();
     }
 
-    oldHolder.nounletsHeldCount = Math.max(oldHolder.nounletsHeldCount - nounletIds.length, 0) as i32;
-    newHolder.nounletsHeldCount = Math.max(newHolder.nounletsHeldCount + nounletIds.length, nounletIds.length) as i32;
-    newDelegate.nounletsRepresentedCount = Math.max(
-        newDelegate.nounletsRepresentedCount + nounletIds.length,
-        nounletIds.length
-    ) as i32;
+    oldHolder.nounletsHeldIDs = oldHolderNounletsHeldIDs;
+    newHolder.nounletsHeldIDs = getDistinctValues(newHolderNounletsHeldIDs);
+    newDelegate.nounletsRepresentedIDs = getDistinctValues(newDelegateNounletIDs);
     oldHolder.save();
     newHolder.save();
     newDelegate.save();

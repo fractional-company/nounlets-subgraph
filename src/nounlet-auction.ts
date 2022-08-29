@@ -13,6 +13,7 @@ import {
     findOrNewVault,
     generateAuctionId,
     generateNounletId,
+    getDistinctValues,
 } from "./utils/helpers";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
@@ -108,13 +109,13 @@ export function handleAuctionBid(event: AuctionBidEvent): void {
 }
 
 export function handleAuctionSettled(event: AuctionSettledEvent): void {
-    log.debug("[handleAuctionSettled] _token: {}, _id: {}, _vault: {}, _amount: {}, _winner: {}", [
-        event.params._token.toHexString(),
-        event.params._id.toString(),
-        event.params._vault.toHexString(),
-        event.params._amount.toString(),
-        event.params._winner.toHexString(),
-    ]);
+    // log.debug("[handleAuctionSettled] _token: {}, _id: {}, _vault: {}, _amount: {}, _winner: {}", [
+    //     event.params._token.toHexString(),
+    //     event.params._id.toString(),
+    //     event.params._vault.toHexString(),
+    //     event.params._amount.toString(),
+    //     event.params._winner.toHexString(),
+    // ]);
 
     const vaultId = event.params._vault.toHexString();
     const tokenAddress = event.params._token.toHexString();
@@ -145,7 +146,9 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     // Update Account with token holdings info
     const account = findOrNewAccount(winnerAddress, tokenAddress);
-    account.nounletsHeldCount = Math.max(account.nounletsHeldCount + 1, 1) as i32;
+    let nounletsHeldIDs = account.nounletsHeldIDs;
+    nounletsHeldIDs.push(nounlet.id);
+    account.nounletsHeldIDs = getDistinctValues(nounletsHeldIDs);
     account.save();
 
     // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)

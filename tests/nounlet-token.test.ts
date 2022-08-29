@@ -7,7 +7,7 @@ import {
     generateTransferBatchEvent,
     generateTransferSingleEvent,
 } from "./mock-event-generator";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrCreateDelegate,
@@ -85,6 +85,9 @@ describe("Nounlet Token", () => {
             nounlet3.delegate = oldDelegate.id;
             nounlet3.save();
 
+            holder.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
+            holder.save();
+
             // When
             handleDelegateChanged(
                 generateDelegateChangedEvent(tokenAddress, delegatorAddress, oldDelegateAddress, newDelegateAddress)
@@ -101,10 +104,60 @@ describe("Nounlet Token", () => {
             assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet1.id) as boolean);
             assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet2.id) as boolean);
             assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet3.id) as boolean);
-            log.info("old delegate count: {}", [refreshedOldDelegate.nounletsRepresentedCount.toString()]);
-            log.info("new delegate count: {}", [refreshedNewDelegate.nounletsRepresentedCount.toString()]);
-            assert.assertTrue(refreshedOldDelegate.nounletsRepresentedCount === 0);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedCount === 3);
+            assert.assertTrue(refreshedOldDelegate.nounletsRepresentedIDs.length === 0);
+            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet1.id) as boolean);
+            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet2.id) as boolean);
+            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet3.id) as boolean);
+        });
+
+        test("Should not duplicate represented nounlet IDs when changing a Delegate", () => {
+            // Given
+            const nounId = 10;
+            const tokenAddress = "0xFBE119605a716dc275f4A5dd1A913d6ADdb792D4".toLowerCase();
+            const delegatorAddress = "0xa5B7c887A47653E7076e73A7bd3F19e9cF1EEfbA".toLowerCase();
+            const oldDelegateAddress = "0xA55faC158c179C0BfFe814A5Fa0B79604E346cF6".toLowerCase();
+            const newDelegateAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
+
+            const holder = findOrCreateAccount(delegatorAddress, tokenAddress);
+            const oldDelegate = findOrCreateDelegate(oldDelegateAddress, tokenAddress);
+            const newDelegate = findOrCreateDelegate(newDelegateAddress, tokenAddress);
+
+            const nounlet1 = findOrNewNounlet("1", tokenAddress);
+            nounlet1.noun = nounId.toString();
+            nounlet1.holder = holder.id;
+            nounlet1.delegate = oldDelegate.id;
+            nounlet1.save();
+
+            const nounlet2 = findOrNewNounlet("2", tokenAddress);
+            nounlet2.noun = nounId.toString();
+            nounlet2.holder = holder.id;
+            nounlet2.delegate = oldDelegate.id;
+            nounlet2.save();
+
+            const nounlet3 = findOrNewNounlet("3", tokenAddress);
+            nounlet3.noun = nounId.toString();
+            nounlet3.holder = holder.id;
+            nounlet3.delegate = oldDelegate.id;
+            nounlet3.save();
+
+            holder.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
+            holder.save();
+
+            // When
+            handleDelegateChanged(
+                generateDelegateChangedEvent(tokenAddress, delegatorAddress, oldDelegateAddress, newDelegateAddress)
+            );
+            handleDelegateChanged(
+                generateDelegateChangedEvent(tokenAddress, delegatorAddress, oldDelegateAddress, newDelegateAddress)
+            );
+
+            // Then
+            assert.fieldEquals(
+                "Delegate",
+                newDelegate.id,
+                "nounletsRepresentedIDs",
+                `[${nounlet1.id}, ${nounlet2.id}, ${nounlet3.id}]`
+            );
         });
 
         test("Should record a delegate vote on delegate change", () => {
@@ -136,6 +189,9 @@ describe("Nounlet Token", () => {
             nounlet3.holder = holder.id;
             nounlet3.delegate = oldDelegate.id;
             nounlet3.save();
+
+            holder.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
+            holder.save();
 
             // When
             handleDelegateChanged(
@@ -187,9 +243,9 @@ describe("Nounlet Token", () => {
             nounlet3.delegate = "some-delegate";
             nounlet3.save();
 
-            sender.nounletsHeldCount = 3;
+            sender.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
             sender.save();
-            currentDelegate.nounletsRepresentedCount = 2;
+            currentDelegate.nounletsRepresentedIDs = [nounlet1.id, nounlet2.id];
             currentDelegate.save();
 
             const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
@@ -207,9 +263,9 @@ describe("Nounlet Token", () => {
             nounlet5.delegate = newDelegate.id;
             nounlet5.save();
 
-            receiver.nounletsHeldCount = 2;
+            receiver.nounletsHeldIDs = [nounlet4.id, nounlet5.id];
             receiver.save();
-            newDelegate.nounletsRepresentedCount = 2;
+            newDelegate.nounletsRepresentedIDs = [nounlet4.id, nounlet5.id];
             newDelegate.save();
 
             // When
@@ -220,17 +276,27 @@ describe("Nounlet Token", () => {
             // Then
             assert.fieldEquals("Nounlet", nounlet2.id, "holder", sender.id);
             assert.fieldEquals("Nounlet", nounlet3.id, "holder", sender.id);
-            assert.fieldEquals("Account", sender.id, "nounletsHeldCount", "2");
+            assert.fieldEquals("Account", sender.id, "nounletsHeldIDs", `[${nounlet2.id}, ${nounlet3.id}]`);
             assert.fieldEquals("Nounlet", nounlet1.id, "holder", receiver.id);
             assert.fieldEquals("Nounlet", nounlet4.id, "holder", receiver.id);
             assert.fieldEquals("Nounlet", nounlet5.id, "holder", receiver.id);
-            assert.fieldEquals("Account", receiver.id, "nounletsHeldCount", "3");
+            assert.fieldEquals(
+                "Account",
+                receiver.id,
+                "nounletsHeldIDs",
+                `[${nounlet4.id}, ${nounlet5.id}, ${nounlet1.id}]`
+            );
             assert.fieldEquals("Nounlet", nounlet2.id, "delegate", currentDelegate.id);
-            assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedCount", "1");
+            assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedIDs", `[${nounlet2.id}]`);
             assert.fieldEquals("Nounlet", nounlet1.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet4.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet5.id, "delegate", newDelegate.id);
-            assert.fieldEquals("Delegate", newDelegate.id, "nounletsRepresentedCount", "3");
+            assert.fieldEquals(
+                "Delegate",
+                newDelegate.id,
+                "nounletsRepresentedIDs",
+                `[${nounlet4.id}, ${nounlet5.id}, ${nounlet1.id}]`
+            );
         });
     });
 
@@ -270,11 +336,11 @@ describe("Nounlet Token", () => {
             nounlet3.delegate = currentDelegate2.id;
             nounlet3.save();
 
-            sender.nounletsHeldCount = 3;
+            sender.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
             sender.save();
-            currentDelegate.nounletsRepresentedCount = 2;
+            currentDelegate.nounletsRepresentedIDs = [nounlet1.id, nounlet2.id];
             currentDelegate.save();
-            currentDelegate2.nounletsRepresentedCount = 1;
+            currentDelegate2.nounletsRepresentedIDs = [nounlet3.id];
             currentDelegate2.save();
 
             const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
@@ -292,9 +358,9 @@ describe("Nounlet Token", () => {
             nounlet5.delegate = newDelegate.id;
             nounlet5.save();
 
-            receiver.nounletsHeldCount = 2;
+            receiver.nounletsHeldIDs = [nounlet4.id, nounlet5.id];
             receiver.save();
-            newDelegate.nounletsRepresentedCount = 2;
+            newDelegate.nounletsRepresentedIDs = [nounlet4.id, nounlet5.id];
             newDelegate.save();
 
             // When
@@ -308,18 +374,26 @@ describe("Nounlet Token", () => {
             assert.fieldEquals("Nounlet", nounlet3.id, "holder", receiver.id);
             assert.fieldEquals("Nounlet", nounlet4.id, "holder", receiver.id);
             assert.fieldEquals("Nounlet", nounlet5.id, "holder", receiver.id);
-            assert.fieldEquals("Account", receiver.id, "nounletsHeldCount", "5");
-            assert.fieldEquals("Account", sender.id, "nounletsHeldCount", "0");
+            assert.fieldEquals(
+                "Account",
+                receiver.id,
+                "nounletsHeldIDs",
+                `[${nounlet4.id}, ${nounlet5.id}, ${nounlet1.id}, ${nounlet2.id}, ${nounlet3.id}]`
+            );
+            assert.fieldEquals("Account", sender.id, "nounletsHeldIDs", "[]");
             assert.fieldEquals("Nounlet", nounlet1.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet2.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet3.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet4.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet5.id, "delegate", newDelegate.id);
-            assert.fieldEquals("Delegate", newDelegate.id, "nounletsRepresentedCount", "5");
-            assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedCount", "0");
-            assert.fieldEquals("Delegate", currentDelegate2.id, "nounletsRepresentedCount", "0");
+            assert.fieldEquals(
+                "Delegate",
+                newDelegate.id,
+                "nounletsRepresentedIDs",
+                `[${nounlet4.id}, ${nounlet5.id}, ${nounlet1.id}, ${nounlet2.id}, ${nounlet3.id}]`
+            );
+            assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedIDs", "[]");
+            assert.fieldEquals("Delegate", currentDelegate2.id, "nounletsRepresentedIDs", "[]");
         });
-
-        test("Should transfer Nounlets from multiple senders to receiver", () => {});
     });
 });

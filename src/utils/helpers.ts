@@ -40,7 +40,7 @@ export function createAccount(walletId: string, tokenAddress: string): Account {
 export function newAccount(walletId: string, tokenAddress: string): Account {
     const account = new Account(generateAccountId(walletId, tokenAddress));
     account.token = tokenAddress;
-    account.nounletsHeldCount = 0;
+    account.nounletsHeldIDs = [];
     return account;
 }
 
@@ -66,7 +66,7 @@ export function createDelegate(walletId: string, tokenAddress: string): Delegate
 export function newDelegate(walletId: string, tokenAddress: string): Delegate {
     const delegate = new Delegate(generateDelegateId(walletId, tokenAddress));
     delegate.token = tokenAddress;
-    delegate.nounletsRepresentedCount = 0;
+    delegate.nounletsRepresentedIDs = [];
     return delegate;
 }
 
@@ -156,4 +156,16 @@ export function getZeroToken(): Token {
         zeroToken.save();
     }
     return zeroToken;
+}
+
+export function removeValueFromArray(arr: string[], value: string): string[] {
+    const index = arr.indexOf(value);
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
+    return arr;
+}
+
+export function getDistinctValues(arr: string[]): string[] {
+    return arr.filter((el, index, self) => self.indexOf(el) === index);
 }
