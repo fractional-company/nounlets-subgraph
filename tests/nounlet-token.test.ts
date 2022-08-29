@@ -1,6 +1,6 @@
 import { assert, beforeEach, describe, test } from "matchstick-as/assembly";
 import { clearStore } from "matchstick-as";
-import { Account, Delegate, Noun, Nounlet } from "../generated/schema";
+import { Account, Delegate, Nounlet } from "../generated/schema";
 import { handleDelegateChanged, handleTransferBatch, handleTransferSingle } from "../src/nounlet-token";
 import {
     generateDelegateChangedEvent,

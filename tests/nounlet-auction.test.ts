@@ -12,8 +12,8 @@ import {
     // generateAuctionExtendedEvent,
     generateAuctionSettledEvent,
 } from "./mock-event-generator";
-import { BigInt, log } from "@graphprotocol/graph-ts";
-import { Account, Auction, Noun, Nounlet, Vault } from "../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
+import { Account, Auction, Nounlet, Vault } from "../generated/schema";
 import {
     findOrCreateToken,
     generateAccountId,
