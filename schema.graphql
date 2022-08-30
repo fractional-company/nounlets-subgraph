@@ -107,6 +107,9 @@ type Auction @entity {
   "Whether or not the auction has been settled"
   settled: Boolean!
 
+  "The transaction hash the auction was settled in"
+  settledTransactionHash: String!
+
   "The time that the auction started"
   startTime: BigInt!
 

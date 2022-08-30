@@ -21,6 +21,7 @@ import {
     generateDelegateId,
     generateNounletId,
 } from "../src/utils/helpers";
+import { ZERO_ADDRESS } from "../src/utils/constants";
 
 describe("Nounlet Auction", () => {
     beforeEach(() => {
@@ -143,6 +144,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
@@ -233,6 +235,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
@@ -276,6 +279,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = nounlet.id;
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
@@ -315,6 +319,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = nounlet.id;
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
@@ -349,6 +354,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);
@@ -383,6 +389,7 @@ describe("Nounlet Auction", () => {
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
             auction.nounlet = tokenId.toString();
             auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
             auction.highestBidAmount = BigInt.fromI32(0);
             auction.highestBidder = null;
             auction.startTime = BigInt.fromI64(1657873934 as i64);

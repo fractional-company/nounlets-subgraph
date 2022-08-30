@@ -15,6 +15,7 @@ import {
     generateNounletId,
     getDistinctValues,
 } from "./utils/helpers";
+import { ZERO_ADDRESS } from "./utils/constants";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     log.debug("[handleAuctionCreated] _token: {}, _id: {}, _vault: {}, start time: {}, _endTime: {}", [
@@ -59,6 +60,7 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     auction.nounlet = nounlet.id;
     auction.highestBidAmount = BigInt.fromI32(0);
     auction.settled = false;
+    auction.settledTransactionHash = ZERO_ADDRESS;
     auction.startTime = startTime;
     auction.endTime = endTime;
     auction.save();
@@ -117,6 +119,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     //     event.params._winner.toHexString(),
     // ]);
 
+    const transactionHash = event.transaction.hash.toHexString();
     const vaultId = event.params._vault.toHexString();
     const tokenAddress = event.params._token.toHexString();
     const tokenId = event.params._id.toString();
@@ -156,6 +159,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     // Settle auction
     auction.settled = true;
+    auction.settledTransactionHash = transactionHash;
     auction.highestBidAmount = amount;
     auction.highestBidder = account.id;
     auction.save();
