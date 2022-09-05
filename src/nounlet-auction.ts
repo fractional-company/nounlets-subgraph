@@ -9,6 +9,7 @@ import {
     findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewAccount,
+    findOrNewDelegateVote,
     findOrNewNounlet,
     findOrNewVault,
     generateAuctionId,
@@ -168,6 +169,14 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     nounlet.holder = account.id;
     nounlet.delegate = delegate.id;
     nounlet.save();
+
+    const delegateVote = findOrNewDelegateVote(delegate.id, nounlet.id);
+    delegateVote.delegate = delegate.id;
+    delegateVote.nounlet = nounlet.id;
+    delegateVote.reason = "Auction Settled";
+    delegateVote.timestamp = event.block.timestamp;
+    delegateVote.voteAmount = BigInt.fromI32(1);
+    delegateVote.save();
 }
 
 function attemptNounAssignment(nounlet: Nounlet, vaultId: string): Nounlet {
