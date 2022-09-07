@@ -9,13 +9,15 @@ import {
     findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
+    findOrNewDelegateVote,
     findOrNewNounlet,
     generateAccountId,
+    generateDelegateId,
     generateDelegateVoteId,
     getDistinctValues,
     removeValueFromArray,
 } from "./utils/helpers";
-import { Account, DelegateVote, Nounlet } from "../generated/schema";
+import { Account, Delegate, DelegateVote, Nounlet } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
@@ -103,7 +105,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
     const to = event.params.to.toHexString();
     const nounletIds = event.params.ids;
 
-    transferBatchOfNounlets(tokenAddress, from, to, nounletIds);
+    transferBatchOfNounlets(tokenAddress, from, to, nounletIds, event.block.timestamp);
 }
 
 export function handleTransferSingle(event: TransferSingleEvent): void {
@@ -121,18 +123,30 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     const to = event.params.to.toHexString();
     const nounletId = event.params.id;
 
-    transferBatchOfNounlets(tokenAddress, from, to, [nounletId]);
+    transferBatchOfNounlets(tokenAddress, from, to, [nounletId], event.block.timestamp);
 }
 
 function transferBatchOfNounlets(
     tokenAddress: string,
     fromAddress: string,
     toAddress: string,
-    nounletIds: BigInt[]
+    nounletIds: BigInt[],
+    timestamp: BigInt
 ): void {
     const oldHolder = findOrNewAccount(fromAddress, tokenAddress);
     const newHolder = findOrNewAccount(toAddress, tokenAddress);
-    const newDelegate = findOrNewDelegate(toAddress, tokenAddress);
+
+    let newDelegate: Delegate;
+    if (newHolder.delegate === null) {
+        // Delegate is also a holder
+        newDelegate = findOrNewDelegate(toAddress, tokenAddress);
+        newHolder.delegate = newDelegate.id;
+    } else {
+        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+        const delegateId = (newHolder.delegate as string).replace(tokenAddress, "").replace("-", "");
+        newDelegate = findOrNewDelegate(delegateId, tokenAddress);
+    }
+
     let oldHolderNounletsHeldIDs = oldHolder.nounletsHeldIDs;
     let newHolderNounletsHeldIDs = newHolder.nounletsHeldIDs;
     let newDelegateNounletIDs = newDelegate.nounletsRepresentedIDs;
@@ -154,8 +168,19 @@ function transferBatchOfNounlets(
         newDelegateNounletIDs.push(nounlet.id);
 
         nounlet.delegate = newDelegate.id;
+        nounlet.delegate = newDelegate.id;
         nounlet.holder = newHolder.id;
         nounlet.save();
+
+        // Save delegate vote
+        const delegateVote = findOrNewDelegateVote(newDelegate.id, nounlet.id);
+        delegateVote.delegator = newHolder.id;
+        delegateVote.delegate = newDelegate.id;
+        delegateVote.nounlet = nounlet.id;
+        delegateVote.reason = "Nounlet Transferred";
+        delegateVote.timestamp = timestamp;
+        delegateVote.voteAmount = BigInt.fromI32(1);
+        delegateVote.save();
     }
 
     oldHolder.nounletsHeldIDs = oldHolderNounletsHeldIDs;

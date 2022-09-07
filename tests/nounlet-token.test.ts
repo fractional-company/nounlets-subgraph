@@ -12,6 +12,7 @@ import {
     findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewNounlet,
+    generateDelegateId,
     generateDelegateVoteId,
 } from "../src/utils/helpers";
 
@@ -474,6 +475,305 @@ describe("Nounlet Token", () => {
             );
             assert.fieldEquals("Delegate", currentDelegate.id, "nounletsRepresentedIDs", "[]");
             assert.fieldEquals("Delegate", currentDelegate2.id, "nounletsRepresentedIDs", "[]");
+        });
+
+        test("Should delegate transferred Nounlets to the current Delegate of a new Nounlet holder", () => {
+            // Given
+            const nounId = "10";
+            const tokenAddress = "0xFBE119605a716dc275f4A5dd1A913d6ADdb792D4".toLowerCase();
+            const operator = "0xa5B7c887A47653E7076e73A7bd3F19e9cF1EEfbA".toLowerCase();
+            const senderAddress = "0xA55faC158c179C0BfFe814A5Fa0B79604E346cF6".toLowerCase();
+            const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
+            const amounts = [BigInt.fromString("1"), BigInt.fromString("1"), BigInt.fromString("1")];
+            const tokenIds = [BigInt.fromString("1"), BigInt.fromString("2"), BigInt.fromString("3")];
+
+            const sender = findOrCreateAccount(senderAddress, tokenAddress);
+            const currentDelegate = findOrCreateDelegate(senderAddress, tokenAddress);
+            const currentDelegate2 = findOrCreateDelegate(
+                "0x34D842d327144397d29E086eebeea70B981D93a8".toLowerCase(),
+                tokenAddress
+            );
+
+            const nounlet1 = findOrNewNounlet(tokenIds[0].toString(), tokenAddress);
+            nounlet1.noun = nounId;
+            nounlet1.holder = sender.id;
+            nounlet1.delegate = currentDelegate.id;
+            nounlet1.save();
+
+            const nounlet2 = findOrNewNounlet(tokenIds[1].toString(), tokenAddress);
+            nounlet2.noun = nounId;
+            nounlet2.holder = sender.id;
+            nounlet2.delegate = currentDelegate.id;
+            nounlet2.save();
+
+            const nounlet3 = findOrNewNounlet(tokenIds[2].toString(), tokenAddress);
+            nounlet3.noun = nounId;
+            nounlet3.holder = sender.id;
+            nounlet3.delegate = currentDelegate2.id;
+            nounlet3.save();
+
+            sender.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
+            sender.save();
+            currentDelegate.nounletsRepresentedIDs = [nounlet1.id, nounlet2.id];
+            currentDelegate.save();
+            currentDelegate2.nounletsRepresentedIDs = [nounlet3.id];
+            currentDelegate2.save();
+
+            const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
+            const receiverDelegate = findOrCreateDelegate(
+                "0x397C2BEcA050527b843fF6032c7870A2cF487C37".toLowerCase(),
+                tokenAddress
+            );
+            receiver.delegate = receiverDelegate.id;
+            receiver.save();
+
+            // When
+            handleTransferBatch(
+                generateTransferBatchEvent(tokenAddress, operator, senderAddress, receiverAddress, tokenIds, amounts)
+            );
+
+            // Then
+            assert.fieldEquals("Account", receiver.id, "delegate", receiverDelegate.id);
+            assert.fieldEquals("Nounlet", nounlet1.id, "delegate", receiverDelegate.id);
+            assert.fieldEquals("Nounlet", nounlet2.id, "delegate", receiverDelegate.id);
+            assert.fieldEquals("Nounlet", nounlet3.id, "delegate", receiverDelegate.id);
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet1.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet1.id),
+                "delegate",
+                receiverDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet1.id),
+                "nounlet",
+                nounlet1.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet1.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet1.id),
+                "reason",
+                "Nounlet Transferred"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet2.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet2.id),
+                "delegate",
+                receiverDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet2.id),
+                "nounlet",
+                nounlet2.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet2.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet2.id),
+                "reason",
+                "Nounlet Transferred"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet3.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet3.id),
+                "delegate",
+                receiverDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet3.id),
+                "nounlet",
+                nounlet3.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet3.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegate.id, nounlet3.id),
+                "reason",
+                "Nounlet Transferred"
+            );
+        });
+
+        test("Should delegate transferred Nounlets to themselves if a new Nounlet holder did not delegate his Nounlets", () => {
+            // Given
+            const nounId = "10";
+            const tokenAddress = "0xFBE119605a716dc275f4A5dd1A913d6ADdb792D4".toLowerCase();
+            const operator = "0xa5B7c887A47653E7076e73A7bd3F19e9cF1EEfbA".toLowerCase();
+            const senderAddress = "0xA55faC158c179C0BfFe814A5Fa0B79604E346cF6".toLowerCase();
+            const receiverAddress = "0xeD804cED1Da0DCc38473666C2a6504a70867Cc60".toLowerCase();
+            const amounts = [BigInt.fromString("1"), BigInt.fromString("1"), BigInt.fromString("1")];
+            const tokenIds = [BigInt.fromString("1"), BigInt.fromString("2"), BigInt.fromString("3")];
+
+            const sender = findOrCreateAccount(senderAddress, tokenAddress);
+            const currentDelegate = findOrCreateDelegate(senderAddress, tokenAddress);
+            const currentDelegate2 = findOrCreateDelegate(
+                "0x34D842d327144397d29E086eebeea70B981D93a8".toLowerCase(),
+                tokenAddress
+            );
+
+            const nounlet1 = findOrNewNounlet(tokenIds[0].toString(), tokenAddress);
+            nounlet1.noun = nounId;
+            nounlet1.holder = sender.id;
+            nounlet1.delegate = currentDelegate.id;
+            nounlet1.save();
+
+            const nounlet2 = findOrNewNounlet(tokenIds[1].toString(), tokenAddress);
+            nounlet2.noun = nounId;
+            nounlet2.holder = sender.id;
+            nounlet2.delegate = currentDelegate.id;
+            nounlet2.save();
+
+            const nounlet3 = findOrNewNounlet(tokenIds[2].toString(), tokenAddress);
+            nounlet3.noun = nounId;
+            nounlet3.holder = sender.id;
+            nounlet3.delegate = currentDelegate2.id;
+            nounlet3.save();
+
+            sender.nounletsHeldIDs = [nounlet1.id, nounlet2.id, nounlet3.id];
+            sender.save();
+            currentDelegate.nounletsRepresentedIDs = [nounlet1.id, nounlet2.id];
+            currentDelegate.save();
+            currentDelegate2.nounletsRepresentedIDs = [nounlet3.id];
+            currentDelegate2.save();
+
+            const receiver = findOrCreateAccount(receiverAddress, tokenAddress);
+
+            // When
+            handleTransferBatch(
+                generateTransferBatchEvent(tokenAddress, operator, senderAddress, receiverAddress, tokenIds, amounts)
+            );
+
+            // Then
+            const receiverDelegateId = generateDelegateId(receiverAddress, tokenAddress);
+            assert.fieldEquals("Account", receiver.id, "delegate", receiverDelegateId);
+            assert.fieldEquals("Nounlet", nounlet1.id, "delegate", receiverDelegateId);
+            assert.fieldEquals("Nounlet", nounlet2.id, "delegate", receiverDelegateId);
+            assert.fieldEquals("Nounlet", nounlet3.id, "delegate", receiverDelegateId);
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet1.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet1.id),
+                "delegate",
+                receiverDelegateId
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet1.id),
+                "nounlet",
+                nounlet1.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet1.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet1.id),
+                "reason",
+                "Nounlet Transferred"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet2.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet2.id),
+                "delegate",
+                receiverDelegateId
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet2.id),
+                "nounlet",
+                nounlet2.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet2.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet2.id),
+                "reason",
+                "Nounlet Transferred"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet3.id),
+                "delegator",
+                receiver.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet3.id),
+                "delegate",
+                receiverDelegateId
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet3.id),
+                "nounlet",
+                nounlet3.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet3.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(receiverDelegateId, nounlet3.id),
+                "reason",
+                "Nounlet Transferred"
+            );
         });
     });
 });
