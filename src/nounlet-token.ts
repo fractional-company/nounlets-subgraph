@@ -48,6 +48,7 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
 
         // Add delegate vote
         const delegateVote = new DelegateVote(generateDelegateVoteId(toDelegate.id, nounlet.id));
+        delegateVote.delegator = holder.id;
         delegateVote.delegate = toDelegate.id;
         delegateVote.nounlet = nounlet.id;
         delegateVote.voteAmount = BigInt.fromI32(1);
@@ -55,6 +56,10 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
         delegateVote.timestamp = timestamp;
         delegateVote.save();
     }
+
+    // Update Account Delegate
+    holder.delegate = toDelegate.id;
+    holder.save();
 
     // Update nounlets represented IDs
     fromDelegate.nounletsRepresentedIDs = fromDelegateNounletIDs;

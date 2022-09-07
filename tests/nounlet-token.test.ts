@@ -94,20 +94,100 @@ describe("Nounlet Token", () => {
             );
 
             // Then
-            const refreshedOldDelegate = Delegate.load(oldDelegate.id) as Delegate;
-            const refreshedNewDelegate = Delegate.load(newDelegate.id) as Delegate;
             assert.fieldEquals("Nounlet", nounlet1.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet2.id, "delegate", newDelegate.id);
             assert.fieldEquals("Nounlet", nounlet3.id, "delegate", newDelegate.id);
-            assert.stringEquals([].toString(), refreshedOldDelegate.nounletsRepresented.toString());
-            assert.assertNotNull(refreshedNewDelegate);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet1.id) as boolean);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet2.id) as boolean);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresented.includes(nounlet3.id) as boolean);
-            assert.assertTrue(refreshedOldDelegate.nounletsRepresentedIDs.length === 0);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet1.id) as boolean);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet2.id) as boolean);
-            assert.assertTrue(refreshedNewDelegate.nounletsRepresentedIDs.includes(nounlet3.id) as boolean);
+            assert.fieldEquals("Account", holder.id, "delegate", newDelegate.id);
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet1.id),
+                "delegator",
+                holder.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet1.id),
+                "delegate",
+                newDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet1.id),
+                "nounlet",
+                nounlet1.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet1.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet1.id),
+                "reason",
+                "Delegate Changed"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet2.id),
+                "delegator",
+                holder.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet2.id),
+                "delegate",
+                newDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet2.id),
+                "nounlet",
+                nounlet2.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet2.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet2.id),
+                "reason",
+                "Delegate Changed"
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet3.id),
+                "delegator",
+                holder.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet3.id),
+                "delegate",
+                newDelegate.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet3.id),
+                "nounlet",
+                nounlet3.id
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet3.id),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(newDelegate.id, nounlet3.id),
+                "reason",
+                "Delegate Changed"
+            );
         });
 
         test("Should not duplicate represented nounlet IDs when changing a Delegate", () => {
