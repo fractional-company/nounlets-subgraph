@@ -3,16 +3,18 @@ import {
     Created as AuctionCreatedEvent,
     Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Auction, Bid, Nounlet, Vault } from "../generated/schema";
+import { Auction, Bid, Delegate, DelegateVote, Nounlet, Vault } from "../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrCreateDelegate,
     findOrNewAccount,
+    findOrNewDelegate,
     findOrNewDelegateVote,
     findOrNewNounlet,
     findOrNewVault,
     generateAuctionId,
+    generateDelegateVoteId,
     generateNounletId,
     getDistinctValues,
 } from "./utils/helpers";
@@ -153,10 +155,23 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     let nounletsHeldIDs = account.nounletsHeldIDs;
     nounletsHeldIDs.push(nounlet.id);
     account.nounletsHeldIDs = getDistinctValues(nounletsHeldIDs);
-    account.save();
 
-    // Create a delegate if not found in the store (nounlet holder is a nounlet delegate by default)
-    const delegate = findOrCreateDelegate(winnerAddress, tokenAddress);
+    // Select a Delegate of the settled Nounlet
+    let delegate: Delegate;
+    if (account.delegate === null) {
+        // Delegate is also a holder
+        delegate = findOrNewDelegate(winnerAddress, tokenAddress);
+        account.delegate = delegate.id;
+    } else {
+        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+        const delegateId = (account.delegate as string).replace(tokenAddress, "").replace("-", "");
+        delegate = findOrNewDelegate(delegateId, tokenAddress);
+    }
+    account.save();
+    const nounletsRepresentedIDs = delegate.nounletsRepresentedIDs;
+    nounletsRepresentedIDs.push(nounlet.id);
+    delegate.nounletsRepresentedIDs = getDistinctValues(nounletsRepresentedIDs);
+    delegate.save();
 
     // Settle auction
     auction.settled = true;
@@ -171,6 +186,7 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     nounlet.save();
 
     const delegateVote = findOrNewDelegateVote(delegate.id, nounlet.id);
+    delegateVote.delegator = account.id;
     delegateVote.delegate = delegate.id;
     delegateVote.nounlet = nounlet.id;
     delegateVote.reason = "Auction Settled";

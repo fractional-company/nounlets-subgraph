@@ -52,6 +52,12 @@ type Account @entity {
 
   "Bids the Account has offered"
   bids: [Bid!]! @derivedFrom(field: "bidder")
+
+  "The delegate this Account voted for with their Nounlets"
+  delegate: Delegate
+
+  "Delegate votes this Account is a delegator of"
+  delegateVotes: [DelegateVote!]! @derivedFrom(field: "delegator")
 }
 
 type Delegate @entity {
@@ -149,6 +155,9 @@ type DelegateVote @entity {
 
   "Nounlet that casts a vote. Can be NULL if vote was casted as a consequence of "
   nounlet: Nounlet!
+
+  "The Account that delegated the vote"
+  delegator: Account
 
   "Delegate receiving a vote"
   delegate: Delegate!

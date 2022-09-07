@@ -15,10 +15,14 @@ import {
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Account, Auction, Nounlet, Vault } from "../generated/schema";
 import {
+    findOrCreateDelegate,
     findOrCreateToken,
+    findOrNewAccount,
+    findOrNewDelegate,
     generateAccountId,
     generateAuctionId,
     generateDelegateId,
+    generateDelegateVoteId,
     generateNounletId,
 } from "../src/utils/helpers";
 import { ZERO_ADDRESS } from "../src/utils/constants";
@@ -412,6 +416,109 @@ describe("Nounlet Auction", () => {
                 generateAccountId(winnerAddress.toString(), tokenAddress)
             );
             assert.fieldEquals("Auction", auction.id, "highestBidAmount", winnerAmount.toString());
+        });
+
+        test("Should delegate a settled Nounlet to Account Delegate if the Account already delegated their Nounlets in the past", () => {
+            // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
+            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+            vault.noun = "1";
+            vault.token = token.id;
+            vault.save();
+            const tokenId = 1;
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
+            auction.nounlet = tokenId.toString();
+            auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
+            auction.highestBidAmount = BigInt.fromI32(0);
+            auction.highestBidder = null;
+            auction.startTime = BigInt.fromI64(1657873934 as i64);
+            auction.endTime = BigInt.fromI64(1672273934 as i64);
+            auction.save();
+            const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
+            const winnerAmount = 9999;
+            const delegate = findOrCreateDelegate(
+                "0x43d5Cd40e55C6CDa13c239a84faE61e1d4fa6b6A".toLowerCase(),
+                tokenAddress
+            );
+            const winner = findOrNewAccount(winnerAddress, tokenAddress);
+            winner.delegate = delegate.id;
+            winner.save();
+
+            // When
+            handleAuctionSettled(
+                generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
+            );
+
+            // Then
+            const nounletId = generateNounletId(tokenAddress, tokenId.toString());
+            assert.fieldEquals("Delegate", delegate.id, "nounletsRepresentedIDs", `[${nounletId}]`);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegate.id, nounletId), "delegator", winner.id);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegate.id, nounletId), "delegate", delegate.id);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegate.id, nounletId), "nounlet", nounletId);
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(delegate.id, nounletId),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(delegate.id, nounletId),
+                "reason",
+                "Auction Settled"
+            );
+        });
+
+        test("Should delegate themselves as the Delegate for the settled Nounlet if Account did not delegate their Nounlets in the past", () => {
+            // Given
+            const tokenAddress = "0xd8dE7B1CF394DDa77DFB5A45A5653b7A39B6ec5d".toLowerCase();
+            const token = findOrCreateToken(tokenAddress);
+            const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
+            vault.noun = "1";
+            vault.token = token.id;
+            vault.save();
+            const tokenId = 1;
+            const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
+            auction.nounlet = tokenId.toString();
+            auction.settled = false;
+            auction.settledTransactionHash = ZERO_ADDRESS;
+            auction.highestBidAmount = BigInt.fromI32(0);
+            auction.highestBidder = null;
+            auction.startTime = BigInt.fromI64(1657873934 as i64);
+            auction.endTime = BigInt.fromI64(1672273934 as i64);
+            auction.save();
+            const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
+            const winnerAmount = 9999;
+            const winner = findOrNewAccount(winnerAddress, tokenAddress);
+            winner.delegate = null;
+            winner.save();
+
+            // When
+            handleAuctionSettled(
+                generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
+            );
+
+            // Then
+            const nounletId = generateNounletId(tokenAddress, tokenId.toString());
+            const delegateId = generateDelegateId(winnerAddress, tokenAddress);
+            assert.fieldEquals("Delegate", delegateId, "nounletsRepresentedIDs", `[${nounletId}]`);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegateId, nounletId), "delegator", winner.id);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegateId, nounletId), "delegate", delegateId);
+            assert.fieldEquals("DelegateVote", generateDelegateVoteId(delegateId, nounletId), "nounlet", nounletId);
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(delegateId, nounletId),
+                "voteAmount",
+                BigInt.fromString("1").toString()
+            );
+            assert.fieldEquals(
+                "DelegateVote",
+                generateDelegateVoteId(delegateId, nounletId),
+                "reason",
+                "Auction Settled"
+            );
         });
     });
 });
