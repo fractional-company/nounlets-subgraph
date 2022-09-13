@@ -3,7 +3,7 @@
 
   "nounsToken": {
     "address": "0x395F7e3aB07168219F38386445Da950310B94D1f",
-    "startBlock": 8947618,
+    "startBlock": 7584314,
     "abiFile": "NounsTokenMock.json",
     "events": [
       {
@@ -15,7 +15,7 @@
 
   "nounletToken": {
     "address": "0xAc56e9B0914e4096a71679921582B056C41D1F10",
-    "startBlock": 8947618,
+    "startBlock": 7584314,
     "abiFile": "NounletToken.json",
     "events": [
       {
@@ -39,7 +39,7 @@
 
   "nounletAuction": {
     "address": "0xf7BDd21074668928C17121238bb0CdA74C0af3cb",
-    "startBlock": 8947618,
+    "startBlock": 7584314,
     "abiFile": "NounletAuction.json",
     "events": [
       {
@@ -59,7 +59,7 @@
 
   "nounletRegistry": {
     "address": "0x1aB8A2bE7F1761B3312e1F03594BF59e2103d1f4",
-    "startBlock": 8947618,
+    "startBlock": 7584314,
     "abiFile": "NounletRegistry.json",
     "events": [
       {
@@ -71,7 +71,7 @@
 
   "nounletGovernance": {
     "address": "0xF9b5F20Cf4Bf983b60274383a2914280690999d4",
-    "startBlock": 8947618,
+    "startBlock": 7584314,
     "abiFile": "NounletGovernance.json",
     "events": [
       {
