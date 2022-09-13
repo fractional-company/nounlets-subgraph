@@ -1,0 +1,83 @@
+{
+  "network": "rinkeby",
+
+  "nounsToken": {
+    "address": "0x5f4b0a9264246c0c8d4baf1d108a42051f4cc564",
+    "startBlock": 8947618,
+    "abiFile": "NounsTokenMock.json",
+    "events": [
+      {
+        "signature": "Transfer(indexed address,indexed address,indexed uint256)",
+        "handler": "handleTransfer"
+      }
+    ]
+  },
+
+  "nounletToken": {
+    "address": "0xA5A3Bec0D125C88f2DD409d2f6a79209A49Df771",
+    "startBlock": 8947618,
+    "abiFile": "NounletToken.json",
+    "events": [
+      {
+        "signature": "DelegateChanged(indexed address,indexed address,indexed address)",
+        "handler": "handleDelegateChanged"
+      },
+      {
+        "signature": "DelegateVotesChanged(indexed address,uint256,uint256)",
+        "handler": "handleDelegateVotesChanged"
+      },
+      {
+        "signature": "TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)",
+        "handler": "handleTransferSingle"
+      },
+      {
+        "signature": "TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])",
+        "handler": "handleTransferBatch"
+      }
+    ]
+  },
+
+  "nounletAuction": {
+    "address": "0xa144440dfc9fa662c32981505f39ccf8e47c5fad",
+    "startBlock": 8947618,
+    "abiFile": "NounletAuction.json",
+    "events": [
+      {
+        "signature": "Created(indexed address,indexed address,indexed uint256,uint256)",
+        "handler": "handleAuctionCreated"
+      },
+      {
+        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256,uint256)",
+        "handler": "handleAuctionBid"
+      },
+      {
+        "signature": "Settled(indexed address,indexed address,indexed uint256,address,uint256)",
+        "handler": "handleAuctionSettled"
+      }
+    ]
+  },
+
+  "nounletRegistry": {
+    "address": "0x53ef8e35e34cb874339889c0c0d5345e3a76379b",
+    "startBlock": 8947618,
+    "abiFile": "NounletRegistry.json",
+    "events": [
+      {
+        "signature": "VaultDeployed(indexed address,indexed address)",
+        "handler": "handleVaultDeployed"
+      }
+    ]
+  },
+
+  "nounletGovernance": {
+    "address": "0x419ccce46c915c6df3c246bae260433b16211ce1",
+    "startBlock": 8947618,
+    "abiFile": "NounletGovernance.json",
+    "events": [
+      {
+        "signature": "ClaimDelegate(address,address,address)",
+        "handler": "handleClaimDelegate"
+      }
+    ]
+  }
+}
