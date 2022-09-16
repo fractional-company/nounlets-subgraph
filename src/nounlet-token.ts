@@ -18,7 +18,8 @@ import {
     removeValueFromArray,
 } from "./utils/helpers";
 import { Account, Delegate, DelegateVote, Nounlet } from "../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
+import { NounletToken } from "../generated/NounletToken/NounletToken";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
     log.debug("[handleDelegateChanged] Address: {}, _delegator: {}, _fromDelegate: {}, _toDelegate: {}", [
@@ -136,16 +137,23 @@ function transferBatchOfNounlets(
     const oldHolder = findOrNewAccount(fromAddress, tokenAddress);
     const newHolder = findOrNewAccount(toAddress, tokenAddress);
 
+    // Try to fetch the current delegate from Blockchain
     let newDelegate: Delegate;
-    if (newHolder.delegate === null) {
-        // Delegate is also a holder
-        newDelegate = findOrNewDelegate(toAddress, tokenAddress);
-        newHolder.delegate = newDelegate.id;
+    const contract = NounletToken.bind(Address.fromString(tokenAddress));
+    const delegateAddress = contract.try_delegates(Address.fromString(toAddress));
+    if (delegateAddress.reverted) {
+        if (newHolder.delegate === null) {
+            // Delegate is also a holder
+            newDelegate = findOrNewDelegate(toAddress, tokenAddress);
+        } else {
+            // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+            const delegateId = (newHolder.delegate as string).replace(tokenAddress, "").replace("-", "");
+            newDelegate = findOrNewDelegate(delegateId, tokenAddress);
+        }
     } else {
-        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
-        const delegateId = (newHolder.delegate as string).replace(tokenAddress, "").replace("-", "");
-        newDelegate = findOrNewDelegate(delegateId, tokenAddress);
+        newDelegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress);
     }
+    newHolder.delegate = newDelegate.id;
 
     let oldHolderNounletsHeldIDs = oldHolder.nounletsHeldIDs;
     let newHolderNounletsHeldIDs = newHolder.nounletsHeldIDs;

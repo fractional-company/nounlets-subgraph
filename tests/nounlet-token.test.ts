@@ -1,5 +1,5 @@
 import { assert, beforeEach, describe, test } from "matchstick-as/assembly";
-import { clearStore } from "matchstick-as";
+import { clearStore, createMockedFunction } from "matchstick-as";
 import { Account, Delegate, Nounlet } from "../generated/schema";
 import { handleDelegateChanged, handleTransferBatch, handleTransferSingle } from "../src/nounlet-token";
 import {
@@ -7,7 +7,7 @@ import {
     generateTransferBatchEvent,
     generateTransferSingleEvent,
 } from "./mock-event-generator";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrCreateDelegate,
@@ -349,6 +349,10 @@ describe("Nounlet Token", () => {
             newDelegate.nounletsRepresentedIDs = [nounlet4.id, nounlet5.id];
             newDelegate.save();
 
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(receiverAddress))])
+                .reverts();
+
             // When
             handleTransferSingle(
                 generateTransferSingleEvent(tokenAddress, operator, senderAddress, receiverAddress, tokenId, amount)
@@ -526,6 +530,10 @@ describe("Nounlet Token", () => {
             );
             receiver.delegate = receiverDelegate.id;
             receiver.save();
+
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(receiverAddress))])
+                .reverts();
 
             // When
             handleTransferBatch(

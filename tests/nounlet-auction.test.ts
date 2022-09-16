@@ -12,7 +12,7 @@ import {
     // generateAuctionExtendedEvent,
     generateAuctionSettledEvent,
 } from "./mock-event-generator";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Account, Auction, Nounlet, Vault } from "../generated/schema";
 import {
     findOrCreateDelegate,
@@ -26,6 +26,7 @@ import {
     generateNounletId,
 } from "../src/utils/helpers";
 import { ZERO_ADDRESS } from "../src/utils/constants";
+import { createMockedFunction } from "matchstick-as/assembly/index";
 
 describe("Nounlet Auction", () => {
     beforeEach(() => {
@@ -252,6 +253,10 @@ describe("Nounlet Auction", () => {
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(winnerAddress))])
+                .reverts();
+
             // When
             handleAuctionSettled(
                 generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
@@ -291,6 +296,10 @@ describe("Nounlet Auction", () => {
             auction.save();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
+
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(winnerAddress))])
+                .reverts();
 
             // When
             handleAuctionSettled(
@@ -332,6 +341,10 @@ describe("Nounlet Auction", () => {
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
 
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(winnerAddress))])
+                .reverts();
+
             // When
             handleAuctionSettled(
                 generateAuctionSettledEvent(vault.id, tokenAddress, tokenId, winnerAddress, winnerAmount)
@@ -370,6 +383,10 @@ describe("Nounlet Auction", () => {
             nounlet.save();
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
             const winnerAmount = 9999;
+
+            createMockedFunction(Address.fromString(tokenAddress), "delegates", "delegates(address):(address)")
+                .withArgs([ethereum.Value.fromAddress(Address.fromString(winnerAddress))])
+                .reverts();
 
             // When
             handleAuctionSettled(

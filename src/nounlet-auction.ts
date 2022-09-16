@@ -4,7 +4,7 @@ import {
     Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
 import { Auction, Bid, Delegate, DelegateVote, Nounlet, Vault } from "../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
     findOrCreateDelegate,
@@ -19,6 +19,7 @@ import {
     getDistinctValues,
 } from "./utils/helpers";
 import { ZERO_ADDRESS } from "./utils/constants";
+import { NounletToken } from "../generated/NounletToken/NounletToken";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     log.debug("[handleAuctionCreated] _token: {}, _id: {}, _vault: {}, start time: {}, _endTime: {}", [
@@ -156,18 +157,26 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
     nounletsHeldIDs.push(nounlet.id);
     account.nounletsHeldIDs = getDistinctValues(nounletsHeldIDs);
 
-    // Select a Delegate of the settled Nounlet
     let delegate: Delegate;
-    if (account.delegate === null) {
-        // Delegate is also a holder
-        delegate = findOrNewDelegate(winnerAddress, tokenAddress);
-        account.delegate = delegate.id;
+    // Try to fetch the current delegate from Blockchain
+    const contract = NounletToken.bind(Address.fromString(tokenAddress));
+    const delegateAddress = contract.try_delegates(Address.fromString(winnerAddress));
+    if (delegateAddress.reverted) {
+        // Select a Delegate of the settled Nounlet
+        if (account.delegate === null) {
+            // Delegate is also a holder
+            delegate = findOrNewDelegate(winnerAddress, tokenAddress);
+        } else {
+            // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+            const delegateId = (account.delegate as string).replace(tokenAddress, "").replace("-", "");
+            delegate = findOrNewDelegate(delegateId, tokenAddress);
+        }
     } else {
-        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
-        const delegateId = (account.delegate as string).replace(tokenAddress, "").replace("-", "");
-        delegate = findOrNewDelegate(delegateId, tokenAddress);
+        delegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress);
     }
+    account.delegate = delegate.id;
     account.save();
+
     const nounletsRepresentedIDs = delegate.nounletsRepresentedIDs;
     nounletsRepresentedIDs.push(nounlet.id);
     delegate.nounletsRepresentedIDs = getDistinctValues(nounletsRepresentedIDs);
