@@ -44,6 +44,8 @@ dataSources:
       abis:
         - name: NounletAuction
           file: ./abis/{{nounletAuction.abiFile}}
+        - name: NounletToken
+          file: ./abis/{{nounletToken.abiFile}}
       eventHandlers:
         {{#nounletAuction.events}}
           - event: {{signature}}
