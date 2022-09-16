@@ -139,19 +139,16 @@ function transferBatchOfNounlets(
 
     // Try to fetch the current delegate from Blockchain
     let newDelegate: Delegate;
-    const contract = NounletToken.bind(Address.fromString(tokenAddress));
-    const delegateAddress = contract.try_delegates(Address.fromString(toAddress));
-    if (delegateAddress.reverted) {
-        if (newHolder.delegate === null) {
-            // Delegate is also a holder
-            newDelegate = findOrNewDelegate(toAddress, tokenAddress);
-        } else {
-            // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
-            const delegateId = (newHolder.delegate as string).replace(tokenAddress, "").replace("-", "");
-            newDelegate = findOrNewDelegate(delegateId, tokenAddress);
-        }
+    // const contract = NounletToken.bind(Address.fromString(tokenAddress));
+    // const delegateAddress = contract.try_delegates(Address.fromString(toAddress));
+    // if (delegateAddress.reverted) { /** process the below delegation logic */ } else { newDelegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress); }
+    if (newHolder.delegate === null) {
+        // Delegate is also a holder
+        newDelegate = findOrNewDelegate(toAddress, tokenAddress);
     } else {
-        newDelegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress);
+        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+        const delegateId = (newHolder.delegate as string).replace(tokenAddress, "").replace("-", "");
+        newDelegate = findOrNewDelegate(delegateId, tokenAddress);
     }
     newHolder.delegate = newDelegate.id;
 

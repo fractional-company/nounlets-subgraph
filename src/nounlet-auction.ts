@@ -159,20 +159,18 @@ export function handleAuctionSettled(event: AuctionSettledEvent): void {
 
     let delegate: Delegate;
     // Try to fetch the current delegate from Blockchain
-    const contract = NounletToken.bind(Address.fromString(tokenAddress));
-    const delegateAddress = contract.try_delegates(Address.fromString(winnerAddress));
-    if (delegateAddress.reverted) {
-        // Select a Delegate of the settled Nounlet
-        if (account.delegate === null) {
-            // Delegate is also a holder
-            delegate = findOrNewDelegate(winnerAddress, tokenAddress);
-        } else {
-            // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
-            const delegateId = (account.delegate as string).replace(tokenAddress, "").replace("-", "");
-            delegate = findOrNewDelegate(delegateId, tokenAddress);
-        }
+    // const contract = NounletToken.bind(Address.fromString(tokenAddress));
+    // const delegateAddress = contract.try_delegates(Address.fromString(winnerAddress));
+    // if (delegateAddress.reverted) { /** process the below delegation logic */ } else { delegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress); }
+
+    // Select a Delegate of the settled Nounlet
+    if (account.delegate === null) {
+        // Delegate is also a holder
+        delegate = findOrNewDelegate(winnerAddress, tokenAddress);
     } else {
-        delegate = findOrNewDelegate(delegateAddress.value.toHexString(), tokenAddress);
+        // Holder already delegated their Nounlets, so this one also gets delegated to that same Delegate
+        const delegateId = (account.delegate as string).replace(tokenAddress, "").replace("-", "");
+        delegate = findOrNewDelegate(delegateId, tokenAddress);
     }
     account.delegate = delegate.id;
     account.save();
