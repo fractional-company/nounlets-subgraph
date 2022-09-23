@@ -2,8 +2,8 @@
   "network": "mainnet",
 
   "nounsToken": {
-    "address": "0xc52bb4Fc4ed72f2a910BF0481D620B927Ded76f7",
-    "startBlock": 8947618,
+    "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
+    "startBlock": 15589016,
     "abiFile": "NounsToken.json",
     "events": [
       {
@@ -12,24 +12,34 @@
       }
     ]
   },
+
   "nounletToken": {
-    "address": "0x13161ad5683D2deDCdeADF1754BE07A0AD7d22A3",
-    "startBlock": 8947618,
+    "address": "0x26f0ECEF411Fb856B267B0F2Fb21eE694fc056e9",
+    "startBlock": 15589016,
     "abiFile": "NounletToken.json",
     "events": [
       {
-        "signature": "DelegateChanged(indexed address,uint256,indexed address,indexed address)",
+        "signature": "DelegateChanged(indexed address,indexed address,indexed address)",
         "handler": "handleDelegateChanged"
       },
       {
-        "signature": "DelegateVotesChanged(indexed address,uint256,uint256,uint256)",
+        "signature": "DelegateVotesChanged(indexed address,uint256,uint256)",
         "handler": "handleDelegateVotesChanged"
+      },
+      {
+        "signature": "TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)",
+        "handler": "handleTransferSingle"
+      },
+      {
+        "signature": "TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])",
+        "handler": "handleTransferBatch"
       }
     ]
   },
+
   "nounletAuction": {
-    "address": "0x1bFa0347683E7e8774D2208Ccd884609478f7De1",
-    "startBlock": 8947618,
+    "address": "0x867cD80e464E8E2074a8c46aE3C983096395172F",
+    "startBlock": 15589016,
     "abiFile": "NounletAuction.json",
     "events": [
       {
@@ -37,7 +47,7 @@
         "handler": "handleAuctionCreated"
       },
       {
-        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256)",
+        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256,uint256)",
         "handler": "handleAuctionBid"
       },
       {
@@ -46,14 +56,27 @@
       }
     ]
   },
+
   "nounletRegistry": {
-    "address": "0xc96bEE7E1E4A20C9b7BC5c8d9eC1ec58A0676144",
-    "startBlock": 8947618,
+    "address": "0xF5F93d5089ebf8eA0e6C1b69ED12F3baE9958982",
+    "startBlock": 15589016,
     "abiFile": "NounletRegistry.json",
     "events": [
       {
         "signature": "VaultDeployed(indexed address,indexed address)",
         "handler": "handleVaultDeployed"
+      }
+    ]
+  },
+
+  "nounletGovernance": {
+    "address": "0x9744c9EbFa3F8be2f4507759147fCbB1e0028D4a",
+    "startBlock": 15589016,
+    "abiFile": "NounletGovernance.json",
+    "events": [
+      {
+        "signature": "ClaimDelegate(address,address,address)",
+        "handler": "handleClaimDelegate"
       }
     ]
   }
