@@ -2,7 +2,7 @@
   "network": "goerli",
 
   "nounsToken": {
-    "address": "0x426217d2AeE7793352eB059830d1C752D1327f84",
+    "address": "0xcB828eB951D629F45b4995C0B8E1dd4E1356B311",
     "startBlock": 7584314,
     "abiFile": "NounsTokenMock.json",
     "events": [
@@ -14,7 +14,7 @@
   },
 
   "nounletToken": {
-    "address": "0x05eBCcCb5d545491645903be2D7B9fAf87D80c45",
+    "address": "0x6B6A6cb85E2F3a0aCC8a9AE041777D64566A9064",
     "startBlock": 7584314,
     "abiFile": "NounletToken.json",
     "events": [
@@ -38,7 +38,7 @@
   },
 
   "nounletAuction": {
-    "address": "0x8aC3FCEDaeD381fb35599678D1f29D07F18FF731",
+    "address": "0x5b5a2f444753e600a85E30B7127F6597338E5b51",
     "startBlock": 7584314,
     "abiFile": "NounletAuction.json",
     "events": [
@@ -58,7 +58,7 @@
   },
 
   "nounletRegistry": {
-    "address": "0xcF8e741F0fc960ad2E4c0Cae04EFF554453f277F",
+    "address": "0x920AE8dF5bb3ea54b02995488f656Af04767f7CF",
     "startBlock": 7584314,
     "abiFile": "NounletRegistry.json",
     "events": [
@@ -70,7 +70,7 @@
   },
 
   "nounletGovernance": {
-    "address": "0x05E321dea1b7185401b20457133FEc5eab8d6747",
+    "address": "0xE15aAbDE61Acfb2429D38c0e38FCaf5BEC42Ab32",
     "startBlock": 7584314,
     "abiFile": "NounletGovernance.json",
     "events": [
