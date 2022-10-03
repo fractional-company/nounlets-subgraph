@@ -24,6 +24,9 @@ type Vault @entity {
 
   "Token address associated with the vault"
   token: Token!
+
+  "Indicates whether a Noun is in the Vault"
+  nounInVault: Boolean!
 }
 
 type Noun @entity {

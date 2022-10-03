@@ -17,6 +17,7 @@ describe("Noun Token", () => {
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
             fractionalVault.token = token.id;
+            fractionalVault.nounInVault = false;
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -28,6 +29,7 @@ describe("Noun Token", () => {
             handleTransfer(event);
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
+            assert.fieldEquals("Vault", fractionalVault.id.toString(), "nounInVault", "false");
             assert.notInStore("Noun", tokenId.toString());
         });
 
@@ -38,6 +40,7 @@ describe("Noun Token", () => {
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
             fractionalVault.token = token.id;
+            fractionalVault.nounInVault = false;
             fractionalVault.save();
             const tokenId = 1;
             const event = generateTransferEvent(
@@ -49,6 +52,7 @@ describe("Noun Token", () => {
             handleTransfer(event);
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
+            assert.fieldEquals("Vault", fractionalVault.id.toString(), "nounInVault", "true");
             assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
         });
 
@@ -59,6 +63,7 @@ describe("Noun Token", () => {
             const fractionalVaultId = "0x7f75136F3fBCc696941187d1077CDC581690E48d".toLowerCase();
             const fractionalVault = new Vault(fractionalVaultId);
             fractionalVault.token = token.id;
+            fractionalVault.nounInVault = true;
             fractionalVault.save();
             const tokenId = 1;
             const fractionalNoun = findOrCreateNoun(tokenId.toString());
@@ -83,6 +88,7 @@ describe("Noun Token", () => {
             const fractionalVault = new Vault(fromAddress);
             fractionalVault.noun = noun.id;
             fractionalVault.token = token.id;
+            fractionalVault.nounInVault = true;
             fractionalVault.save();
             const toAddress = "0x6d2F62f32b79AD7A548dF1b396040F180c678858".toLowerCase();
 
@@ -90,8 +96,7 @@ describe("Noun Token", () => {
             handleTransfer(generateTransferEvent(fractionalVault.id, toAddress, noun.id));
 
             // Then
-            assert.fieldEquals("Vault", fractionalVault.id, "noun", "null");
-            assert.notInStore("Noun", noun.id);
+            assert.fieldEquals("Vault", fractionalVault.id, "nounInVault", "false");
         });
     });
 });

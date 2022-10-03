@@ -18,9 +18,8 @@ export function handleTransfer(event: Transfer): void {
     const nounVaultTo = Vault.load(toAddress);
 
     if (nounVaultFrom !== null) {
-        // Noun was moved from Vault, so remove the noun from the store
-        store.remove("Noun", nounId);
-        nounVaultFrom.noun = null;
+        // Noun was moved from Vault, so mark the Vault as "nounless"
+        nounVaultFrom.nounInVault = false;
         nounVaultFrom.save();
     }
 
@@ -28,6 +27,7 @@ export function handleTransfer(event: Transfer): void {
         // Noun was moved to the Vault, so save it to the store
         const noun = findOrCreateNoun(nounId);
         nounVaultTo.noun = noun.id;
+        nounVaultTo.nounInVault = true;
         nounVaultTo.save();
     }
 }

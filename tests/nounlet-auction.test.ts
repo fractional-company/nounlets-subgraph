@@ -59,6 +59,7 @@ describe("Nounlet Auction", () => {
             const token = findOrCreateToken(tokenAddress);
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.token = token.id;
+            vault.nounInVault = false;
             // Vault noun not defined
             vault.save();
             const tokenId = BigInt.fromI32(1);
@@ -83,6 +84,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = BigInt.fromI32(1);
             const startTime = BigInt.fromI64(1657873934 as i64);
@@ -113,6 +115,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const transactionId = "0xddb9addf21f868bb0804d7ea09ffdaa001390adf2e180210f7b32f2c46856f0f";
             const tokenId = 1;
@@ -144,6 +147,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -192,6 +196,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
@@ -213,6 +218,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = null;
             vault.token = token.id;
+            vault.nounInVault = false;
             vault.save();
             const tokenId = 1;
             const winnerAddress = "0x724CB381dA11ffeaad545de719cA6dD9accD27Fc".toLowerCase();
@@ -235,6 +241,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -280,6 +287,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
@@ -324,6 +332,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const nounlet = new Nounlet(generateNounletId(tokenAddress, tokenId.toString()));
@@ -366,6 +375,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = nounId;
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -405,6 +415,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -442,6 +453,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));
@@ -495,6 +507,7 @@ describe("Nounlet Auction", () => {
             const vault = new Vault("0x481b8D3E615eF2b339F816A98Ac0fE363D881f3f".toLowerCase());
             vault.noun = "1";
             vault.token = token.id;
+            vault.nounInVault = true;
             vault.save();
             const tokenId = 1;
             const auction = new Auction(generateAuctionId(tokenAddress, tokenId.toString()));

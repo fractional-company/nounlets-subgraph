@@ -14,6 +14,7 @@ export function handleVaultDeployed(event: VaultDeployedEvent): void {
     const token = findOrCreateToken(tokenAddress.toHexString());
     const vault = findOrNewVault(event.params._vault.toHexString());
     vault.token = token.id;
+    vault.nounInVault = false;
     vault.save();
     NounletToken.create(tokenAddress);
 }

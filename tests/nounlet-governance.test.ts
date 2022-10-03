@@ -27,6 +27,7 @@ describe("Nounlet Governance", () => {
 
             const vault = findOrNewVault(vaultAddress);
             vault.noun = noun.id;
+            vault.nounInVault = true;
             vault.save();
 
             // When
