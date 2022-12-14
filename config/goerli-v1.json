@@ -4,7 +4,7 @@
   "nounsToken": {
     "address": "0xcB828eB951D629F45b4995C0B8E1dd4E1356B311",
     "startBlock": 7584314,
-    "abiFile": "v1/NounsTokenMock.json",
+    "abiFile": "NounsTokenMockV1.json",
     "events": [
       {
         "signature": "Transfer(indexed address,indexed address,indexed uint256)",
@@ -16,7 +16,7 @@
   "nounletToken": {
     "address": "0x6B6A6cb85E2F3a0aCC8a9AE041777D64566A9064",
     "startBlock": 7584314,
-    "abiFile": "v1/NounletToken.json",
+    "abiFile": "NounletTokenV1.json",
     "events": [
       {
         "signature": "DelegateChanged(indexed address,indexed address,indexed address)",
@@ -40,7 +40,7 @@
   "nounletAuction": {
     "address": "0x5b5a2f444753e600a85E30B7127F6597338E5b51",
     "startBlock": 7584314,
-    "abiFile": "v1/NounletAuction.json",
+    "abiFile": "NounletAuctionV1.json",
     "events": [
       {
         "signature": "Created(indexed address,indexed address,indexed uint256,uint256)",
@@ -60,7 +60,7 @@
   "nounletRegistry": {
     "address": "0x920AE8dF5bb3ea54b02995488f656Af04767f7CF",
     "startBlock": 7584314,
-    "abiFile": "v1/NounletRegistry.json",
+    "abiFile": "NounletRegistryV1.json",
     "events": [
       {
         "signature": "VaultDeployed(indexed address,indexed address)",
@@ -72,7 +72,7 @@
   "nounletGovernance": {
     "address": "0xE15aAbDE61Acfb2429D38c0e38FCaf5BEC42Ab32",
     "startBlock": 7584314,
-    "abiFile": "v1/NounletGovernance.json",
+    "abiFile": "NounletGovernanceV1.json",
     "events": [
       {
         "signature": "ClaimDelegate(address,address,address)",
