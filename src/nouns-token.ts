@@ -1,7 +1,32 @@
-import { log, store } from "@graphprotocol/graph-ts";
-import { Transfer } from "../generated/NounsToken/NounsToken";
-import { Noun, Vault } from "../generated/schema";
+import { log, dataSource, json, JSONValue } from "@graphprotocol/graph-ts";
+import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
+import { Vault } from "../generated/schema";
 import { findOrCreateNoun } from "./utils/helpers";
+import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS } from "./utils/constants";
+
+export function handleApproval(event: Approval): void {
+    log.debug("[handleApproval] owner: {}, approved: {}, tokenId: {}", [
+        event.params.owner.toHexString(),
+        event.params.approved.toHexString(),
+        event.params.tokenId.toString(),
+    ]);
+
+    const approvedContractAddress = event.params.approved.toHexString().toLowerCase();
+    const nounId = event.params.tokenId.toString();
+    const chain = dataSource.network().toLowerCase();
+
+    let nounletProtoformAddress = "";
+    if (chain == "mainnet") {
+        nounletProtoformAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
+    }
+    if (chain == "goerli") {
+        nounletProtoformAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
+    }
+
+    if (approvedContractAddress == nounletProtoformAddress) {
+        findOrCreateNoun(nounId);
+    }
+}
 
 export function handleTransfer(event: Transfer): void {
     log.debug("[handleTransfer] from: {}, to: {}, tokenId: {}", [

@@ -79,5 +79,13 @@
         "handler": "handleClaimDelegate"
       }
     ]
+  },
+
+  "nounletProtoform": {
+    "address": "0x4D2079Bba84c96951aBc08Dc5E64364873c34d95",
+    "startBlock": 7584314,
+    "abiFile": "NounletProtoform.json",
+    "events": []
   }
+
 }

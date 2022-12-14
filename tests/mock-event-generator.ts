@@ -1,4 +1,4 @@
-import { Transfer } from "../generated/NounsToken/NounsToken";
+import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import {
     DelegateChanged,
@@ -591,6 +591,49 @@ export function generateClaimDelegateEvent(
                 "_previousDelegate",
                 ethereum.Value.fromAddress(Address.fromString(previousDelegate))
             ),
+        ],
+        null
+    );
+}
+
+export function generateApprovalEvent(owner: string, approvedContractAddress: string, tokenId: number): Approval {
+    return new Approval(
+        new Address(10),
+        new BigInt(20),
+        new BigInt(10),
+        null,
+        new ethereum.Block(
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Address(1),
+            new Bytes(1),
+            new Bytes(1),
+            new Bytes(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1),
+            new BigInt(1)
+        ),
+        new ethereum.Transaction(
+            new Bytes(1),
+            new BigInt(1),
+            new Address(123456),
+            null,
+            new BigInt(10),
+            new BigInt(20),
+            new BigInt(2),
+            new Bytes(1),
+            new BigInt(1000)
+        ),
+        [
+            new ethereum.EventParam("owner", ethereum.Value.fromAddress(Address.fromString(owner))),
+            new ethereum.EventParam("approved", ethereum.Value.fromAddress(Address.fromString(approvedContractAddress))),
+            new ethereum.EventParam("tokenId", ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(tokenId as i32))),
         ],
         null
     );
