@@ -59,7 +59,7 @@ describe("Noun Token", () => {
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "nounInVault", "true");
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "false");
         });
 
         test("Should retrieve a noun if it is already in the store and if 'to' address is a fractional vault address", () => {
@@ -83,7 +83,7 @@ describe("Noun Token", () => {
 
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "false");
         });
 
         test("Should remove a noun if 'from' address is a fractional vault", () => {
@@ -106,7 +106,7 @@ describe("Noun Token", () => {
             assert.fieldEquals("Vault", fractionalVault.id, "nounInVault", "false");
         });
 
-        test("Should not create a noun when approval for NounletProtoform on a different chain is set", () => {
+        test("Should not create a tributed Noun when approval for NounletProtoform on a different chain is set", () => {
             // Given
             const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
             const approvedContractAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
@@ -123,7 +123,7 @@ describe("Noun Token", () => {
             dataSourceMock.resetValues();
         });
 
-        test("Should not create a noun when chain is unknown", () => {
+        test("Should not create a tributed Noun when chain is unknown", () => {
             // Given
             const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
             const approvedContractAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
@@ -140,7 +140,7 @@ describe("Noun Token", () => {
             dataSourceMock.resetValues();
         });
 
-        test("Should create a noun on Goerli on approval", () => {
+        test("Should create a tributed Noun on Goerli on approval", () => {
             // Given
             const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
             const approvedContractAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
@@ -152,12 +152,12 @@ describe("Noun Token", () => {
             handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
 
             // Then
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "true");
 
             dataSourceMock.resetValues();
         });
 
-        test("Should create a noun on Mainnet on approval", () => {
+        test("Should create a tributed Noun on Mainnet on approval", () => {
             // Given
             const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
             const approvedContractAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
@@ -169,7 +169,7 @@ describe("Noun Token", () => {
             handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
 
             // Then
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "true");
 
             dataSourceMock.resetValues();
         });

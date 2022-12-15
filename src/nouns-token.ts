@@ -1,7 +1,7 @@
 import { log, dataSource, json, JSONValue } from "@graphprotocol/graph-ts";
 import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
 import { Vault } from "../generated/schema";
-import { findOrCreateNoun } from "./utils/helpers";
+import { findOrCreateNoun, findOrNewNoun } from "./utils/helpers";
 import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS } from "./utils/constants";
 
 export function handleApproval(event: Approval): void {
@@ -24,7 +24,9 @@ export function handleApproval(event: Approval): void {
     }
 
     if (approvedContractAddress == nounletProtoformAddress) {
-        findOrCreateNoun(nounId);
+        const noun = findOrNewNoun(nounId);
+        noun.tributed = true;
+        noun.save();
     }
 }
 
@@ -50,7 +52,9 @@ export function handleTransfer(event: Transfer): void {
 
     if (nounVaultTo !== null) {
         // Noun was moved to the Vault, so save it to the store
-        const noun = findOrCreateNoun(nounId);
+        const noun = findOrNewNoun(nounId);
+        noun.tributed = false;
+        noun.save();
         nounVaultTo.noun = noun.id;
         nounVaultTo.nounInVault = true;
         nounVaultTo.save();
