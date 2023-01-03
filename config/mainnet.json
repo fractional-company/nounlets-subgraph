@@ -9,6 +9,10 @@
       {
         "signature": "Transfer(indexed address,indexed address,indexed uint256)",
         "handler": "handleTransfer"
+      },
+      {
+        "signature": "Approval(indexed address,indexed address,indexed uint256)",
+        "handler": "handleApproval"
       }
     ]
   },
