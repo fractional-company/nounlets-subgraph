@@ -11,7 +11,7 @@ export function findOrNewNoun(nounId: string, persistNew: boolean = false): Noun
     if (noun === null) {
         noun = new Noun(nounId);
         noun.currentDelegate = ZERO_ADDRESS;
-        noun.tributed = false;
+        noun.tributedBy = ZERO_ADDRESS;
         if (persistNew) {
             noun.save();
         }

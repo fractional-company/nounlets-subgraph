@@ -2,7 +2,7 @@ import { log, dataSource } from "@graphprotocol/graph-ts";
 import { Approval, ApprovalForAll, Transfer } from "../generated/NounsToken/NounsToken";
 import { Vault } from "../generated/schema";
 import { findOrNewNoun } from "./utils/helpers";
-import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS } from "./utils/constants";
+import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS, ZERO_ADDRESS } from "./utils/constants";
 
 export function handleApproval(event: Approval): void {
     // TODO: How does the disapproval work if we do not have a boolean?
@@ -12,6 +12,7 @@ export function handleApproval(event: Approval): void {
         event.params.tokenId.toString(),
     ]);
 
+    const tributorAddress = event.params.owner.toHexString();
     const approvedContractAddress = event.params.approved.toHexString().toLowerCase();
     const nounId = event.params.tokenId.toString();
     const chain = dataSource.network().toLowerCase();
@@ -25,18 +26,18 @@ export function handleApproval(event: Approval): void {
     }
 
     if (approvedContractAddress == nounletProtoformAddress) {
+        // Noun has been approved for transfer
         const noun = findOrNewNoun(nounId);
-        noun.tributed = true;
+        noun.tributedBy = tributorAddress;
         noun.save();
     }
-}
 
-export function handleApprovalForAll(event: ApprovalForAll): void {
-    log.debug("[handleApprovalForAll] owner: {}, operator: {}, approved: {}", [
-        event.params.owner.toHexString(),
-        event.params.operator.toHexString(),
-        event.params.approved.toString(),
-    ]);
+    if (approvedContractAddress == ZERO_ADDRESS) {
+        // Noun has been disapproved for transfer
+        const noun = findOrNewNoun(nounId);
+        noun.tributedBy = ZERO_ADDRESS;
+        noun.save();
+    }
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -62,7 +63,7 @@ export function handleTransfer(event: Transfer): void {
     if (nounVaultTo !== null) {
         // Noun was moved to the Vault, so save it to the store
         const noun = findOrNewNoun(nounId);
-        noun.tributed = false;
+        noun.tributedBy = ZERO_ADDRESS;
         noun.save();
         nounVaultTo.noun = noun.id;
         nounVaultTo.nounInVault = true;

@@ -59,7 +59,7 @@ describe("Noun Token", () => {
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "nounInVault", "true");
-            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "false");
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
         });
 
         test("Should retrieve a noun if it is already in the store and if 'to' address is a fractional vault address", () => {
@@ -83,7 +83,7 @@ describe("Noun Token", () => {
 
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
-            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "false");
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
         });
 
         test("Should remove a noun if 'from' address is a fractional vault", () => {
@@ -152,7 +152,7 @@ describe("Noun Token", () => {
             handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
 
             // Then
-            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "true");
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", owner);
 
             dataSourceMock.resetValues();
         });
@@ -169,9 +169,22 @@ describe("Noun Token", () => {
             handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
 
             // Then
-            assert.fieldEquals("Noun", tokenId.toString(), "tributed", "true");
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", owner);
 
             dataSourceMock.resetValues();
+        });
+
+        test("Should un-tribute a Noun on disapproval", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = ZERO_ADDRESS;
+            const tokenId = 1;
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
         });
     });
 });

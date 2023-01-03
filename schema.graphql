@@ -36,8 +36,8 @@ type Noun @entity {
   "The current delegate address of the Noun (Zero Address by default)"
   currentDelegate: String!
 
-  "Whether a Noun is currently tributed"
-  tributed: Boolean!
+  "A wallet address that tributed a Noun (zero address if a Noun is not tributed)"
+  tributedBy: String!
 
   "Fractions of a Noun"
   nounlets: [Nounlet!]! @derivedFrom(field: "noun")
