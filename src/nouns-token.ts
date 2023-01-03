@@ -1,10 +1,11 @@
-import { log, dataSource, json, JSONValue } from "@graphprotocol/graph-ts";
-import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
+import { log, dataSource } from "@graphprotocol/graph-ts";
+import { Approval, ApprovalForAll, Transfer } from "../generated/NounsToken/NounsToken";
 import { Vault } from "../generated/schema";
-import { findOrCreateNoun, findOrNewNoun } from "./utils/helpers";
+import { findOrNewNoun } from "./utils/helpers";
 import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS } from "./utils/constants";
 
 export function handleApproval(event: Approval): void {
+    // TODO: How does the disapproval work if we do not have a boolean?
     log.debug("[handleApproval] owner: {}, approved: {}, tokenId: {}", [
         event.params.owner.toHexString(),
         event.params.approved.toHexString(),
@@ -28,6 +29,14 @@ export function handleApproval(event: Approval): void {
         noun.tributed = true;
         noun.save();
     }
+}
+
+export function handleApprovalForAll(event: ApprovalForAll): void {
+    log.debug("[handleApprovalForAll] owner: {}, operator: {}, approved: {}", [
+        event.params.owner.toHexString(),
+        event.params.operator.toHexString(),
+        event.params.approved.toString(),
+    ]);
 }
 
 export function handleTransfer(event: Transfer): void {
