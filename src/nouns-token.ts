@@ -1,13 +1,8 @@
 import { log, dataSource } from "@graphprotocol/graph-ts";
-import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
+import { Approval, ApprovalForAll, Transfer } from "../generated/NounsToken/NounsToken";
 import { Vault } from "../generated/schema";
 import { findOrNewNoun } from "./utils/helpers";
-import {
-    NOUNLETS_PROTOFORM_GOERLI_ADDRESS,
-    NOUNLETS_PROTOFORM_MAINNET_ADDRESS,
-    NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1,
-    ZERO_ADDRESS,
-} from "./utils/constants";
+import { NOUNLETS_PROTOFORM_GOERLI_ADDRESS, NOUNLETS_PROTOFORM_MAINNET_ADDRESS, ZERO_ADDRESS } from "./utils/constants";
 
 export function handleApproval(event: Approval): void {
     // TODO: How does the disapproval work if we do not have a boolean?
@@ -22,15 +17,15 @@ export function handleApproval(event: Approval): void {
     const nounId = event.params.tokenId.toString();
     const chain = dataSource.network().toLowerCase();
 
-    let validProtoformAddresses: string[] = [];
+    let nounletProtoformAddress = "";
     if (chain == "mainnet") {
-        validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase());
-        validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1.toLowerCase());
-    } else if (chain == "goerli") {
-        validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase());
+        nounletProtoformAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
+    }
+    if (chain == "goerli") {
+        nounletProtoformAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
     }
 
-    if (validProtoformAddresses.includes(approvedContractAddress)) {
+    if (approvedContractAddress == nounletProtoformAddress) {
         // Noun has been approved for transfer
         const noun = findOrNewNoun(nounId);
         noun.tributedBy = tributorAddress;

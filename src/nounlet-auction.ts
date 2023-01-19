@@ -3,20 +3,23 @@ import {
     Created as AuctionCreatedEvent,
     Settled as AuctionSettledEvent,
 } from "../generated/NounletAuction/NounletAuction";
-import { Auction, Bid, Delegate, Nounlet, Vault } from "../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { Auction, Bid, Delegate, DelegateVote, Nounlet, Vault } from "../generated/schema";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import {
     findOrCreateAccount,
+    findOrCreateDelegate,
     findOrNewAccount,
     findOrNewDelegate,
     findOrNewDelegateVote,
     findOrNewNounlet,
     findOrNewVault,
     generateAuctionId,
+    generateDelegateVoteId,
     generateNounletId,
     getDistinctValues,
 } from "./utils/helpers";
 import { ZERO_ADDRESS } from "./utils/constants";
+import { NounletToken } from "../generated/NounletToken/NounletToken";
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     log.debug("[handleAuctionCreated] _token: {}, _id: {}, _vault: {}, start time: {}, _endTime: {}", [
