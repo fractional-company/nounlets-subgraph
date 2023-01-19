@@ -180,11 +180,26 @@ describe("Noun Token", () => {
             const approvedContractAddress = ZERO_ADDRESS;
             const tokenId = 1;
 
+            findOrCreateNoun(tokenId.toString());
+
             // When
             handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
 
             // Then
             assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
+        });
+
+        test("Should ignore approvals for nouns that do not exist in our system", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = ZERO_ADDRESS;
+            const tokenId = 1;
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.notInStore("Noun", tokenId.toString());
         });
     });
 });
