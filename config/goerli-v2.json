@@ -17,6 +17,30 @@
     ]
   },
 
+  "nounletTokenV1": {
+    "address": "0x6B6A6cb85E2F3a0aCC8a9AE041777D64566A9064",
+    "startBlock": 8132686,
+    "abiFile": "NounletToken.json",
+    "events": [
+      {
+        "signature": "DelegateChanged(indexed address,indexed address,indexed address)",
+        "handler": "handleDelegateChanged"
+      },
+      {
+        "signature": "DelegateVotesChanged(indexed address,uint256,uint256)",
+        "handler": "handleDelegateVotesChanged"
+      },
+      {
+        "signature": "TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)",
+        "handler": "handleTransferSingle"
+      },
+      {
+        "signature": "TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])",
+        "handler": "handleTransferBatch"
+      }
+    ]
+  },
+
   "nounletToken": {
     "address": "0x1df08E37067CC00E4ffA70bf6FbDc91d7e7cAf4e",
     "startBlock": 8132686,
@@ -41,6 +65,26 @@
     ]
   },
 
+  "nounletAuctionV1": {
+    "address": "0x5b5a2f444753e600a85E30B7127F6597338E5b51",
+    "startBlock": 8132686,
+    "abiFile": "NounletAuction.json",
+    "events": [
+      {
+        "signature": "Created(indexed address,indexed address,indexed uint256,uint256)",
+        "handler": "handleAuctionCreated"
+      },
+      {
+        "signature": "Bid(indexed address,indexed address,indexed uint256,address,uint256,uint256)",
+        "handler": "handleAuctionBid"
+      },
+      {
+        "signature": "Settled(indexed address,indexed address,indexed uint256,address,uint256)",
+        "handler": "handleAuctionSettled"
+      }
+    ]
+  },
+
   "nounletAuction": {
     "address": "0x1D0DFe51A4e368A27E26d60De74ed5DEbb20580e",
     "startBlock": 8132686,
@@ -61,6 +105,18 @@
     ]
   },
 
+  "nounletRegistryV1": {
+    "address": "0x920AE8dF5bb3ea54b02995488f656Af04767f7CF",
+    "startBlock": 8132686,
+    "abiFile": "NounletRegistry.json",
+    "events": [
+      {
+        "signature": "VaultDeployed(indexed address,indexed address)",
+        "handler": "handleVaultDeployed"
+      }
+    ]
+  },
+
   "nounletRegistry": {
     "address": "0x4Ba365d3b39445426189D94339BC245a21894D62",
     "startBlock": 8132686,
@@ -69,6 +125,18 @@
       {
         "signature": "VaultDeployed(indexed address,indexed address)",
         "handler": "handleVaultDeployed"
+      }
+    ]
+  },
+
+  "nounletGovernanceV1": {
+    "address": "0xE15aAbDE61Acfb2429D38c0e38FCaf5BEC42Ab32",
+    "startBlock": 8132686,
+    "abiFile": "NounletGovernance.json",
+    "events": [
+      {
+        "signature": "ClaimDelegate(address,address,address)",
+        "handler": "handleClaimDelegate"
       }
     ]
   },
@@ -83,12 +151,5 @@
         "handler": "handleClaimDelegate"
       }
     ]
-  },
-
-  "nounletProtoform": {
-    "address": "0x2e3820cb432Eb4c0e054d6c134386fC2Be8AF8bd",
-    "startBlock": 7584314,
-    "abiFile": "NounletProtoform.json",
-    "events": []
   }
 }

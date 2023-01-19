@@ -4,6 +4,7 @@ import { Vault } from "../generated/schema";
 import { findOrNewNoun } from "./utils/helpers";
 import {
     NOUNLETS_PROTOFORM_GOERLI_ADDRESS,
+    NOUNLETS_PROTOFORM_GOERLI_ADDRESS_V1,
     NOUNLETS_PROTOFORM_MAINNET_ADDRESS,
     NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1,
     ZERO_ADDRESS,
@@ -27,6 +28,7 @@ export function handleApproval(event: Approval): void {
         validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase());
         validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1.toLowerCase());
     } else if (chain == "goerli") {
+        validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS_V1.toLowerCase());
         validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase());
     }
 
