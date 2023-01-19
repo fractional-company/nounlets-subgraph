@@ -1,6 +1,22 @@
 {
   "network": "mainnet",
 
+  "nounsTokenV1": {
+    "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
+    "startBlock": 15589016,
+    "abiFile": "NounsToken.json",
+    "events": [
+      {
+        "signature": "Transfer(indexed address,indexed address,indexed uint256)",
+        "handler": "handleTransfer"
+      },
+      {
+        "signature": "Approval(indexed address,indexed address,indexed uint256)",
+        "handler": "handleApproval"
+      }
+    ]
+  },
+
   "nounsToken": {
     "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
     "startBlock": 15589016,

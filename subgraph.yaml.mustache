@@ -3,6 +3,28 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
+    name: NounsTokenV1
+    network: {{network}}
+    source:
+      address: '{{nounsTokenV1.address}}'
+      abi: NounsToken
+      startBlock: {{nounsTokenV1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: NounsToken
+          file: ./abis/{{nounsTokenV1.abiFile}}
+      eventHandlers:
+        {{#nounsTokenV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounsTokenV1.events}}
+      file: ./src/nouns-token.ts
+  - kind: ethereum
     name: NounsToken
     network: {{network}}
     source:
