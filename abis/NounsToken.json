@@ -12,7 +12,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract INounsDescriptorMinimal",
+        "internalType": "contract INounsDescriptor",
         "name": "_descriptor",
         "type": "address"
       },
@@ -141,7 +141,7 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract INounsDescriptorMinimal",
+        "internalType": "contract INounsDescriptor",
         "name": "descriptor",
         "type": "address"
       }
@@ -528,7 +528,7 @@
     "name": "descriptor",
     "outputs": [
       {
-        "internalType": "contract INounsDescriptorMinimal",
+        "internalType": "contract INounsDescriptor",
         "name": "",
         "type": "address"
       }
@@ -961,7 +961,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract INounsDescriptorMinimal",
+        "internalType": "contract INounsDescriptor",
         "name": "_descriptor",
         "type": "address"
       }
