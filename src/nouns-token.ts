@@ -1,6 +1,6 @@
 import { log, dataSource } from "@graphprotocol/graph-ts";
 import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
-import { Vault } from "../generated/schema";
+import { Noun, Vault } from "../generated/schema";
 import { findOrNewNoun } from "./utils/helpers";
 import {
     NOUNLETS_PROTOFORM_GOERLI_ADDRESS,
@@ -41,9 +41,11 @@ export function handleApproval(event: Approval): void {
 
     if (approvedContractAddress == ZERO_ADDRESS) {
         // Noun has been disapproved for transfer
-        const noun = findOrNewNoun(nounId);
-        noun.tributedBy = ZERO_ADDRESS;
-        noun.save();
+        const noun = Noun.load(nounId);
+        if (noun !== null) {
+            noun.tributedBy = ZERO_ADDRESS;
+            noun.save();
+        }
     }
 }
 
