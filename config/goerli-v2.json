@@ -2,7 +2,7 @@
   "network": "goerli",
 
   "nounsTokenV1": {
-    "address": "0x474f62300D7bDc41676700C1e2262ede286B6ed7",
+    "address": "0xcB828eB951D629F45b4995C0B8E1dd4E1356B311",
     "startBlock": 8132686,
     "abiFile": "NounsToken.json",
     "events": [

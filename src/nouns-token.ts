@@ -11,7 +11,6 @@ import {
 } from "./utils/constants";
 
 export function handleApproval(event: Approval): void {
-    // TODO: How does the disapproval work if we do not have a boolean?
     log.debug("[handleApproval] owner: {}, approved: {}, tokenId: {}", [
         event.params.owner.toHexString(),
         event.params.approved.toHexString(),
@@ -31,6 +30,12 @@ export function handleApproval(event: Approval): void {
         validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS_V1.toLowerCase());
         validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase());
     }
+
+    log.debug("[handleApproval] Approving transfer for Noun #{} on contract {}. Hash: {}", [
+        nounId.toString(),
+        event.address.toHexString(),
+        event.transaction.hash.toHexString(),
+    ]);
 
     if (validProtoformAddresses.includes(approvedContractAddress)) {
         // Noun has been approved for transfer
