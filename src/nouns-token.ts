@@ -1,7 +1,58 @@
-import { log, store } from "@graphprotocol/graph-ts";
-import { Transfer } from "../generated/NounsToken/NounsToken";
+import { log, dataSource } from "@graphprotocol/graph-ts";
+import { Approval, Transfer } from "../generated/NounsToken/NounsToken";
 import { Noun, Vault } from "../generated/schema";
-import { findOrCreateNoun } from "./utils/helpers";
+import { findOrNewNoun } from "./utils/helpers";
+import {
+    NOUNLETS_PROTOFORM_GOERLI_ADDRESS,
+    NOUNLETS_PROTOFORM_GOERLI_ADDRESS_V1,
+    NOUNLETS_PROTOFORM_MAINNET_ADDRESS,
+    NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1,
+    ZERO_ADDRESS,
+} from "./utils/constants";
+
+export function handleApproval(event: Approval): void {
+    log.debug("[handleApproval] owner: {}, approved: {}, tokenId: {}", [
+        event.params.owner.toHexString(),
+        event.params.approved.toHexString(),
+        event.params.tokenId.toString(),
+    ]);
+
+    const tributorAddress = event.params.owner.toHexString();
+    const approvedContractAddress = event.params.approved.toHexString().toLowerCase();
+    const nounId = event.params.tokenId.toString();
+    const chain = dataSource.network().toLowerCase();
+
+    let validProtoformAddresses: string[] = [];
+    if (chain == "mainnet") {
+        validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase());
+        validProtoformAddresses.push(NOUNLETS_PROTOFORM_MAINNET_ADDRESS_V1.toLowerCase());
+    } else if (chain == "goerli") {
+        validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS_V1.toLowerCase());
+        validProtoformAddresses.push(NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase());
+    }
+
+    log.debug("[handleApproval] Approving transfer for Noun #{} on contract {}. Hash: {}", [
+        nounId.toString(),
+        event.address.toHexString(),
+        event.transaction.hash.toHexString(),
+    ]);
+
+    if (validProtoformAddresses.includes(approvedContractAddress)) {
+        // Noun has been approved for transfer
+        const noun = findOrNewNoun(nounId);
+        noun.tributedBy = tributorAddress;
+        noun.save();
+    }
+
+    if (approvedContractAddress == ZERO_ADDRESS) {
+        // Noun has been disapproved for transfer
+        const noun = Noun.load(nounId);
+        if (noun !== null) {
+            noun.tributedBy = ZERO_ADDRESS;
+            noun.save();
+        }
+    }
+}
 
 export function handleTransfer(event: Transfer): void {
     log.debug("[handleTransfer] from: {}, to: {}, tokenId: {}", [
@@ -25,7 +76,9 @@ export function handleTransfer(event: Transfer): void {
 
     if (nounVaultTo !== null) {
         // Noun was moved to the Vault, so save it to the store
-        const noun = findOrCreateNoun(nounId);
+        const noun = findOrNewNoun(nounId);
+        noun.tributedBy = ZERO_ADDRESS;
+        noun.save();
         nounVaultTo.noun = noun.id;
         nounVaultTo.nounInVault = true;
         nounVaultTo.save();

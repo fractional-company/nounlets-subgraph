@@ -1,9 +1,9 @@
 {
-  "network": "mainnet",
+  "network": "goerli",
 
   "nounsTokenV1": {
-    "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
-    "startBlock": 15589016,
+    "address": "0xcB828eB951D629F45b4995C0B8E1dd4E1356B311",
+    "startBlock": 8132686,
     "abiFile": "NounsToken.json",
     "events": [
       {
@@ -18,8 +18,8 @@
   },
 
   "nounsToken": {
-    "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
-    "startBlock": 15589016,
+    "address": "0x474f62300D7bDc41676700C1e2262ede286B6ed7",
+    "startBlock": 8132686,
     "abiFile": "NounsToken.json",
     "events": [
       {
@@ -34,8 +34,8 @@
   },
 
   "nounletTokenV1": {
-    "address": "0x26f0ECEF411Fb856B267B0F2Fb21eE694fc056e9",
-    "startBlock": 15589016,
+    "address": "0x6B6A6cb85E2F3a0aCC8a9AE041777D64566A9064",
+    "startBlock": 8132686,
     "abiFile": "NounletToken.json",
     "events": [
       {
@@ -58,8 +58,8 @@
   },
 
   "nounletToken": {
-    "address": "0x082b5b7998Ebe60e4ACC8c776E16A0F408dCeDe1",
-    "startBlock": 15589016,
+    "address": "0x1df08E37067CC00E4ffA70bf6FbDc91d7e7cAf4e",
+    "startBlock": 8132686,
     "abiFile": "NounletToken.json",
     "events": [
       {
@@ -82,8 +82,8 @@
   },
 
   "nounletAuctionV1": {
-    "address": "0x867cD80e464E8E2074a8c46aE3C983096395172F",
-    "startBlock": 15589016,
+    "address": "0x5b5a2f444753e600a85E30B7127F6597338E5b51",
+    "startBlock": 8132686,
     "abiFile": "NounletAuction.json",
     "events": [
       {
@@ -102,8 +102,8 @@
   },
 
   "nounletAuction": {
-    "address": "0x31Cd7378715174e2c5Bd7EDF9984c9bC2A9209Eb",
-    "startBlock": 15589016,
+    "address": "0x1D0DFe51A4e368A27E26d60De74ed5DEbb20580e",
+    "startBlock": 8132686,
     "abiFile": "NounletAuction.json",
     "events": [
       {
@@ -122,8 +122,8 @@
   },
 
   "nounletRegistryV1": {
-    "address": "0xF5F93d5089ebf8eA0e6C1b69ED12F3baE9958982",
-    "startBlock": 15589016,
+    "address": "0x920AE8dF5bb3ea54b02995488f656Af04767f7CF",
+    "startBlock": 8132686,
     "abiFile": "NounletRegistry.json",
     "events": [
       {
@@ -134,8 +134,8 @@
   },
 
   "nounletRegistry": {
-    "address": "0x086bEd3c3566C0C65EC15f35783042823A23deC3",
-    "startBlock": 15589016,
+    "address": "0x4Ba365d3b39445426189D94339BC245a21894D62",
+    "startBlock": 8132686,
     "abiFile": "NounletRegistry.json",
     "events": [
       {
@@ -146,8 +146,8 @@
   },
 
   "nounletGovernanceV1": {
-    "address": "0x9744c9EbFa3F8be2f4507759147fCbB1e0028D4a",
-    "startBlock": 15589016,
+    "address": "0xE15aAbDE61Acfb2429D38c0e38FCaf5BEC42Ab32",
+    "startBlock": 8132686,
     "abiFile": "NounletGovernance.json",
     "events": [
       {
@@ -158,8 +158,8 @@
   },
 
   "nounletGovernance": {
-    "address": "0xcbF507ca4F48B36E7da2aACcEeCb385328beB5dD",
-    "startBlock": 15589016,
+    "address": "0xBf686F8aA97fA018DBDCecf21E7B9F931B91b9d3",
+    "startBlock": 8132686,
     "abiFile": "NounletGovernance.json",
     "events": [
       {

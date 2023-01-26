@@ -3,6 +3,28 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
+    name: NounsTokenV1
+    network: {{network}}
+    source:
+      address: '{{nounsTokenV1.address}}'
+      abi: NounsToken
+      startBlock: {{nounsTokenV1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: NounsToken
+          file: ./abis/{{nounsTokenV1.abiFile}}
+      eventHandlers:
+        {{#nounsTokenV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounsTokenV1.events}}
+      file: ./src/nouns-token.ts
+  - kind: ethereum
     name: NounsToken
     network: {{network}}
     source:
@@ -24,6 +46,34 @@ dataSources:
             handler: {{handler}}
         {{/nounsToken.events}}
       file: ./src/nouns-token.ts
+  - kind: ethereum
+    name: NounletAuctionV1
+    network: {{network}}
+    source:
+      address: '{{nounletAuctionV1.address}}'
+      abi: NounletAuction
+      startBlock: {{nounletAuctionV1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ActiveModules
+        - AuctionBid
+        - AuctionCreated
+        - AuctionExtended
+        - AuctionSettled
+      abis:
+        - name: NounletAuction
+          file: ./abis/{{nounletAuctionV1.abiFile}}
+        - name: NounletToken
+          file: ./abis/{{nounletTokenV1.abiFile}}
+      eventHandlers:
+        {{#nounletAuctionV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletAuctionV1.events}}
+      file: ./src/nounlet-auction.ts
   - kind: ethereum
     name: NounletAuction
     network: {{network}}
@@ -53,6 +103,28 @@ dataSources:
         {{/nounletAuction.events}}
       file: ./src/nounlet-auction.ts
   - kind: ethereum
+    name: NounletRegistryV1
+    network: {{network}}
+    source:
+      address: '{{nounletRegistryV1.address}}'
+      abi: NounletRegistry
+      startBlock: {{nounletRegistryV1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - VaultDeployed
+      abis:
+        - name: NounletRegistry
+          file: ./abis/{{nounletRegistryV1.abiFile}}
+      eventHandlers:
+        {{#nounletRegistryV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletRegistryV1.events}}
+      file: ./src/nounlet-registry.ts
+  - kind: ethereum
     name: NounletRegistry
     network: {{network}}
     source:
@@ -74,6 +146,28 @@ dataSources:
             handler: {{handler}}
         {{/nounletRegistry.events}}
       file: ./src/nounlet-registry.ts
+  - kind: ethereum
+    name: NounletGovernanceV1
+    network: {{network}}
+    source:
+      address: '{{nounletGovernanceV1.address}}'
+      abi: NounletGovernance
+      startBlock: {{nounletGovernanceV1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ClaimDelegate
+      abis:
+        - name: NounletGovernance
+          file: ./abis/{{nounletGovernanceV1.abiFile}}
+      eventHandlers:
+        {{#nounletGovernanceV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletGovernanceV1.events}}
+      file: ./src/nounlet-governance.ts
   - kind: ethereum
     name: NounletGovernance
     network: {{network}}
@@ -97,6 +191,27 @@ dataSources:
         {{/nounletGovernance.events}}
       file: ./src/nounlet-governance.ts
 templates:
+  - name: NounletTokenV1
+    kind: ethereum
+    network: {{network}}
+    source:
+      abi: NounletToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DelegateChanged
+        - DelegateVotesChanged
+      abis:
+        - name: NounletToken
+          file: ./abis/{{nounletTokenV1.abiFile}}
+      eventHandlers:
+        {{#nounletTokenV1.events}}
+          - event: {{signature}}
+            handler: {{handler}}
+        {{/nounletTokenV1.events}}
+      file: ./src/nounlet-token.ts
   - name: NounletToken
     kind: ethereum
     network: {{network}}
@@ -118,6 +233,3 @@ templates:
             handler: {{handler}}
         {{/nounletToken.events}}
       file: ./src/nounlet-token.ts
-
-
-

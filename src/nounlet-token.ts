@@ -11,15 +11,12 @@ import {
     findOrNewDelegate,
     findOrNewDelegateVote,
     findOrNewNounlet,
-    generateAccountId,
-    generateDelegateId,
     generateDelegateVoteId,
     getDistinctValues,
     removeValueFromArray,
 } from "./utils/helpers";
-import { Account, Delegate, DelegateVote, Nounlet } from "../generated/schema";
-import { Address, BigInt, log } from "@graphprotocol/graph-ts";
-import { NounletToken } from "../generated/NounletToken/NounletToken";
+import { Delegate, DelegateVote, Nounlet } from "../generated/schema";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
     log.debug("[handleDelegateChanged] Address: {}, _delegator: {}, _fromDelegate: {}, _toDelegate: {}", [

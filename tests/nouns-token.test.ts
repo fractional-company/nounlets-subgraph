@@ -1,8 +1,14 @@
-import { describe, test, assert, clearStore, beforeEach } from "matchstick-as/assembly";
-import { handleTransfer } from "../src/nouns-token";
+import { describe, test, assert, clearStore, beforeEach, dataSourceMock } from "matchstick-as/assembly";
+import { logStore } from "matchstick-as/assembly/store";
+import { handleApproval, handleTransfer } from "../src/nouns-token";
 import { Noun, Vault } from "../generated/schema";
-import { generateTransferEvent } from "./mock-event-generator";
+import { generateApprovalEvent, generateTransferEvent } from "./mock-event-generator";
 import { findOrCreateNoun, findOrCreateToken } from "../src/utils/helpers";
+import {
+    NOUNLETS_PROTOFORM_GOERLI_ADDRESS,
+    NOUNLETS_PROTOFORM_MAINNET_ADDRESS,
+    ZERO_ADDRESS,
+} from "../src/utils/constants";
 
 describe("Noun Token", () => {
     describe("Transfer Handler", () => {
@@ -53,7 +59,7 @@ describe("Noun Token", () => {
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "nounInVault", "true");
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
         });
 
         test("Should retrieve a noun if it is already in the store and if 'to' address is a fractional vault address", () => {
@@ -74,9 +80,10 @@ describe("Noun Token", () => {
             );
             // When
             handleTransfer(event);
+
             // Then
             assert.fieldEquals("Vault", fractionalVault.id.toString(), "id", fractionalVault.id.toString());
-            assert.fieldEquals("Noun", tokenId.toString(), "id", tokenId.toString());
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
         });
 
         test("Should remove a noun if 'from' address is a fractional vault", () => {
@@ -97,6 +104,102 @@ describe("Noun Token", () => {
 
             // Then
             assert.fieldEquals("Vault", fractionalVault.id, "nounInVault", "false");
+        });
+
+        test("Should not create a tributed Noun when approval for NounletProtoform on a different chain is set", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
+            const tokenId = 1;
+
+            dataSourceMock.setNetwork("goerli");
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.notInStore("Noun", tokenId.toString());
+
+            dataSourceMock.resetValues();
+        });
+
+        test("Should not create a tributed Noun when chain is unknown", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
+            const tokenId = 1;
+
+            dataSourceMock.setNetwork("rinkeby");
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.notInStore("Noun", tokenId.toString());
+
+            dataSourceMock.resetValues();
+        });
+
+        test("Should create a tributed Noun on Goerli on approval", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = NOUNLETS_PROTOFORM_GOERLI_ADDRESS.toLowerCase();
+            const tokenId = 1;
+
+            dataSourceMock.setNetwork("goerli");
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", owner);
+
+            dataSourceMock.resetValues();
+        });
+
+        test("Should create a tributed Noun on Mainnet on approval", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = NOUNLETS_PROTOFORM_MAINNET_ADDRESS.toLowerCase();
+            const tokenId = 1;
+
+            dataSourceMock.setNetwork("mainnet");
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", owner);
+
+            dataSourceMock.resetValues();
+        });
+
+        test("Should un-tribute a Noun on disapproval", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = ZERO_ADDRESS;
+            const tokenId = 1;
+
+            findOrCreateNoun(tokenId.toString());
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.fieldEquals("Noun", tokenId.toString(), "tributedBy", ZERO_ADDRESS);
+        });
+
+        test("Should ignore approvals for nouns that do not exist in our system", () => {
+            // Given
+            const owner = "0xa6b5a3Be2990cd8c739577f755086701c52C1e8b".toLowerCase();
+            const approvedContractAddress = ZERO_ADDRESS;
+            const tokenId = 1;
+
+            // When
+            handleApproval(generateApprovalEvent(owner, approvedContractAddress, tokenId));
+
+            // Then
+            assert.notInStore("Noun", tokenId.toString());
         });
     });
 });
